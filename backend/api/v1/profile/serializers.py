@@ -614,6 +614,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "email_notifications",
             "show_email",
         ]
+        # These model fields default to "" but are not blank=True, so DRF
+        # would reject the empty string the profile page sends to clear them.
+        extra_kwargs = {
+            "job_role": {"allow_blank": True},
+            "profile_description": {"allow_blank": True},
+            "month": {"allow_blank": True},
+        }
 
 
 class ProfileUploadResponseSerializer(serializers.Serializer):

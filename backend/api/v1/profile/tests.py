@@ -183,3 +183,41 @@ class ProfilePatchTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("state_id", response.data)
         self.assertIn("country_id", response.data)
+
+    def test_fields_can_be_cleared(self):
+        self.user.nationality = "Testlandic"
+        self.user.mobile = "+61 400000001"
+        self.user.alternate_mobile = 400000022
+        self.user.pincode = 230800
+        self.user.job_role = "Analyst"
+        self.user.profile_description = "Summary"
+        self.user.month = "6"
+        self.user.save()
+        self.user.preferred_city.add(self.city)
+
+        response = self.client.patch(
+            self.url,
+            {
+                "nationality": "",
+                "mobile": "",
+                "alternate_mobile": None,
+                "pincode": None,
+                "dob": None,
+                "job_role": "",
+                "profile_description": "",
+                "month": "",
+                "preferred_city_ids": [],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.nationality, "")
+        self.assertEqual(self.user.mobile, "")
+        self.assertIsNone(self.user.alternate_mobile)
+        self.assertIsNone(self.user.pincode)
+        self.assertEqual(self.user.job_role, "")
+        self.assertEqual(self.user.profile_description, "")
+        self.assertEqual(self.user.month, "")
+        self.assertEqual(self.user.preferred_city.count(), 0)
