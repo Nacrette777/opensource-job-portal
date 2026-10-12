@@ -54,6 +54,9 @@ class FakeRR:
         self.gets = []
         self.refresh_counter = 0
         self.refresh_error = None
+        self.refresh_down = False
+        self.refresh_lost_responses = 0
+        self.refresh_replays = {}
         self.resumes = [{"id": "r1"}]
         self.imports = []
         self.drafts = {}
@@ -76,16 +79,25 @@ class FakeRR:
                 },
             )
         if name == "token" and data["grant_type"] == "refresh_token":
+            if self.refresh_down:
+                raise requests.ConnectionError("RR unreachable")
             if self.refresh_error:
                 return FakeResponse(400, {"error": self.refresh_error})
+            presented = data["refresh_token"]
+            if presented in self.refresh_replays:
+                # RR's reuse window: the same response for a retried token.
+                return FakeResponse(200, self.refresh_replays[presented])
             self.refresh_counter += 1
-            return FakeResponse(
-                200,
-                {
-                    "access_token": f"access-r{self.refresh_counter}",
-                    "refresh_token": f"refresh-r{self.refresh_counter}",
-                },
-            )
+            response = {
+                "access_token": f"access-r{self.refresh_counter}",
+                "refresh_token": f"refresh-r{self.refresh_counter}",
+            }
+            self.refresh_replays[presented] = response
+            if self.refresh_lost_responses:
+                # Rotated on RR, but the response never reaches the client.
+                self.refresh_lost_responses -= 1
+                raise requests.ReadTimeout("response lost")
+            return FakeResponse(200, response)
         if name == "revoke":
             return FakeResponse(200, {})
         raise AssertionError(f"unexpected POST {url}")
@@ -141,6 +153,9 @@ class RRTestBase(TestCase):
         patcher_get.start()
         self.addCleanup(patcher_post.stop)
         self.addCleanup(patcher_get.stop)
+        patcher_sleep = mock.patch.object(rr_client.time, "sleep")
+        self.sleep = patcher_sleep.start()
+        self.addCleanup(patcher_sleep.stop)
 
     # --- helpers -------------------------------------------------------------
 
@@ -326,6 +341,34 @@ class RRLinkTests(RRTestBase):
         presented = [c["refresh_token"] for c in self.rr.calls("token") if c["grant_type"] == "refresh_token"]
         self.assertEqual(presented, ["refresh-1", "refresh-r1"])
         self.assertEqual(rr_client.decrypt(self.link().refresh_token_encrypted), "refresh-r2")
+
+    def test_a_lost_refresh_response_is_recovered_with_the_same_token(self):
+        self._linked()
+        self.rr.refresh_lost_responses = 1
+
+        access = rr_client.get_access_token(self.user)
+
+        self.assertEqual(access, "access-r1")
+        presented = [c["refresh_token"] for c in self.rr.calls("token") if c["grant_type"] == "refresh_token"]
+        self.assertEqual(presented, ["refresh-1", "refresh-1"])  # retried with the same token
+        link = self.link()
+        self.assertEqual(link.status, ResumeAccountLink.STATUS_CONNECTED)
+        self.assertEqual(rr_client.decrypt(link.refresh_token_encrypted), "refresh-r1")
+        # The next refresh uses the rotated token and keeps working.
+        self.assertEqual(rr_client.get_access_token(self.user), "access-r2")
+
+    def test_rr_down_does_not_drop_the_link(self):
+        self._linked()
+        self.rr.refresh_down = True
+
+        with self.assertRaises(rr_client.RRIntegrationError) as caught:
+            rr_client.get_access_token(self.user)
+
+        self.assertEqual(caught.exception.code, "rr_unreachable")
+        self.assertEqual(len(self.sleep.call_args_list), len(rr_client.REFRESH_RETRY_DELAYS))
+        link = self.link()
+        self.assertEqual(link.status, ResumeAccountLink.STATUS_CONNECTED)
+        self.assertEqual(rr_client.decrypt(link.refresh_token_encrypted), "refresh-1")
 
     def test_rejected_refresh_token_is_persisted_as_needs_reconnect(self):
         self._linked()

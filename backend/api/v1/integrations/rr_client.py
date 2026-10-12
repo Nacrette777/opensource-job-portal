@@ -17,6 +17,7 @@ Endpoint paths follow RR's `/.well-known/oauth-authorization-server`.
 import base64
 import hashlib
 import secrets
+import time
 from datetime import timedelta
 from urllib.parse import urlencode
 
@@ -31,6 +32,9 @@ from peeldb.models import ResumeAccountLink
 SCOPES = "openid profile email offline_access"
 AUTHORIZATION_TTL = timedelta(minutes=10)
 HTTP_TIMEOUT = 10
+# Waits before re-sending a refresh whose response was lost; all well inside
+# RR's 60 s refresh-token reuse window.
+REFRESH_RETRY_DELAYS = (2, 5)
 
 
 class RRIntegrationError(Exception):
@@ -300,12 +304,46 @@ def disconnect(user):
     return link
 
 
+def _refresh(refresh_token):
+    """POST the refresh grant, retrying lost responses with the SAME token.
+
+    RR may rotate the token and then fail to deliver the response (a timeout
+    while it is busy, a dropped connection). Presenting a rotated token
+    normally revokes the grant, but RR replays the original response for a
+    retry inside its reuse window (60 s), so the retry gets the new token.
+    Only transport failures and 5xx responses are retried.
+    """
+    last_error = RRIntegrationError(
+        "token_refresh_failed", "Reactive Resume did not renew the authorization.", status=502
+    )
+    for delay in (0, *REFRESH_RETRY_DELAYS):
+        if delay:
+            time.sleep(delay)
+        try:
+            status_code, body = _post_form(
+                "token",
+                {
+                    "grant_type": "refresh_token",
+                    "refresh_token": refresh_token,
+                    "resource": settings.RR_BASE_URL,
+                },
+            )
+        except RRIntegrationError as exc:
+            last_error = exc
+            continue
+        if status_code >= 500:
+            continue
+        return status_code, body
+    raise last_error
+
+
 def get_access_token(user):
     """Mint a short-lived RR access token for `user`; never stored.
 
     The refresh token rotates on every use, so this holds a row lock while it
-    refreshes and saves the new one before the lock is released. Two callers
-    must never present the same refresh token, or RR revokes the family.
+    refreshes (including retries, see _refresh) and saves the new one before
+    the lock is released. Two callers must never present the same refresh
+    token concurrently, or RR revokes the family.
     """
     # Errors are raised only after the block commits, so a "needs reconnecting"
     # status written inside it is not rolled back with the exception.
@@ -321,14 +359,14 @@ def get_access_token(user):
                 "not_connected", "Your Reactive Resume account is not connected.", status=409
             )
         else:
-            status_code, body = _post_form(
-                "token",
-                {
-                    "grant_type": "refresh_token",
-                    "refresh_token": decrypt(link.refresh_token_encrypted),
-                    "resource": settings.RR_BASE_URL,
-                },
-            )
+            try:
+                status_code, body = _refresh(decrypt(link.refresh_token_encrypted))
+            except RRIntegrationError as exc:
+                # RR could not be reached even after retries. The stored token
+                # may still be valid (or replayable), so the link is left as is.
+                failure = exc
+                status_code, body = None, {}
+        if failure is None:
             access_token = body.get("access_token")
             new_refresh = body.get("refresh_token")
 
