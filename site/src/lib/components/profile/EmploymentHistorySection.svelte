@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Briefcase, Plus, X, Pencil, Trash2, Save, Loader, Calendar, Building2 } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
+	import { portal } from '$lib/actions/portal';
 	import {
 		getMyEmploymentHistory,
 		addEmploymentHistory,
@@ -313,6 +314,7 @@
 	<!-- Add/Edit Form Modal -->
 	{#if showAddForm}
 		<div
+			use:portal
 			class="fixed inset-0 z-50 overflow-y-auto"
 			aria-labelledby="modal-title"
 			role="dialog"
