@@ -560,13 +560,34 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    state_id = serializers.PrimaryKeyRelatedField(
+        queryset=State.objects.filter(status="Enabled"),
+        source="state",
+        required=False,
+        allow_null=True,
+    )
+    country_id = serializers.PrimaryKeyRelatedField(
+        queryset=Country.objects.filter(status="Enabled"),
+        source="country",
+        required=False,
+        allow_null=True,
+    )
+    preferred_city_ids = serializers.PrimaryKeyRelatedField(
+        queryset=City.objects.filter(status="Enabled"),
+        source="preferred_city",
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = User
+        # Keep in step with what the profile page sends (profile/+page.svelte
+        # handleSaveProfile): DRF silently drops any key not listed here.
         fields = [
             "first_name",
             "last_name",
             "mobile",
+            "alternate_mobile",
             "gender",
             "dob",
             "marital_status",
@@ -575,7 +596,10 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "permanent_address",
             "pincode",
             "city_id",
+            "state_id",
+            "country_id",
             "current_city_id",
+            "preferred_city_ids",
             "job_role",
             "profile_description",
             "year",

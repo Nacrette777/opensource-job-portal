@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from peeldb.models import Language, User, UserLanguage
+from peeldb.models import City, Country, Language, State, User, UserLanguage
 
 
 class UserLanguageAPITests(TestCase):
@@ -128,3 +128,58 @@ class UserLanguageAPITests(TestCase):
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ProfilePatchTests(TestCase):
+    """PATCH /profile/ must persist every field the profile page sends."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("api:v1:profile:profile")
+
+        self.country = Country.objects.create(name="Testland", slug="testland")
+        self.state = State.objects.create(
+            country=self.country, name="Test State", slug="test-state"
+        )
+        self.city = City.objects.create(
+            state=self.state, name="Test City", slug="test-city"
+        )
+
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+
+        self.client.force_authenticate(user=self.user)
+
+    def test_location_and_alternate_mobile_are_saved(self):
+        response = self.client.patch(
+            self.url,
+            {
+                "alternate_mobile": 400000022,
+                "state_id": self.state.id,
+                "country_id": self.country.id,
+                "preferred_city_ids": [self.city.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.alternate_mobile, 400000022)
+        self.assertEqual(self.user.state, self.state)
+        self.assertEqual(self.user.country, self.country)
+        self.assertEqual(list(self.user.preferred_city.all()), [self.city])
+
+    def test_unknown_location_ids_are_rejected_not_ignored(self):
+        response = self.client.patch(
+            self.url, {"state_id": 999999, "country_id": 999999}, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("state_id", response.data)
+        self.assertIn("country_id", response.data)
