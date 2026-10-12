@@ -2031,3 +2031,52 @@ class ResumeAccountLink(models.Model):
 
     def __str__(self):
         return f"{self.user_id} -> RR {self.rr_user_id or '-'} ({self.status})"
+
+
+class ResumeIntegrationRequest(models.Model):
+    """GradBridge: one request to create a Reactive Resume draft from a profile.
+
+    `id` doubles as the requestId sent to RR, whose import is idempotent on it:
+    retrying the same request returns the resume the first attempt created,
+    even if that attempt's response never reached us.
+    """
+
+    KIND_CREATE_DRAFT = "create_draft"
+    KIND_CHOICES = ((KIND_CREATE_DRAFT, "Create draft"),)
+
+    STATUS_PENDING = "pending"
+    STATUS_SUCCEEDED = "succeeded"
+    STATUS_FAILED = "failed"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending"),
+        (STATUS_SUCCEEDED, "Succeeded"),
+        (STATUS_FAILED, "Failed"),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="resume_integration_requests"
+    )
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, default=KIND_CREATE_DRAFT)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    # RR account the draft was created in; drafts outlive a later re-link.
+    rr_user_id = models.CharField(max_length=64, blank=True, default="")
+    external_resume_id = models.CharField(max_length=64, blank=True, default="")
+    # The JSON Resume exported on the first attempt. Every retry sends this
+    # same document, so the draft RR ends up with is the one requested, and
+    # source_sha256 (its SHA-256) describes what was actually sent.
+    source_payload = JSONField(default=dict, blank=True)
+    source_sha256 = models.CharField(max_length=64, blank=True, default="")
+    warnings = JSONField(default=list, blank=True)
+    error_code = models.CharField(max_length=64, blank=True, default="")
+    error = models.CharField(max_length=500, blank=True, default="")
+    attempts = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.kind} {self.id} ({self.status})"

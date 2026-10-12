@@ -13,18 +13,21 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from peeldb.models import ResumeAccountLink
+from peeldb.models import ResumeAccountLink, ResumeIntegrationRequest
 
-from . import rr_client
+from . import drafts, rr_client
 from .serializers import (
     RRCallbackSerializer,
     RRCheckResponseSerializer,
     RRConnectResponseSerializer,
+    RRDraftCreateSerializer,
+    RRDraftSerializer,
     RRErrorSerializer,
     RRLinkStatusSerializer,
 )
 
 TAGS = ["Integrations"]
+DRAFT_LIST_LIMIT = 20
 
 
 def _guard(request):
@@ -152,3 +155,60 @@ def rr_check(request):
     except rr_client.RRIntegrationError as exc:
         return _error(exc)
     return Response({"ok": True, "resume_count": result["resume_count"]})
+
+
+def _draft_payload(req):
+    return RRDraftSerializer.build(req, drafts.editor_url)
+
+
+@extend_schema(
+    tags=TAGS,
+    summary="Reactive Resume drafts",
+    description="The job seeker's most recent draft requests, newest first.",
+    responses={200: RRDraftSerializer(many=True)},
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def rr_drafts(request):
+    if request.user.user_type != "JS":
+        return Response(
+            {"code": "forbidden", "error": "Only job seekers can link Reactive Resume."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+    recent = ResumeIntegrationRequest.objects.filter(user=request.user)[:DRAFT_LIST_LIMIT]
+    return Response([_draft_payload(req) for req in recent])
+
+
+@extend_schema(
+    tags=TAGS,
+    summary="Create a Reactive Resume draft from the profile",
+    description=(
+        "Exports the job seeker's saved profile as JSON Resume and creates a "
+        "draft in their linked RR account. `request_id` is an idempotency key: "
+        "resubmitting it returns the draft the first submission created."
+    ),
+    request=RRDraftCreateSerializer,
+    responses={
+        200: RRDraftSerializer,
+        400: RRErrorSerializer,
+        404: RRErrorSerializer,
+        409: RRErrorSerializer,
+        502: RRErrorSerializer,
+    },
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def rr_create_draft(request):
+    if denied := _guard(request):
+        return denied
+    serializer = RRDraftCreateSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(
+            {"code": "invalid_request", "error": "A valid request_id (UUID) is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    try:
+        req = drafts.create_draft(request.user, serializer.validated_data["request_id"])
+    except rr_client.RRIntegrationError as exc:
+        return _error(exc)
+    return Response(_draft_payload(req))

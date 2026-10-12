@@ -55,3 +55,33 @@ class RRCheckResponseSerializer(serializers.Serializer):
 class RRErrorSerializer(serializers.Serializer):
     code = serializers.CharField()
     error = serializers.CharField()
+
+
+class RRDraftCreateSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField(
+        help_text="Client-chosen idempotency key; resubmitting it returns the same draft."
+    )
+
+
+class RRDraftSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    status = serializers.CharField()
+    external_resume_id = serializers.CharField(allow_blank=True)
+    editor_url = serializers.CharField(allow_blank=True)
+    warnings = serializers.ListField(child=serializers.CharField())
+    error_code = serializers.CharField(allow_blank=True)
+    error = serializers.CharField(allow_blank=True)
+    created_at = serializers.DateTimeField()
+
+    @staticmethod
+    def build(req, editor_url):
+        return {
+            "id": req.id,
+            "status": req.status,
+            "external_resume_id": req.external_resume_id,
+            "editor_url": editor_url(req.external_resume_id) if req.external_resume_id else "",
+            "warnings": req.warnings or [],
+            "error_code": req.error_code,
+            "error": req.error,
+            "created_at": req.created_at,
+        }

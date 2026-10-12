@@ -19,6 +19,17 @@ export type RRLinkStatus = {
 	rr_base_url: string;
 };
 
+export type RRDraft = {
+	id: string;
+	status: 'pending' | 'succeeded' | 'failed';
+	external_resume_id: string;
+	editor_url: string;
+	warnings: string[];
+	error_code: string;
+	error: string;
+	created_at: string;
+};
+
 function errorMessage(err: unknown, fallback: string) {
 	return err instanceof ApiRequestError ? err.message : fallback;
 }
@@ -31,11 +42,21 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 	const notice = url.searchParams.get('rr');
 	const errorCode = url.searchParams.get('rr_error');
 
+	// A fresh idempotency key per page view: a double click or a resubmitted
+	// form reuses it, so it can only ever create one draft.
+	const draftRequestId = crypto.randomUUID();
+
 	try {
-		return { rr: await apiGet<RRLinkStatus>(fetch, '/integrations/rr/'), notice, errorCode };
+		const [rr, drafts] = await Promise.all([
+			apiGet<RRLinkStatus>(fetch, '/integrations/rr/'),
+			apiGet<RRDraft[]>(fetch, '/integrations/rr/drafts/')
+		]);
+		return { rr, drafts, draftRequestId, notice, errorCode };
 	} catch (err) {
 		return {
 			rr: null,
+			drafts: [] as RRDraft[],
+			draftRequestId,
 			notice,
 			errorCode,
 			loadError: errorMessage(err, 'Could not load your Reactive Resume connection.')
@@ -69,6 +90,27 @@ export const actions: Actions = {
 			});
 		}
 		return { disconnected: true };
+	},
+
+	createDraft: async ({ request, fetch }) => {
+		const requestId = (await request.formData()).get('request_id');
+		if (typeof requestId !== 'string' || !requestId) {
+			return fail(400, { error: 'Missing request id. Reload the page and try again.' });
+		}
+		try {
+			const draft = await apiPost<RRDraft>(fetch, '/integrations/rr/drafts/create/', {
+				request_id: requestId
+			});
+			return { draftCreated: true, draft };
+		} catch (err) {
+			// Hand the same id back so "try again" retries this request. RR may
+			// already have created the draft; only the original id finds it
+			// instead of creating a duplicate.
+			return fail(errorStatus(err), {
+				error: errorMessage(err, 'Could not create the resume draft.'),
+				retryRequestId: requestId
+			});
+		}
 	},
 
 	check: async ({ fetch }) => {
