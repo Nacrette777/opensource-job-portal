@@ -270,6 +270,16 @@ class ProjectSerializer(serializers.ModelSerializer):
             "size",
         ]
 
+    def validate(self, data):
+        # On a partial update, compare against whichever date is not being sent.
+        from_date = data.get("from_date", getattr(self.instance, "from_date", None))
+        to_date = data.get("to_date", getattr(self.instance, "to_date", None))
+        if from_date and to_date and to_date < from_date:
+            raise serializers.ValidationError(
+                {"to_date": "End date must be on or after the start date"}
+            )
+        return data
+
 
 class CertificationSerializer(serializers.ModelSerializer):
     """Certification serializer"""

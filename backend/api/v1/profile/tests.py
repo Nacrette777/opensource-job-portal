@@ -14,6 +14,7 @@ from peeldb.models import (
     EducationInstitue,
     Language,
     Qualification,
+    Skill,
     State,
     User,
     UserLanguage,
@@ -277,3 +278,75 @@ class EducationReadTests(TestCase):
         self.assertEqual(listing.status_code, status.HTTP_200_OK)
         self.assertEqual(listing.data[0]["institute_id"], self.institute.id)
         self.assertEqual(listing.data[0]["degree_id"], self.degree.id)
+
+
+class ProjectWriteTests(TestCase):
+    """Project create/update: date order is enforced and optional fields clear."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.skill = Skill.objects.create(name="Python", status="Active", slug="python")
+        self.list_url = reverse("api:v1:profile:project-list")
+
+    def _create(self, **overrides):
+        payload = {
+            "name": "Dashboard",
+            "description": "A project",
+            "skill_ids": [self.skill.id],
+            "from_date": "2024-01-01",
+            "to_date": "2024-06-30",
+            "role": "Analyst",
+            "size": 3,
+            **overrides,
+        }
+        return self.client.post(self.list_url, payload, format="json")
+
+    def test_end_date_before_start_date_is_rejected(self):
+        response = self._create(from_date="2025-06-01", to_date="2024-01-01")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("to_date", response.data)
+        self.assertEqual(self.user.project.count(), 0)
+
+    def test_partial_update_cannot_move_end_date_before_saved_start(self):
+        project_id = self._create().data["id"]
+
+        response = self.client.patch(
+            reverse("api:v1:profile:project-detail", args=[project_id]),
+            {"to_date": "2023-01-01"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_with_null_clears_optional_fields(self):
+        project_id = self._create().data["id"]
+
+        response = self.client.put(
+            reverse("api:v1:profile:project-detail", args=[project_id]),
+            {
+                "name": "Dashboard",
+                "description": "A project",
+                "skill_ids": [self.skill.id],
+                "from_date": None,
+                "to_date": None,
+                "role": None,
+                "size": None,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        project = self.user.project.get(id=project_id)
+        self.assertIsNone(project.role)
+        self.assertIsNone(project.size)
+        self.assertIsNone(project.from_date)

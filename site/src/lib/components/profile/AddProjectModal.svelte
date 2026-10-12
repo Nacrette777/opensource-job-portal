@@ -161,19 +161,26 @@
 			return;
 		}
 
+		// ISO dates compare correctly as strings.
+		if (formData.from_date && formData.to_date && formData.to_date < formData.from_date) {
+			toast.error('End date must be on or after the start date');
+			return;
+		}
+
 		loading = true;
 
 		try {
-			// Clean up undefined/empty values
+			// Emptied optional fields are sent as null so that an edit clears
+			// them; leaving them out would keep the previously saved value.
 			const submitData: ProjectCreateUpdate = {
 				name: formData.name,
 				description: formData.description,
 				skill_ids: formData.skill_ids,
-				from_date: formData.from_date || undefined,
-				to_date: formData.to_date || undefined,
-				location_id: formData.location_id || undefined,
-				role: formData.role || undefined,
-				size: formData.size || undefined
+				from_date: formData.from_date || null,
+				to_date: formData.to_date || null,
+				location_id: formData.location_id || null,
+				role: formData.role?.trim() || null,
+				size: formData.size || null
 			};
 
 			if (project) {
@@ -190,9 +197,11 @@
 			handleClose();
 		} catch (error: any) {
 			console.error('Failed to save project:', error);
+			// ApiClient throws an Error carrying the formatted server message.
 			const errorMsg =
 				error?.response?.data?.detail ||
 				error?.response?.data?.error ||
+				error?.message ||
 				'Failed to save project. Please try again.';
 			toast.error(errorMsg);
 		} finally {
