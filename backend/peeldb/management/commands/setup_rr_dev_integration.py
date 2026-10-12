@@ -1,11 +1,12 @@
 """
-GradBridge (local development only): register this site as an OAuth client of
-a local Reactive Resume and generate the token-encryption key.
+GradBridge: register this site as an OAuth client of Reactive Resume and
+generate the token-encryption key.
 
-RR allows dynamic client registration (RFC 7591) for http://localhost
-callbacks. The client secret and Fernet key are written to --output as
-environment variables for the Django process; nothing secret is printed.
-Production should register a fixed client instead of running this.
+RR allows dynamic client registration (RFC 7591). The client secret and
+Fernet key are written to --output as environment variables for the Django
+process; nothing secret is printed. Run it once per environment: with
+DEBUG on for local development, or with --allow-production when setting up a
+deployment (then store the values in the platform's secret store).
 """
 
 import json
@@ -29,10 +30,17 @@ class Command(BaseCommand):
         parser.add_argument(
             "--client-name", default="GradBridge PeelJobs (local development)"
         )
+        parser.add_argument(
+            "--allow-production",
+            action="store_true",
+            help="Run with DEBUG off, to register a deployment's fixed client.",
+        )
 
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise CommandError("Refusing to run with DEBUG off: production registers a fixed client.")
+        if not settings.DEBUG and not options["allow_production"]:
+            raise CommandError(
+                "DEBUG is off. To register a deployment's client deliberately, pass --allow-production."
+            )
 
         output = Path(options["output"])
         if output.exists():
@@ -55,7 +63,9 @@ class Command(BaseCommand):
                 timeout=10,
             )
         except requests.RequestException as exc:
-            raise CommandError(f"Could not reach RR at {settings.RR_INTERNAL_URL}: {exc}") from exc
+            raise CommandError(
+                f"Could not reach RR at {settings.RR_INTERNAL_URL}: {exc}"
+            ) from exc
 
         body = response.json() if response.content else {}
         if response.status_code not in (200, 201) or not body.get("client_secret"):

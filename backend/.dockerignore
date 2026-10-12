@@ -1,0 +1,11 @@
+.venv
+**/__pycache__
+**/*.pyc
+.env
+.env.*
+media/
+private_media/
+staticfiles/
+node_modules/
+*.log
+.ruff_cache

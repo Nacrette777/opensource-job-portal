@@ -1,0 +1,158 @@
+# GradBridge production-style stack: PeelJobs API + job-seeker site + recruiter
+# app + Reactive Resume (built from the GradBridge RR fork), each with its own
+# PostgreSQL and persistent volumes.
+#
+#   docker compose --env-file <your .env> -f deploy/gradbridge/compose.yml up -d --build
+#
+# Copy deploy/gradbridge/.env.example to a private location, fill in the
+# secrets, and pass it with --env-file. See docs/gradbridge-deployment.md.
+#
+# Public URLs: the browser and the SvelteKit servers both use the PUBLIC_*
+# URLs. For a local drill they are *.localhost names on host ports; the
+# containers reach those through host-gateway (extra_hosts below). In Azure
+# they are the Container Apps' HTTPS FQDNs and extra_hosts is not needed.
+
+name: ${COMPOSE_PROJECT_NAME:-gradbridge}
+
+x-public-hosts: &public-hosts
+  extra_hosts:
+    - "api.gradbridge.localhost:host-gateway"
+    - "rr.gradbridge.localhost:host-gateway"
+    - "recruiter.gradbridge.localhost:host-gateway"
+
+services:
+  peeljobs-db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: peeljobs
+      POSTGRES_USER: peeljobs
+      POSTGRES_PASSWORD: ${PEELJOBS_DB_PASSWORD:?set PEELJOBS_DB_PASSWORD}
+    volumes:
+      - peeljobs_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "peeljobs", "-d", "peeljobs"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rr-db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: reactive_resume
+      POSTGRES_USER: reactive_resume
+      POSTGRES_PASSWORD: ${RR_DB_PASSWORD:?set RR_DB_PASSWORD}
+    volumes:
+      - rr_db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "reactive_resume", "-d", "reactive_resume"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rr:
+    build:
+      context: ${RR_SOURCE_DIR:-../../../reactive-resume}
+      dockerfile: Dockerfile
+    image: gradbridge/reactive-resume:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    # The image runs node as PID 1 without a SIGTERM handler; tini forwards the
+    # signal so `docker compose stop` ends it cleanly instead of after a kill.
+    init: true
+    <<: *public-hosts
+    environment:
+      APP_URL: ${RR_PUBLIC_URL:?set RR_PUBLIC_URL}
+      DATABASE_URL: postgresql://reactive_resume:${RR_DB_PASSWORD}@rr-db:5432/reactive_resume
+      AUTH_SECRET: ${RR_AUTH_SECRET:?set RR_AUTH_SECRET}
+      # Files on a volume; set the S3_* variables instead to use object storage.
+      LOCAL_STORAGE_PATH: /app/data
+    volumes:
+      - rr_data:/app/data
+    ports:
+      - "${RR_HOST_PORT:-18300}:3000"
+    depends_on:
+      rr-db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../../backend
+    image: gradbridge/api:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    <<: *public-hosts
+    environment:
+      DJANGO_SETTINGS_MODULE: jobsp.settings_gradbridge
+      DJANGO_MIGRATE_ON_START: "1"
+      SECRET_KEY: ${DJANGO_SECRET_KEY:?set DJANGO_SECRET_KEY}
+      DB_NAME: peeljobs
+      DB_USER: peeljobs
+      DB_PASSWORD: ${PEELJOBS_DB_PASSWORD}
+      DB_HOST: peeljobs-db
+      DB_PORT: "5432"
+      ALLOWED_HOSTS: ${API_ALLOWED_HOSTS:?set API_ALLOWED_HOSTS}
+      CSRF_TRUSTED_ORIGINS: ${SITE_PUBLIC_URL},${RECRUITER_PUBLIC_URL}
+      CORS_ALLOWED_ORIGINS: ${SITE_PUBLIC_URL},${RECRUITER_PUBLIC_URL}
+      SITE_FRONTEND_URL: ${SITE_PUBLIC_URL:?set SITE_PUBLIC_URL}
+      RECRUITER_FRONTEND_URL: ${RECRUITER_PUBLIC_URL:?set RECRUITER_PUBLIC_URL}
+      SECURE_COOKIES: ${SECURE_COOKIES:-true}
+      TIME_ZONE: ${TIME_ZONE:-}
+      # Reactive Resume integration (S2-04..S2-06)
+      RR_BASE_URL: ${RR_PUBLIC_URL}
+      RR_INTERNAL_URL: http://rr:3000
+      RR_OAUTH_CLIENT_ID: ${RR_OAUTH_CLIENT_ID:-}
+      RR_OAUTH_CLIENT_SECRET: ${RR_OAUTH_CLIENT_SECRET:-}
+      RR_OAUTH_REDIRECT_URI: ${SITE_PUBLIC_URL}/profile/integrations/rr/callback/
+      RR_TOKEN_ENCRYPTION_KEY: ${RR_TOKEN_ENCRYPTION_KEY:-}
+    volumes:
+      # Published resume PDFs/JSON (private) and uploaded media.
+      - api_data:/data
+    ports:
+      - "${API_HOST_PORT:-18000}:8000"
+    depends_on:
+      peeljobs-db:
+        condition: service_healthy
+
+  site:
+    build:
+      context: ../../site
+      dockerfile: ../deploy/gradbridge/sveltekit.Dockerfile
+      args:
+        PUBLIC_API_BASE_URL: ${API_PUBLIC_URL:?set API_PUBLIC_URL}/api/v1
+        PUBLIC_SITE_URL: ${SITE_PUBLIC_URL}
+        PUBLIC_RECRUITER_URL: ${RECRUITER_PUBLIC_URL}
+        PUBLIC_JOBSEEKER_URL: ${SITE_PUBLIC_URL}
+    image: gradbridge/site:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    <<: *public-hosts
+    environment:
+      ORIGIN: ${SITE_PUBLIC_URL}
+    ports:
+      - "${SITE_HOST_PORT:-18173}:3000"
+    depends_on:
+      - api
+
+  recruiter:
+    build:
+      context: ../../recruiter
+      dockerfile: ../deploy/gradbridge/sveltekit.Dockerfile
+      args:
+        PUBLIC_API_BASE_URL: ${API_PUBLIC_URL}/api/v1
+        PUBLIC_SITE_URL: ${RECRUITER_PUBLIC_URL}
+        PUBLIC_RECRUITER_URL: ${RECRUITER_PUBLIC_URL}
+        PUBLIC_JOBSEEKER_URL: ${SITE_PUBLIC_URL}
+    image: gradbridge/recruiter:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    <<: *public-hosts
+    environment:
+      ORIGIN: ${RECRUITER_PUBLIC_URL}
+    ports:
+      - "${RECRUITER_HOST_PORT:-18174}:3000"
+    depends_on:
+      - api
+
+volumes:
+  peeljobs_db:
+  rr_db:
+  rr_data:
+  api_data:
