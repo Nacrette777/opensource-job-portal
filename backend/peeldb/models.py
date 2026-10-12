@@ -2081,3 +2081,53 @@ class ResumeIntegrationRequest(models.Model):
 
     def __str__(self):
         return f"{self.kind} {self.id} ({self.status})"
+
+
+class ResumeVersion(models.Model):
+    """GradBridge: an immutable snapshot of one RR resume, published by its owner.
+
+    The JSON and the PDF are the same content: the PDF was rendered by RR from
+    the stored resume while its updatedAt matched the JSON's (checked before
+    and after). Both live in private storage; the keys are not URLs.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="resume_versions")
+    rr_user_id = models.CharField(max_length=64)
+    external_resume_id = models.CharField(max_length=64)
+    title = models.CharField(max_length=255, blank=True, default="")
+    # RR's updatedAt for the snapshotted content, kept verbatim (ISO 8601).
+    rr_updated_at = models.CharField(max_length=40)
+    data_key = models.CharField(max_length=500)
+    data_sha256 = models.CharField(max_length=64)
+    pdf_key = models.CharField(max_length=500)
+    pdf_sha256 = models.CharField(max_length=64)
+    pdf_size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.user_id} v{self.id} ({self.external_resume_id})"
+
+
+class ResumePublication(models.Model):
+    """GradBridge: which version (if any) a job seeker currently publishes.
+
+    This pointer is the only thing recruiter access follows. It moves only
+    after a new version's files and row are saved, so a failed publish keeps
+    the previous version; withdrawing clears it.
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="resume_publication")
+    version = models.ForeignKey(
+        ResumeVersion, null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
+    published_at = models.DateTimeField(null=True, blank=True)
+    withdrawn_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user_id} -> {self.version_id or 'unpublished'}"

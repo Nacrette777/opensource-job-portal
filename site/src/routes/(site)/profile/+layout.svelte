@@ -11,6 +11,7 @@
 		FolderOpen,
 		Languages,
 		Link2,
+		FileCheck2,
 		ChevronRight
 	} from '@lucide/svelte';
 
@@ -63,6 +64,12 @@
 			href: '/profile/languages/',
 			icon: Languages,
 			description: 'Languages you read, write or speak'
+		},
+		{
+			name: 'Published resume',
+			href: '/profile/published-resume/',
+			icon: FileCheck2,
+			description: 'Choose which resume recruiters can see'
 		},
 		{
 			name: 'Integrations',

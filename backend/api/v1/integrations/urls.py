@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from . import views
+from . import publication_views, views
 
 app_name = "integrations"
 
@@ -14,4 +14,13 @@ urlpatterns = [
     path("rr/check/", views.rr_check, name="rr-check"),
     path("rr/drafts/", views.rr_drafts, name="rr-drafts"),
     path("rr/drafts/create/", views.rr_create_draft, name="rr-create-draft"),
+    path("rr/resumes/", publication_views.rr_resumes, name="rr-resumes"),
+    path("publication/", publication_views.publication, name="publication"),
+    path("publication/publish/", publication_views.publish, name="publication-publish"),
+    path("publication/withdraw/", publication_views.withdraw, name="publication-withdraw"),
+    path(
+        "publication/versions/<uuid:version_id>/pdf/",
+        publication_views.version_pdf,
+        name="publication-version-pdf",
+    ),
 ]

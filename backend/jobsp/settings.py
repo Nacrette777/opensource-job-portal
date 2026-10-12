@@ -60,6 +60,14 @@ RR_OAUTH_REDIRECT_URI = os.getenv(
 )
 RR_TOKEN_ENCRYPTION_KEY = os.getenv("RR_TOKEN_ENCRYPTION_KEY", "")
 
+# GradBridge: published resume snapshots (JSON + PDF). Kept outside MEDIA_ROOT
+# and never mapped to a URL; files are only streamed by views that check who
+# is asking. In production point this at a persistent volume (or swap the
+# storage for a private blob container).
+GRADBRIDGE_PRIVATE_MEDIA_ROOT = os.getenv(
+    "GRADBRIDGE_PRIVATE_MEDIA_ROOT", os.path.join(BASE_DIR, "private_media")
+)
+
 # Bare hostname used to build absolute <loc> URLs in the sitemaps.
 #
 # django.contrib.sitemaps takes this from the Sites framework, and the `sites`
