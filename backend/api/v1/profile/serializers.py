@@ -158,16 +158,16 @@ class EducationDetailsSerializer(serializers.ModelSerializer):
         source="degree.specialization", read_only=True
     )
 
-    # Write-only fields for creating/updating
+    # Writable ids, also returned on read so the edit form can preselect the
+    # institute and degree dropdowns.
     institute_id = serializers.PrimaryKeyRelatedField(
         queryset=EducationInstitue.objects.all(),
         source="institute",
-        write_only=True,
         required=False,
         allow_null=True,
     )
     degree_id = serializers.PrimaryKeyRelatedField(
-        queryset=Degree.objects.all(), source="degree", write_only=True
+        queryset=Degree.objects.all(), source="degree"
     )
 
     # Custom institute name for "Other" option
@@ -560,13 +560,34 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    state_id = serializers.PrimaryKeyRelatedField(
+        queryset=State.objects.filter(status="Enabled"),
+        source="state",
+        required=False,
+        allow_null=True,
+    )
+    country_id = serializers.PrimaryKeyRelatedField(
+        queryset=Country.objects.filter(status="Enabled"),
+        source="country",
+        required=False,
+        allow_null=True,
+    )
+    preferred_city_ids = serializers.PrimaryKeyRelatedField(
+        queryset=City.objects.filter(status="Enabled"),
+        source="preferred_city",
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = User
+        # Keep in step with what the profile page sends (profile/+page.svelte
+        # handleSaveProfile): DRF silently drops any key not listed here.
         fields = [
             "first_name",
             "last_name",
             "mobile",
+            "alternate_mobile",
             "gender",
             "dob",
             "marital_status",
@@ -575,7 +596,10 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "permanent_address",
             "pincode",
             "city_id",
+            "state_id",
+            "country_id",
             "current_city_id",
+            "preferred_city_ids",
             "job_role",
             "profile_description",
             "year",
@@ -590,6 +614,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "email_notifications",
             "show_email",
         ]
+        # These model fields default to "" but are not blank=True, so DRF
+        # would reject the empty string the profile page sends to clear them.
+        extra_kwargs = {
+            "job_role": {"allow_blank": True},
+            "profile_description": {"allow_blank": True},
+            "month": {"allow_blank": True},
+        }
 
 
 class ProfileUploadResponseSerializer(serializers.Serializer):

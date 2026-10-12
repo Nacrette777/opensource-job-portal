@@ -114,44 +114,39 @@
 				return;
 			}
 
-			const updatePayload: Record<string, unknown> = {};
+			// Send every field, including emptied ones, so clearing an input
+			// actually clears it: text fields go as '' and dates, numbers and
+			// ids as null. Skipping empty values left the old value in place
+			// while the page still reported success.
+			const text = (value: string | number | null | undefined) => String(value ?? '').trim();
+			const alternateMobile = text(formData.alternate_mobile).replace(/\D/g, '');
 
-			updatePayload.first_name = formData.first_name.trim();
-			updatePayload.last_name = formData.last_name.trim();
-
-			if (formData.mobile?.trim()) updatePayload.mobile = formData.mobile.trim();
-			if (formData.alternate_mobile?.trim())
-				updatePayload.alternate_mobile = parseInt(formData.alternate_mobile.replace(/\D/g, ''));
-			if (formData.gender) updatePayload.gender = formData.gender;
-			if (formData.dob) updatePayload.dob = formData.dob;
-			if (formData.marital_status) updatePayload.marital_status = formData.marital_status;
-			if (formData.nationality?.trim()) updatePayload.nationality = formData.nationality.trim();
-			if (formData.address?.trim()) updatePayload.address = formData.address.trim();
-			if (formData.permanent_address?.trim())
-				updatePayload.permanent_address = formData.permanent_address.trim();
-			if (formData.pincode?.trim()) updatePayload.pincode = parseInt(formData.pincode);
-
-			if (formData.city_id) updatePayload.city_id = formData.city_id;
-			if (formData.state_id) updatePayload.state_id = formData.state_id;
-			if (formData.country_id) updatePayload.country_id = formData.country_id;
-			if (formData.current_city_id) updatePayload.current_city_id = formData.current_city_id;
-			if (formData.preferred_city_ids && formData.preferred_city_ids.length > 0) {
-				updatePayload.preferred_city_ids = formData.preferred_city_ids;
-			}
-
-			if (formData.job_role?.trim()) updatePayload.job_role = formData.job_role.trim();
-			if (formData.profile_description?.trim())
-				updatePayload.profile_description = formData.profile_description.trim();
-			if (formData.year) updatePayload.year = formData.year;
-			if (formData.month) updatePayload.month = formData.month;
-			if (formData.current_salary?.trim())
-				updatePayload.current_salary = formData.current_salary.trim();
-			if (formData.expected_salary?.trim())
-				updatePayload.expected_salary = formData.expected_salary.trim();
-			if (formData.notice_period?.trim())
-				updatePayload.notice_period = formData.notice_period.trim();
-
-			updatePayload.relocation = formData.relocation;
+			const updatePayload: Record<string, unknown> = {
+				first_name: text(formData.first_name),
+				last_name: text(formData.last_name),
+				mobile: text(formData.mobile),
+				alternate_mobile: alternateMobile ? parseInt(alternateMobile) : null,
+				gender: formData.gender || '',
+				dob: formData.dob || null,
+				marital_status: formData.marital_status || '',
+				nationality: text(formData.nationality),
+				address: text(formData.address),
+				permanent_address: text(formData.permanent_address),
+				pincode: text(formData.pincode) ? parseInt(text(formData.pincode)) : null,
+				city_id: formData.city_id || null,
+				state_id: formData.state_id || null,
+				country_id: formData.country_id || null,
+				current_city_id: formData.current_city_id || null,
+				preferred_city_ids: formData.preferred_city_ids ?? [],
+				job_role: text(formData.job_role),
+				profile_description: text(formData.profile_description),
+				year: text(formData.year),
+				month: text(formData.month),
+				current_salary: text(formData.current_salary),
+				expected_salary: text(formData.expected_salary),
+				notice_period: text(formData.notice_period),
+				relocation: formData.relocation
+			};
 
 			profile = await patchProfile(updatePayload);
 

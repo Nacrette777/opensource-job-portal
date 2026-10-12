@@ -7,7 +7,17 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from peeldb.models import Language, User, UserLanguage
+from peeldb.models import (
+    City,
+    Country,
+    Degree,
+    EducationInstitue,
+    Language,
+    Qualification,
+    State,
+    User,
+    UserLanguage,
+)
 
 
 class UserLanguageAPITests(TestCase):
@@ -128,3 +138,142 @@ class UserLanguageAPITests(TestCase):
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ProfilePatchTests(TestCase):
+    """PATCH /profile/ must persist every field the profile page sends."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("api:v1:profile:profile")
+
+        self.country = Country.objects.create(name="Testland", slug="testland")
+        self.state = State.objects.create(
+            country=self.country, name="Test State", slug="test-state"
+        )
+        self.city = City.objects.create(
+            state=self.state, name="Test City", slug="test-city"
+        )
+
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+
+        self.client.force_authenticate(user=self.user)
+
+    def test_location_and_alternate_mobile_are_saved(self):
+        response = self.client.patch(
+            self.url,
+            {
+                "alternate_mobile": 400000022,
+                "state_id": self.state.id,
+                "country_id": self.country.id,
+                "preferred_city_ids": [self.city.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.alternate_mobile, 400000022)
+        self.assertEqual(self.user.state, self.state)
+        self.assertEqual(self.user.country, self.country)
+        self.assertEqual(list(self.user.preferred_city.all()), [self.city])
+
+    def test_unknown_location_ids_are_rejected_not_ignored(self):
+        response = self.client.patch(
+            self.url, {"state_id": 999999, "country_id": 999999}, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("state_id", response.data)
+        self.assertIn("country_id", response.data)
+
+    def test_fields_can_be_cleared(self):
+        self.user.nationality = "Testlandic"
+        self.user.mobile = "+61 400000001"
+        self.user.alternate_mobile = 400000022
+        self.user.pincode = 230800
+        self.user.job_role = "Analyst"
+        self.user.profile_description = "Summary"
+        self.user.month = "6"
+        self.user.save()
+        self.user.preferred_city.add(self.city)
+
+        response = self.client.patch(
+            self.url,
+            {
+                "nationality": "",
+                "mobile": "",
+                "alternate_mobile": None,
+                "pincode": None,
+                "dob": None,
+                "job_role": "",
+                "profile_description": "",
+                "month": "",
+                "preferred_city_ids": [],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.nationality, "")
+        self.assertEqual(self.user.mobile, "")
+        self.assertIsNone(self.user.alternate_mobile)
+        self.assertIsNone(self.user.pincode)
+        self.assertEqual(self.user.job_role, "")
+        self.assertEqual(self.user.profile_description, "")
+        self.assertEqual(self.user.month, "")
+        self.assertEqual(self.user.preferred_city.count(), 0)
+
+
+class EducationReadTests(TestCase):
+    """The edit form preselects its dropdowns from the ids on the list."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+        qualification = Qualification.objects.create(
+            name="Bachelor", status="Active", slug="bachelor"
+        )
+        self.degree = Degree.objects.create(
+            degree_name=qualification,
+            degree_type="Permanent",
+            specialization="Computer Science",
+        )
+        self.institute = EducationInstitue.objects.create(name="Test University")
+
+    def test_list_returns_institute_and_degree_ids(self):
+        created = self.client.post(
+            reverse("api:v1:profile:education-list"),
+            {
+                "institute_id": self.institute.id,
+                "degree_id": self.degree.id,
+                "from_date": "2021-02-01",
+                "to_date": "2024-11-30",
+                "score": "Distinction",
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED, created.data)
+
+        listing = self.client.get(reverse("api:v1:profile:education-list"))
+
+        self.assertEqual(listing.status_code, status.HTTP_200_OK)
+        self.assertEqual(listing.data[0]["institute_id"], self.institute.id)
+        self.assertEqual(listing.data[0]["degree_id"], self.degree.id)

@@ -55,6 +55,11 @@ export class ApiClient {
 			throw new Error(errorMessage);
 		}
 
+		// No content (e.g. 204 after DELETE): there is no JSON to parse.
+		if (response.status === 204) {
+			return undefined as T;
+		}
+
 		return response.json();
 	}
 

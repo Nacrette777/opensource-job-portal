@@ -15,7 +15,7 @@
 		getDegrees,
 		searchInstitutes
 	} from '$lib/api/education';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	interface Props {
 		isOpen: boolean;
@@ -125,29 +125,54 @@
 		formData.degree_id = 0;
 	}
 
+	// Degree id whose qualification still has to be preselected once the
+	// degree list has loaded (it can arrive after the modal opens).
+	let pendingQualificationForDegree = $state<number | null>(null);
+
 	/**
 	 * Initialize form with education data (for editing)
+	 *
+	 * Runs only when the modal opens or the edited entry changes. The body is
+	 * untracked: if it depended on `degrees`, picking a qualification (which
+	 * reloads `degrees`) would re-run it and wipe whatever the user had typed.
 	 */
 	$effect(() => {
-		if (isOpen && education) {
+		const open = isOpen;
+		const editing = education;
+		untrack(() => initForm(open, editing));
+	});
+
+	$effect(() => {
+		const degreeId = pendingQualificationForDegree;
+		if (degreeId === null || degrees.length === 0) return;
+		const degree = untrack(() => degrees.find((d) => d.id === degreeId));
+		if (degree) {
+			selectedQualificationId = degree.qualification.id;
+		}
+		pendingQualificationForDegree = null;
+	});
+
+	function initForm(open: boolean, editing: EducationDetails | null) {
+		pendingQualificationForDegree = null;
+		if (open && editing) {
 			// Editing mode
 			formData = {
-				institute_id: education.institute_id || 0,
-				degree_id: education.degree_id || 0,
-				from_date: education.from_date,
-				to_date: education.to_date || '',
-				score: education.score,
-				current_education: education.current_education,
+				institute_id: editing.institute_id || 0,
+				degree_id: editing.degree_id || 0,
+				from_date: editing.from_date,
+				to_date: editing.to_date || '',
+				score: editing.score,
+				current_education: editing.current_education,
 				custom_institute_name: ''
 			};
 			isOtherInstitute = false;
+			selectedQualificationId = 0;
 
-			// Find qualification ID from degree
-			const degree = degrees.find((d) => d.id === education.degree_id);
-			if (degree) {
-				selectedQualificationId = degree.qualification.id;
+			// Qualification comes from the degree; resolved by the effect above
+			if (editing.degree_id) {
+				pendingQualificationForDegree = editing.degree_id;
 			}
-		} else if (isOpen) {
+		} else if (open) {
 			// Adding mode - reset form
 			formData = {
 				institute_id: 0,
@@ -161,7 +186,7 @@
 			selectedQualificationId = 0;
 			isOtherInstitute = false;
 		}
-	});
+	}
 
 	/**
 	 * Handle current education checkbox
