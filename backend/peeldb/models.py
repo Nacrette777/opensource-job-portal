@@ -2059,7 +2059,8 @@ class ResumeIntegrationRequest(models.Model):
     )
     kind = models.CharField(max_length=20, choices=KIND_CHOICES, default=KIND_CREATE_DRAFT)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    # RR account the draft was created in; drafts outlive a later re-link.
+    # RR account the request is bound to (set on its first attempt); a retry
+    # after the job seeker links a different RR account is refused.
     rr_user_id = models.CharField(max_length=64, blank=True, default="")
     external_resume_id = models.CharField(max_length=64, blank=True, default="")
     # The JSON Resume exported on the first attempt. Every retry sends this

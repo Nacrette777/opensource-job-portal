@@ -67,8 +67,13 @@ def _outcome(result):
     raise result
 
 
-def _start_attempt(user, request_id):
+def _start_attempt(user, request_id, rr_user_id):
     """Create or lock the request, freeze its document, and count the attempt.
+
+    The request is bound to the RR account linked on its first attempt. If the
+    job seeker has since linked a different RR account, retrying would create
+    a second draft there while the first may already exist in the old one, so
+    that is refused and a new request is needed instead.
 
     Returns (request, already_succeeded).
     """
@@ -82,6 +87,14 @@ def _start_attempt(user, request_id):
             raise RRIntegrationError("not_found", "Request not found.", status=404)
         if req.status == SUCCEEDED:
             return req, True
+        if req.rr_user_id and req.rr_user_id != rr_user_id:
+            raise RRIntegrationError(
+                "rr_account_changed",
+                "This request was started for a different Reactive Resume account. "
+                "Create a new draft instead.",
+                status=409,
+            )
+        req.rr_user_id = rr_user_id
 
         if not req.source_payload:
             export = build_json_resume(user)
@@ -108,7 +121,7 @@ def create_draft(user, request_id):
             "not_connected", "Connect your Reactive Resume account first.", status=409
         )
 
-    req, done = _start_attempt(user, request_id)
+    req, done = _start_attempt(user, request_id, link.rr_user_id or "")
     if done:
         return req
 
@@ -143,7 +156,6 @@ def create_draft(user, request_id):
         ResumeIntegrationRequest.objects.filter(pk=req.pk).update(
             status=SUCCEEDED,
             external_resume_id=payload["id"],
-            rr_user_id=link.rr_user_id or "",
             error_code="",
             error="",
             updated_at=timezone.now(),

@@ -540,3 +540,19 @@ class RRDraftTests(RRTestBase):
         req = ResumeIntegrationRequest.objects.get(id=self.request_id)
         self.assertEqual(req.status, ResumeIntegrationRequest.STATUS_SUCCEEDED)
         self.assertEqual(req.error_code, "")
+
+    def test_retry_after_switching_rr_account_is_refused(self):
+        """A request started for one RR account must not be retried in another."""
+        self._linked()
+        self.rr.import_failure = "lost"  # account 1 may now hold the draft
+        self.create()
+        ResumeAccountLink.objects.filter(user=self.user).update(rr_user_id="rr-user-other")
+        self.rr.import_failure = None
+
+        response = self.create()
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["code"], "rr_account_changed")
+        self.assertEqual(len(self.rr.imports), 1)
+        req = ResumeIntegrationRequest.objects.get(id=self.request_id)
+        self.assertEqual(req.rr_user_id, "rr-user-1")
