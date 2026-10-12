@@ -10,6 +10,7 @@
 		Code,
 		FolderOpen,
 		Languages,
+		Link2,
 		ChevronRight
 	} from '@lucide/svelte';
 
@@ -62,6 +63,12 @@
 			href: '/profile/languages/',
 			icon: Languages,
 			description: 'Languages you read, write or speak'
+		},
+		{
+			name: 'Integrations',
+			href: '/profile/integrations/',
+			icon: Link2,
+			description: 'Connect your Reactive Resume account'
 		}
 	];
 

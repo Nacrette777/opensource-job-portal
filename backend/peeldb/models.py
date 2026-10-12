@@ -1983,3 +1983,51 @@ class TeamInvitation(models.Model):
         if self.role_title:
             user.job_title = self.role_title
         user.save()
+
+
+class ResumeAccountLink(models.Model):
+    """GradBridge: a job seeker's link to their own Reactive Resume account.
+
+    Ownership comes from the `sub` RR returns at the end of the OAuth flow,
+    never from matching email addresses, and one RR account can link to at
+    most one job seeker (`rr_user_id` is unique). Only the refresh token is
+    kept, encrypted; access tokens are minted per use and never stored, because
+    RR's JWT access tokens cannot be revoked before they expire.
+    """
+
+    STATUS_PENDING = "pending"
+    STATUS_CONNECTED = "connected"
+    STATUS_REVOKED = "revoked"
+    STATUS_ERROR = "error"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending authorization"),
+        (STATUS_CONNECTED, "Connected"),
+        (STATUS_REVOKED, "Disconnected"),
+        (STATUS_ERROR, "Needs reconnecting"),
+    )
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="resume_account_link"
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
+    rr_user_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    rr_email = models.CharField(max_length=255, blank=True, default="")
+    rr_name = models.CharField(max_length=255, blank=True, default="")
+    refresh_token_encrypted = models.TextField(blank=True, default="")
+    scopes = models.CharField(max_length=255, blank=True, default="")
+
+    # In-flight authorization; cleared when the callback is handled.
+    oauth_state = models.CharField(max_length=128, blank=True, default="")
+    oauth_code_verifier_encrypted = models.TextField(blank=True, default="")
+    oauth_started_at = models.DateTimeField(null=True, blank=True)
+
+    linked_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=500, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user_id} -> RR {self.rr_user_id or '-'} ({self.status})"

@@ -54,6 +54,8 @@ dependencies = [
     "sentry-sdk[django]==2.67.1",
     # Production Server
     "gunicorn==26.0.0",
+    # GradBridge: encrypts stored Reactive Resume refresh tokens (Fernet)
+    "cryptography==50.0.2",
 ]
 
 [dependency-groups]

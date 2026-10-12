@@ -41,6 +41,25 @@ RECRUITER_FRONTEND_URL = os.getenv("RECRUITER_FRONTEND_URL", "http://localhost:5
 # reset email in production would have linked to localhost.
 SITE_FRONTEND_URL = os.getenv("SITE_FRONTEND_URL", "http://localhost:5173")
 
+# GradBridge: link a job seeker to their own Reactive Resume (RR) account over
+# OAuth (authorization code + PKCE; RR is the authorization server). The
+# integration is off unless the client id, secret and encryption key are all
+# set. See api/v1/integrations/rr_client.py.
+#   RR_BASE_URL            public RR origin; also the OAuth issuer base and the
+#                          `resource` (audience) the RR API accepts.
+#   RR_INTERNAL_URL        how this server reaches RR, if different.
+#   RR_TOKEN_ENCRYPTION_KEY  Fernet key for refresh tokens at rest. Kept apart
+#                          from SECRET_KEY so rotating one doesn't touch the other.
+RR_BASE_URL = os.getenv("RR_BASE_URL", "http://localhost:3000").rstrip("/")
+RR_INTERNAL_URL = os.getenv("RR_INTERNAL_URL", RR_BASE_URL).rstrip("/")
+RR_OAUTH_CLIENT_ID = os.getenv("RR_OAUTH_CLIENT_ID", "")
+RR_OAUTH_CLIENT_SECRET = os.getenv("RR_OAUTH_CLIENT_SECRET", "")
+RR_OAUTH_REDIRECT_URI = os.getenv(
+    "RR_OAUTH_REDIRECT_URI",
+    f"{SITE_FRONTEND_URL.rstrip('/')}/profile/integrations/rr/callback/",
+)
+RR_TOKEN_ENCRYPTION_KEY = os.getenv("RR_TOKEN_ENCRYPTION_KEY", "")
+
 # Bare hostname used to build absolute <loc> URLs in the sitemaps.
 #
 # django.contrib.sitemaps takes this from the Sites framework, and the `sites`

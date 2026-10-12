@@ -19,4 +19,5 @@ urlpatterns = [
     path("contact/", include("api.v1.contact.urls")),
     path("recruiter/", include("api.v1.recruiter.urls")),
     path("webhooks/", include("api.v1.webhooks.urls", namespace="webhooks")),
+    path("integrations/", include("api.v1.integrations.urls")),
 ]
