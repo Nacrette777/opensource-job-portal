@@ -4,7 +4,7 @@ URL routing for Recruiter API (Auth + Team Management + Jobs + Analytics)
 
 from django.urls import path
 
-from . import analytics_views, auth_views, job_views, views
+from . import analytics_views, auth_views, candidates_views, job_views, views
 
 app_name = "recruiter"
 
@@ -116,5 +116,26 @@ urlpatterns = [
         "company/profile/update/",
         views.update_company_profile,
         name="company-profile-update",
+    ),
+    # ===== GRADBRIDGE CANDIDATES (published resumes only) =====
+    path("candidates/", candidates_views.search_candidates, name="candidates"),
+    path("candidates/filters/", candidates_views.candidate_filters, name="candidate-filters"),
+    path("candidates/shortlist/", candidates_views.my_shortlist, name="candidate-shortlist-list"),
+    path("candidates/<int:candidate_id>/", candidates_views.candidate_detail, name="candidate-detail"),
+    path(
+        "candidates/<int:candidate_id>/resume.pdf",
+        candidates_views.candidate_resume_pdf,
+        name="candidate-resume-pdf",
+    ),
+    path(
+        "candidates/<int:candidate_id>/shortlist/",
+        candidates_views.candidate_shortlist,
+        name="candidate-shortlist",
+    ),
+    path("candidates/<int:candidate_id>/notes/", candidates_views.candidate_notes, name="candidate-notes"),
+    path(
+        "candidates/<int:candidate_id>/notes/<int:note_id>/",
+        candidates_views.candidate_note_detail,
+        name="candidate-note-detail",
     ),
 ]

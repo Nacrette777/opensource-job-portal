@@ -9,7 +9,8 @@
 		Menu,
 		X,
 		LogOut,
-		ChevronDown
+		ChevronDown,
+		UserSearch
 	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
@@ -28,6 +29,7 @@
 	const baseNavItems = [
 		{ href: '/dashboard/', icon: LayoutDashboard, label: 'Dashboard' },
 		{ href: '/dashboard/jobs/', icon: Briefcase, label: 'Jobs' },
+		{ href: '/dashboard/candidates/', icon: UserSearch, label: 'Candidates' },
 		{ href: '/dashboard/analytics/', icon: BarChart3, label: 'Analytics' },
 		{ href: '/dashboard/account/', icon: User, label: 'Account' }
 	];

@@ -2131,3 +2131,35 @@ class ResumePublication(models.Model):
 
     def __str__(self):
         return f"{self.user_id} -> {self.version_id or 'unpublished'}"
+
+
+class CandidateShortlist(models.Model):
+    """GradBridge: a recruiter's private shortlist of published candidates.
+
+    Per recruiter, not per company: another recruiter in the same company
+    does not see it.
+    """
+
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="candidate_shortlist")
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shortlisted_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["recruiter", "candidate"], name="unique_candidate_shortlist")
+        ]
+
+
+class CandidateNote(models.Model):
+    """GradBridge: a recruiter's private note about a candidate (author-only)."""
+
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="candidate_notes")
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes_about")
+    body = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["recruiter", "candidate"])]
