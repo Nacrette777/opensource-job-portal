@@ -24,6 +24,7 @@
   } from "@lucide/svelte";
   import Toast from "$lib/components/Toast.svelte";
   import { enhance } from "$app/forms";
+  import type { SubmitFunction } from "@sveltejs/kit";
 
   // Receive children snippet and the server-resolved session
   let { children, data }: { children: any; data: any } = $props();
@@ -50,9 +51,27 @@
     userMenuDropdownOpen = !userMenuDropdownOpen;
   }
 
-  function closeUserMenu() {
+  function closeMenus() {
     userMenuDropdownOpen = false;
+    if (mobileMenuOpen) {
+      mobileMenuOpen = false;
+      document.body.style.overflow = "";
+    }
   }
+
+  // Close the menus only after the logout request has finished. Closing them
+  // in an onsubmit handler unmounts the {#if}-wrapped form mid-submit, which
+  // removes enhance's listener and aborts the native submission, so no POST
+  // is ever sent.
+  const enhanceLogout: SubmitFunction = () => {
+    return async ({ update }) => {
+      try {
+        await update();
+      } finally {
+        closeMenus();
+      }
+    };
+  };
 
   // Close dropdowns when clicking outside
   function handleClickOutside(event: MouseEvent) {
@@ -493,7 +512,7 @@
 
                   <!-- Logout -->
                   <div class="border-t border-border py-2">
-                    <form method="POST" action="/logout/" use:enhance onsubmit={closeUserMenu}>
+                    <form method="POST" action="/logout/" use:enhance={enhanceLogout}>
                       <button
                         type="submit"
                         class="flex items-center gap-3 px-4 py-2.5 text-error-600 hover:bg-error-light transition-colors w-full"
@@ -668,7 +687,7 @@
                 </a>
               </div>
 
-              <form method="POST" action="/logout/" use:enhance onsubmit={closeUserMenu}>
+              <form method="POST" action="/logout/" use:enhance={enhanceLogout}>
                 <button
                   type="submit"
                   class="flex items-center gap-3 px-4 py-3 mt-2 text-error-600 rounded-lg hover:bg-error-light transition-colors w-full"
