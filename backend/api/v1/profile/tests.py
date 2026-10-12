@@ -7,7 +7,17 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from peeldb.models import City, Country, Language, State, User, UserLanguage
+from peeldb.models import (
+    City,
+    Country,
+    Degree,
+    EducationInstitue,
+    Language,
+    Qualification,
+    State,
+    User,
+    UserLanguage,
+)
 
 
 class UserLanguageAPITests(TestCase):
@@ -221,3 +231,49 @@ class ProfilePatchTests(TestCase):
         self.assertEqual(self.user.profile_description, "")
         self.assertEqual(self.user.month, "")
         self.assertEqual(self.user.preferred_city.count(), 0)
+
+
+class EducationReadTests(TestCase):
+    """The edit form preselects its dropdowns from the ids on the list."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+        qualification = Qualification.objects.create(
+            name="Bachelor", status="Active", slug="bachelor"
+        )
+        self.degree = Degree.objects.create(
+            degree_name=qualification,
+            degree_type="Permanent",
+            specialization="Computer Science",
+        )
+        self.institute = EducationInstitue.objects.create(name="Test University")
+
+    def test_list_returns_institute_and_degree_ids(self):
+        created = self.client.post(
+            reverse("api:v1:profile:education-list"),
+            {
+                "institute_id": self.institute.id,
+                "degree_id": self.degree.id,
+                "from_date": "2021-02-01",
+                "to_date": "2024-11-30",
+                "score": "Distinction",
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED, created.data)
+
+        listing = self.client.get(reverse("api:v1:profile:education-list"))
+
+        self.assertEqual(listing.status_code, status.HTTP_200_OK)
+        self.assertEqual(listing.data[0]["institute_id"], self.institute.id)
+        self.assertEqual(listing.data[0]["degree_id"], self.degree.id)
