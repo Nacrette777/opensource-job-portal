@@ -549,7 +549,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     permanent_address = models.TextField(max_length=1000, blank=True, null=True)
     nationality = models.TextField(max_length=50, blank=True, null=True)
     mobile = models.CharField(max_length=20, blank=True, null=True)
-    alternate_mobile = models.BigIntegerField(blank=True, null=True)
+    # Text, not a number: a number drops the leading 0 and the + of a phone number.
+    alternate_mobile = models.CharField(max_length=20, blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
     email_verified = models.BooleanField(default=False)
     city = models.ForeignKey(
@@ -561,7 +562,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         Country, null=True, blank=True, on_delete=models.SET_NULL
     )
 
-    pincode = models.IntegerField(null=True, blank=True)
+    # Postcode; text for the same reason (e.g. Darwin is 0800).
+    pincode = models.CharField(max_length=10, null=True, blank=True)
     last_password_reset_on = models.DateTimeField(auto_now_add=True)
     photo = models.CharField(max_length=500)
     marital_status = models.CharField(

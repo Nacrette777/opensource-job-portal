@@ -92,7 +92,7 @@
 					id="mobile"
 					type="tel"
 					bind:value={formData.mobile}
-					placeholder="+91 9876543210"
+					placeholder="+61 412 345 678"
 					class="w-full pl-11 pr-4 py-3 border rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white transition-all outline-none {validationErrors.mobile ? 'border-error-500 focus:border-error-500 focus:ring-2 focus:ring-error-500/20' : 'border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}"
 				/>
 			</div>
@@ -114,7 +114,7 @@
 					id="alternate_mobile"
 					type="tel"
 					bind:value={formData.alternate_mobile}
-					placeholder="+91 9876543210"
+					placeholder="+61 412 345 678"
 					class="w-full pl-11 pr-4 py-3 border rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white transition-all outline-none {validationErrors.alternate_mobile ? 'border-error-500 focus:border-error-500 focus:ring-2 focus:ring-error-500/20' : 'border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}"
 				/>
 			</div>

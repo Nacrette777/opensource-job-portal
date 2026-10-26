@@ -47,6 +47,8 @@ class CandidateTests(TestCase):
         self.s1 = self.student("s1@example.test", "Ada", skills=[self.python, self.sql], education=[(self.cs, 2024)])
         self.s1.mobile = "+61 400000001"
         self.s1.address = "1 Private Street"
+        self.s1.alternate_mobile = "0499000111"
+        self.s1.pincode = "0800"
         self.s1.dob = date(2002, 1, 1)
         self.s1.save()
         self.s1.project.add(Project.objects.create(name="Sales Dashboard", description="BI"))
@@ -156,7 +158,7 @@ class CandidateTests(TestCase):
         self.assertEqual(data["name"], "Ada Student")
         self.assertIsNone(data["email"])  # show_email is off
         flat = str(data)
-        for secret in ("+61 400000001", "1 Private Street", "2002-01-01"):
+        for secret in ("+61 400000001", "0499000111", "1 Private Street", "0800", "2002-01-01"):
             self.assertNotIn(secret, flat)
         self.assertEqual([s["name"] for s in data["skills"]], ["Python", "SQL"])
         self.assertEqual(data["projects"][0]["name"], "Sales Dashboard")

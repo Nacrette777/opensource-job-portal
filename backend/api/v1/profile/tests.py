@@ -171,7 +171,7 @@ class ProfilePatchTests(TestCase):
         response = self.client.patch(
             self.url,
             {
-                "alternate_mobile": 400000022,
+                "alternate_mobile": "0400 000 022",
                 "state_id": self.state.id,
                 "country_id": self.country.id,
                 "preferred_city_ids": [self.city.id],
@@ -181,7 +181,7 @@ class ProfilePatchTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.alternate_mobile, 400000022)
+        self.assertEqual(self.user.alternate_mobile, "0400000022")
         self.assertEqual(self.user.state, self.state)
         self.assertEqual(self.user.country, self.country)
         self.assertEqual(list(self.user.preferred_city.all()), [self.city])
@@ -198,8 +198,8 @@ class ProfilePatchTests(TestCase):
     def test_fields_can_be_cleared(self):
         self.user.nationality = "Testlandic"
         self.user.mobile = "+61 400000001"
-        self.user.alternate_mobile = 400000022
-        self.user.pincode = 230800
+        self.user.alternate_mobile = "0400000022"
+        self.user.pincode = "2308"
         self.user.job_role = "Analyst"
         self.user.profile_description = "Summary"
         self.user.month = "6"
@@ -232,6 +232,78 @@ class ProfilePatchTests(TestCase):
         self.assertEqual(self.user.profile_description, "")
         self.assertEqual(self.user.month, "")
         self.assertEqual(self.user.preferred_city.count(), 0)
+
+
+class ContactFieldFormatTests(TestCase):
+    """S3-04: phone numbers and postcodes are text, so 0 and + survive."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("api:v1:profile:profile")
+        self.user = User.objects.create_user(
+            username="contact@example.com", email="contact@example.com", password="Str0ng!Passw0rd"
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+    def patch(self, **fields):
+        return self.client.patch(self.url, fields, format="json")
+
+    def test_leading_zero_and_plus_are_kept_and_separators_dropped(self):
+        for typed, stored in (
+            ("0412 000 123", "0412000123"),
+            ("+61 (412) 000-123", "+61412000123"),
+            ("+44 20.7946.0958", "+442079460958"),
+        ):
+            with self.subTest(typed=typed):
+                response = self.patch(alternate_mobile=typed)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.alternate_mobile, stored)
+
+    def test_invalid_phone_numbers_are_rejected(self):
+        for typed in ("12345", "04120001234567890", "0412 abc 123", "++61412000123"):
+            with self.subTest(typed=typed):
+                response = self.patch(alternate_mobile=typed)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("alternate_mobile", response.data)
+
+    def test_postcodes_keep_their_leading_zero_and_letters(self):
+        for typed, stored in (("0800", "0800"), (" 2300 ", "2300"), ("SW1A 1AA", "SW1A 1AA"), ("560001", "560001")):
+            with self.subTest(typed=typed):
+                response = self.patch(pincode=typed)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.pincode, stored)
+
+    def test_invalid_postcodes_are_rejected(self):
+        for typed in ("08-00!", "-2300", "12345678901"):
+            with self.subTest(typed=typed):
+                response = self.patch(pincode=typed)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("pincode", response.data)
+
+    def test_empty_input_clears_both_fields(self):
+        self.user.alternate_mobile = "0412000123"
+        self.user.pincode = "0800"
+        self.user.save()
+
+        response = self.patch(alternate_mobile="", pincode="  ")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertIsNone(self.user.alternate_mobile)
+        self.assertIsNone(self.user.pincode)
+
+    def test_profile_read_returns_the_text_as_saved(self):
+        self.patch(alternate_mobile="0412 000 123", pincode="0800")
+
+        data = self.client.get(self.url).data
+
+        self.assertEqual(data["alternate_mobile"], "0412000123")
+        self.assertEqual(data["pincode"], "0800")
 
 
 class EducationReadTests(TestCase):

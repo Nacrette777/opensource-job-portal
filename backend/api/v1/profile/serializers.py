@@ -2,6 +2,8 @@
 Profile Serializers for Job Seekers
 """
 
+import re
+
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
@@ -22,6 +24,37 @@ from peeldb.models import (
     User,
     UserLanguage,
 )
+
+PHONE_RE = re.compile(r"\+?[0-9]{6,15}")
+POSTCODE_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9 -]{0,8}[A-Za-z0-9])?")
+
+
+class ContactFieldsMixin:
+    """Phone numbers and postcodes are text: a leading 0 or + is part of the value.
+
+    The separators people type (spaces, hyphens, brackets, dots) are dropped from
+    phone numbers; nothing else is changed. Empty input clears the field.
+    """
+
+    def validate_alternate_mobile(self, value):
+        if value is None or not value.strip():
+            return None
+        compact = re.sub(r"[\s().-]", "", value)
+        if not PHONE_RE.fullmatch(compact):
+            raise serializers.ValidationError(
+                "Enter a phone number of 6 to 15 digits, optionally starting with +."
+            )
+        return compact
+
+    def validate_pincode(self, value):
+        if value is None or not value.strip():
+            return None
+        value = value.strip()
+        if not POSTCODE_RE.fullmatch(value):
+            raise serializers.ValidationError(
+                "Enter a postcode of up to 10 letters, digits, spaces or hyphens."
+            )
+        return value
 
 
 @extend_schema_serializer(component_name="ProfileCity")
@@ -302,7 +335,7 @@ class CertificationSerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at", "updated_at"]
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(ContactFieldsMixin, serializers.ModelSerializer):
     """
     Job Seeker Profile Serializer for GET/PUT operations
 
@@ -552,7 +585,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ProfileUpdateSerializer(serializers.ModelSerializer):
+class ProfileUpdateSerializer(ContactFieldsMixin, serializers.ModelSerializer):
     """
     Simplified serializer for partial profile updates
     Useful for updating specific fields without sending entire profile

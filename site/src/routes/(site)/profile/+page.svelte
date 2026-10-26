@@ -102,11 +102,11 @@
 			if (formData.mobile && !/^\+?[\d\s\-()]+$/.test(formData.mobile)) {
 				validationErrors.mobile = 'Invalid phone number format';
 			}
-			if (formData.alternate_mobile && !/^\+?[\d\s\-()]+$/.test(formData.alternate_mobile)) {
+			if (formData.alternate_mobile && !/^\+?[\d\s\-().]+$/.test(formData.alternate_mobile)) {
 				validationErrors.alternate_mobile = 'Invalid phone number format';
 			}
-			if (formData.pincode && !/^\d{6}$/.test(formData.pincode)) {
-				validationErrors.pincode = 'PIN code must be 6 digits';
+			if (formData.pincode && !/^[A-Za-z0-9](?:[A-Za-z0-9 -]{0,8}[A-Za-z0-9])?$/.test(formData.pincode.trim())) {
+				validationErrors.pincode = 'Enter a valid postcode (up to 10 letters or digits)';
 			}
 
 			if (Object.keys(validationErrors).length > 0) {
@@ -119,20 +119,20 @@
 			// ids as null. Skipping empty values left the old value in place
 			// while the page still reported success.
 			const text = (value: string | number | null | undefined) => String(value ?? '').trim();
-			const alternateMobile = text(formData.alternate_mobile).replace(/\D/g, '');
 
 			const updatePayload: Record<string, unknown> = {
 				first_name: text(formData.first_name),
 				last_name: text(formData.last_name),
 				mobile: text(formData.mobile),
-				alternate_mobile: alternateMobile ? parseInt(alternateMobile) : null,
+				// Phone numbers and postcodes stay text: a leading 0 or + is part of the value.
+				alternate_mobile: text(formData.alternate_mobile) || null,
 				gender: formData.gender || '',
 				dob: formData.dob || null,
 				marital_status: formData.marital_status || '',
 				nationality: text(formData.nationality),
 				address: text(formData.address),
 				permanent_address: text(formData.permanent_address),
-				pincode: text(formData.pincode) ? parseInt(text(formData.pincode)) : null,
+				pincode: text(formData.pincode) || null,
 				city_id: formData.city_id || null,
 				state_id: formData.state_id || null,
 				country_id: formData.country_id || null,
