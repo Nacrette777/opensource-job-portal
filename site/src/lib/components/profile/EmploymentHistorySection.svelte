@@ -197,7 +197,7 @@
 			class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition-colors elevation-1 text-sm"
 		>
 			<Plus size={18} />
-			<span class="hidden sm:inline">Add Experience</span>
+			<span class="sr-only sm:not-sr-only">Add Experience</span>
 		</button>
 	</div>
 
@@ -345,7 +345,7 @@
 								{editingEmploymentId ? 'Edit Employment' : 'Add Employment'}
 							</h3>
 						</div>
-						<button
+						<button aria-label="Close"
 							type="button"
 							onclick={closeForm}
 							class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"

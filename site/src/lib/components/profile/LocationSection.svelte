@@ -290,7 +290,8 @@
 							<button
 								type="button"
 								onclick={() => removePreferredCity(cityId)}
-								class="hover:bg-primary-100 rounded-full p-0.5 transition-colors"
+								aria-label={`Remove ${selectedPreferredCityNames[index] || 'city'}`}
+								class="-my-1 -mr-1.5 hover:bg-primary-100 rounded-full p-1.5 transition-colors"
 							>
 								<X size={14} />
 							</button>

@@ -8,6 +8,8 @@
 	let c = $derived(data.candidate);
 	let editing = $state<number | null>(null);
 	let draft = $state('');
+	// Disables Save note while a note is being saved, so a double click cannot save it twice.
+	let savingNote = $state(false);
 
 	const formatDate = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
 	const span = (from: string | null, to: string | null, current = false) =>
@@ -19,7 +21,7 @@
 </svelte:head>
 
 <div class="max-w-5xl space-y-6">
-	<a href="/dashboard/candidates/" class="inline-flex items-center gap-1 text-sm text-muted hover:text-black"><ArrowLeft class="w-4 h-4" /> Back to candidates</a>
+	<a href="/dashboard/candidates/" class="inline-flex items-center gap-1 py-2 text-sm text-muted hover:text-black"><ArrowLeft class="w-4 h-4" /> Back to candidates</a>
 
 	{#if form && 'error' in form && form.error}
 		<div class="bg-error-light border border-error/30 rounded-lg p-4 flex items-start gap-3" role="alert">
@@ -108,9 +110,9 @@
 			<section class="rounded-lg border border-border bg-white p-6">
 				<h2 class="flex items-center gap-2 font-semibold text-black"><StickyNote class="w-5 h-5" /> My notes</h2>
 				<p class="mt-1 flex items-center gap-1 text-xs text-muted"><Lock class="w-3 h-3" /> Only you can see these notes.</p>
-				<form method="POST" action="?/addNote" use:enhance class="mt-3 space-y-2">
-					<textarea name="body" rows="3" maxlength="5000" required placeholder="Add a private note" class="w-full rounded-lg border border-border px-3 py-2 text-sm"></textarea>
-					<button type="submit" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">Save note</button>
+				<form method="POST" action="?/addNote" use:enhance={() => { savingNote = true; return async ({ update }) => { await update(); savingNote = false; }; }} class="mt-3 space-y-2">
+					<textarea name="body" rows="3" maxlength="5000" required aria-label="Private note" placeholder="Add a private note" class="w-full rounded-lg border border-border px-3 py-2 text-sm"></textarea>
+					<button type="submit" disabled={savingNote} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-60">{savingNote ? 'Saving…' : 'Save note'}</button>
 				</form>
 				<ul class="mt-4 space-y-3">
 					{#each data.notes as note (note.id)}
@@ -118,7 +120,7 @@
 							{#if editing === note.id}
 								<form method="POST" action="?/editNote" use:enhance={() => async ({ update }) => { await update(); editing = null; }} class="space-y-2">
 									<input type="hidden" name="note_id" value={note.id} />
-									<textarea name="body" rows="3" maxlength="5000" bind:value={draft} class="w-full rounded-lg border border-border px-3 py-2"></textarea>
+									<textarea name="body" rows="3" maxlength="5000" aria-label="Edit note" bind:value={draft} class="w-full rounded-lg border border-border px-3 py-2"></textarea>
 									<div class="flex gap-2">
 										<button type="submit" class="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-white">Save</button>
 										<button type="button" onclick={() => (editing = null)} class="rounded-lg border border-border px-3 py-1 text-xs">Cancel</button>
@@ -129,10 +131,10 @@
 								<div class="mt-2 flex items-center justify-between text-xs text-muted">
 									<span>{formatDate(note.updated_at)}</span>
 									<span class="flex gap-2">
-										<button type="button" aria-label="Edit note" onclick={() => { editing = note.id; draft = note.body; }}><Pencil class="w-3 h-3" /></button>
+										<button type="button" aria-label="Edit note" class="rounded p-1.5 hover:bg-white" onclick={() => { editing = note.id; draft = note.body; }}><Pencil class="w-4 h-4" /></button>
 										<form method="POST" action="?/deleteNote" use:enhance>
 											<input type="hidden" name="note_id" value={note.id} />
-											<button type="submit" aria-label="Delete note"><Trash2 class="w-3 h-3" /></button>
+											<button type="submit" aria-label="Delete note" class="rounded p-1.5 hover:bg-white"><Trash2 class="w-4 h-4" /></button>
 										</form>
 									</span>
 								</div>

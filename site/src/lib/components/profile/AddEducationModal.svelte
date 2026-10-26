@@ -326,7 +326,7 @@
 							{education ? 'Edit Education' : 'Add Education'}
 						</h3>
 					</div>
-					<button
+					<button aria-label="Close"
 						type="button"
 						onclick={handleClose}
 						class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
@@ -395,6 +395,7 @@
 								<input
 									type="text"
 									placeholder="Search institute..."
+						aria-label="Search institute"
 									bind:value={instituteSearchQuery}
 									oninput={handleInstituteSearch}
 									class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"

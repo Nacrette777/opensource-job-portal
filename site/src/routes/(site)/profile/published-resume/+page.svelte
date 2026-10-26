@@ -154,7 +154,7 @@
 							{version.title || 'Untitled resume'} · {formatDate(version.created_at)}
 							{#if version.is_current}<span class="ml-2 rounded-full bg-success-50 px-2 py-0.5 text-xs text-success-600">current</span>{/if}
 						</span>
-						<a href={pdfHref(version.id)} class="inline-flex items-center gap-1 text-primary-600 hover:underline">
+						<a href={pdfHref(version.id)} class="inline-flex items-center gap-1 py-2 text-primary-600 hover:underline">
 							<Download size={14} /> PDF
 						</a>
 					</li>

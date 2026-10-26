@@ -238,7 +238,7 @@
 					<li class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
 						<span class="text-gray-700">{formatDate(draft.created_at)}</span>
 						{#if draft.status === 'succeeded'}
-							<a href={draft.editor_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 font-medium text-primary-600 hover:underline">
+							<a href={draft.editor_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 py-2 font-medium text-primary-600 hover:underline">
 								Open draft <ExternalLink size={14} />
 							</a>
 						{:else}

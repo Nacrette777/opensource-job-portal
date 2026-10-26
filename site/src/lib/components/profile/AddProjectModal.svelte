@@ -272,7 +272,7 @@
 							{project ? 'Edit Project' : 'Add Project'}
 						</h3>
 					</div>
-					<button
+					<button aria-label="Close"
 						type="button"
 						onclick={handleClose}
 						class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
@@ -330,7 +330,7 @@
 										<button
 											type="button"
 											onclick={() => removeSkill(skill.id)}
-											class="hover:text-primary-900 transition-colors"
+											class="-m-1.5 rounded-full p-1.5 hover:text-primary-900 transition-colors"
 											aria-label="Remove skill"
 										>
 											<Trash2 size={14} />
@@ -444,6 +444,7 @@
 							<input
 								type="text"
 								placeholder="Search city..."
+						aria-label="Search project location"
 								bind:value={citySearchQuery}
 								oninput={handleCitySearch}
 								class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"

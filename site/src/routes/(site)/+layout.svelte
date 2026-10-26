@@ -550,6 +550,8 @@
         <!-- Mobile Menu Button -->
         <button
           class="lg:hidden p-2 rounded-full text-muted hover:bg-surface transition-colors"
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
           onclick={toggleMobileMenu}
         >
           {#if mobileMenuOpen}

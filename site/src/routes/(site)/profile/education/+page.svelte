@@ -86,7 +86,7 @@
 			class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition-colors elevation-1 text-sm"
 		>
 			<Plus size={18} />
-			<span class="hidden sm:inline">Add Education</span>
+			<span class="sr-only sm:not-sr-only">Add Education</span>
 		</button>
 	</div>
 </div>
