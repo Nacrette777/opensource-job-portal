@@ -33,7 +33,7 @@ RR 必须使用 GradBridge fork（分支 `fix/gradbridge-runtime` 或其后续�
 | `CSRF_TRUSTED_ORIGINS`、`CORS_ALLOWED_ORIGINS` | 是 | 学生端、招聘端的公网 origin |
 | `SITE_FRONTEND_URL`、`RECRUITER_FRONTEND_URL` | 是 | 邮件链接、OAuth 回调地址的基础 |
 | `SECURE_COOKIES` | 否 | 默认 `true`；只有纯 HTTP 演练才设 `false` |
-| `TIME_ZONE` | 否 | 默认 `Asia/Kolkata`（PeelJobs 原值）。项目关闭了 `USE_TZ`，数据库存的是该时区的本地时间，**必须在首次部署前确定，之后不要修改**，否则所有已存时间都会整体偏移 |
+| `TIME_ZONE` | 否 | 默认 `Australia/Sydney`（2026-10-27 起；PeelJobs 原值为 `Asia/Kolkata`）。项目关闭了 `USE_TZ`，数据库存的是该时区的本地时间，**必须在首次部署前确定，之后不要修改**，否则所有已存时间都会整体偏移 |
 | `SECURE_SSL_REDIRECT` | 否 | 默认 `false`（HTTPS 由入口强制，服务间调用走内部 HTTP） |
 | `EMAIL_BACKEND` | 否 | 默认控制台输出；正式环境改为 SMTP/SES |
 | `CELERY_TASK_ALWAYS_EAGER` | 否 | 默认 `true`（无 worker 时任务同步执行） |
