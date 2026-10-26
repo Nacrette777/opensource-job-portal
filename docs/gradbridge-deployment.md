@@ -115,6 +115,7 @@ docker compose ... exec api python manage.py setup_rr_dev_integration \
 - RR 本地文件存储只用普通的读、写、建目录、删除，没有符号链接或重命名，可放在 Azure Files（SMB）上；启动时会检查目录可读写，权限不对会立即失败。RR 以 uid 1000 运行，api 以 uid 10001 运行，脚本为两个共享分别设置了 `uid/gid` 挂载选项。
 - 主站私有文件使用 Django 的文件系统存储，写入后会重新读取并核对 SHA-256，SMB 上同样适用。
 - Azure Blob 不是 S3 兼容存储，不能填入 RR 的 `S3_*`。
+- PostgreSQL 16：RR 的迁移只用到 `gen_random_uuid()`（PostgreSQL 13 起提供）。2026-10-26 在临时的 PostgreSQL 16.15 容器上执行了全部 32 个 RR 迁移，并通过导入记录的真实数据库测试（6 项）。
 - Container Apps 不能设置 `init`：RR 切换修订版时会等到终止宽限期结束（第 3 节）。
 - 冷启动后第一次生成 PDF 较慢（S3-06：开发模式约 20 秒）；每次部署 RR 后先做一次预热渲染。
 
