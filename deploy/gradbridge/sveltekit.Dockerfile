@@ -4,7 +4,8 @@
 # PUBLIC_* values are compiled in ($env/static/public), so pass them as build
 # args for the environment the image is for.
 FROM node:24-slim AS build
-RUN npm install -g pnpm@10
+# Pinned so a rebuild resolves the lockfile with the same pnpm as before.
+RUN npm install -g pnpm@10.34.9
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile

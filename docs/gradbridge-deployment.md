@@ -11,7 +11,7 @@
 | `recruiter`（招聘端 SvelteKit） | 同上，上下文 `recruiter/` | 3000 | 无 |
 | `rr`（Reactive Resume） | GradBridge RR fork 的 `Dockerfile` | 3000 | `/app/data`（RR 文件存储） |
 | `peeljobs-db` | `postgres:16` | 5432 | 数据卷 |
-| `rr-db` | `postgres:latest`（RR 上游使用） | 5432 | 数据卷 |
+| `rr-db` | `postgres:18`（与 RR 开发环境同一大版本；换大版本需要导出导入） | 5432 | 数据卷 |
 
 两个应用各自管理自己的数据库和迁移：Django 不管理 RR 的表，主站也不直接写 RR 数据库。主站与 RR 之间只通过 RR 的 OAuth 与 OpenAPI 交互。
 
@@ -66,6 +66,18 @@ docker compose --env-file <私有目录>/drill.env -f deploy/gradbridge/compose.
 - **停止服务用 `docker compose stop` 或不带 `-v` 的 `down`**。`down -v` 会删除数据库、已发布简历和 RR 文件所在的数据卷。
 - `api` 镜像的 gunicorn 带 `--no-control-socket`：gunicorn 26 默认在工作目录创建控制套接字（`/app/.gunicorn/gunicorn.ctl`），而容器以非 root 用户运行、对 `/app` 没有写权限，不加会在启动时报权限错误。
 - `rr` 服务设置了 `init: true`。RR 镜像让 node 直接作为 PID 1 运行，且没有处理 SIGTERM；不加 init 时 `stop` 要等 10 秒超时后强制结束（退出码 137），加上后 1 秒内正常退出。
+
+### 3.1 从干净检出复现开发与测试（S3-01，2026-10-26 实测）
+
+以下步骤在两个仓库的干净 `git worktree` 上执行过，依赖全部来自锁文件：
+
+| 部分 | 安装 | 检查 |
+|---|---|---|
+| `backend` | `uv sync --frozen`（`uv.lock`） | 准备 `backend/.env`（`DB_*`、`SECRET_KEY` 等，见第 2 节）后 `python manage.py test --noinput --parallel 1`；设 `REACTIVE_RESUME_DIR` 指向 RR 检出时，导出兼容测试也会运行 |
+| `site`、`recruiter` | `pnpm@10.34.9 install --frozen-lockfile`（`pnpm-lock.yaml`） | 先 `cp .env.example .env`（只含公开地址），再 `pnpm run check`；缺少 `.env` 时 svelte-check 会报 `$env/static/public` 没有导出 `PUBLIC_*` |
+| RR | `pnpm install --frozen-lockfile`（根 `package.json` 的 `packageManager` 为 pnpm 12.4.2） | `packages/api`、`packages/auth` 下 `vitest run`，以及 `tsgo --noEmit` |
+
+`site/` 同时有 `package-lock.json`（npm）和 `pnpm-lock.yaml`；镜像和上表都以 `pnpm-lock.yaml` 为准。
 
 ## 4 注册主站的 OAuth 客户端
 

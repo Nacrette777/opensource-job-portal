@@ -37,7 +37,9 @@ services:
       retries: 10
 
   rr-db:
-    image: postgres:latest
+    # Pinned to the major RR is developed against (PostgreSQL 18; its image keeps
+    # data under /var/lib/postgresql). Moving to a new major needs a dump/restore.
+    image: postgres:18
     restart: unless-stopped
     environment:
       POSTGRES_DB: reactive_resume
