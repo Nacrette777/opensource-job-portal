@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 from peeldb.models import ResumeAccountLink
 
+from .drafts import is_retryable
+
 
 class RRLinkStatusSerializer(serializers.Serializer):
     configured = serializers.BooleanField(
@@ -71,6 +73,9 @@ class RRDraftSerializer(serializers.Serializer):
     warnings = serializers.ListField(child=serializers.CharField())
     error_code = serializers.CharField(allow_blank=True)
     error = serializers.CharField(allow_blank=True)
+    retryable = serializers.BooleanField(
+        help_text="False once retrying this request can no longer help (succeeded, or the draft was deleted in RR)."
+    )
     created_at = serializers.DateTimeField()
 
     @staticmethod
@@ -83,5 +88,6 @@ class RRDraftSerializer(serializers.Serializer):
             "warnings": req.warnings or [],
             "error_code": req.error_code,
             "error": req.error,
+            "retryable": is_retryable(req),
             "created_at": req.created_at,
         }

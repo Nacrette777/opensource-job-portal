@@ -15,6 +15,11 @@ record honest when attempts overlap:
   that same document, so the draft and source_sha256 always match.
 - A success is final. A slower attempt that fails afterwards must not mark the
   request failed; it returns the recorded success instead.
+
+RR matches a retry on (RR account, requestId) in its own import record, not on
+the editable slug, so renaming the draft cannot make a retry create another.
+If the student has deleted the draft in RR, RR refuses the retry; that failure
+is final and the student is asked to create a new draft instead.
 """
 
 import hashlib
@@ -32,6 +37,28 @@ from .rr_client import HTTP_TIMEOUT, RRIntegrationError, get_access_token
 
 IMPORT_PATH = "/api/openapi/resumes/import/json-resume"
 SUCCEEDED = ResumeIntegrationRequest.STATUS_SUCCEEDED
+
+# Failures that retrying the same request can never fix: (HTTP status, message).
+FINAL_ERRORS = {
+    "rr_draft_deleted": (
+        410,
+        (
+            "This draft was deleted in Reactive Resume, so this request cannot be retried. "
+            "Create a new draft instead."
+        ),
+    ),
+    "rr_request_conflict": (
+        409,
+        (
+            "Reactive Resume already used this request for a different document. "
+            "Create a new draft instead."
+        ),
+    ),
+}
+
+
+def is_retryable(req):
+    return req.status != SUCCEEDED and req.error_code not in FINAL_ERRORS
 
 
 def editor_url(external_resume_id):
@@ -87,6 +114,9 @@ def _start_attempt(user, request_id, rr_user_id):
             raise RRIntegrationError("not_found", "Request not found.", status=404)
         if req.status == SUCCEEDED:
             return req, True
+        if req.error_code in FINAL_ERRORS:
+            status, message = FINAL_ERRORS[req.error_code]
+            raise RRIntegrationError(req.error_code, message, status=status)
         if req.rr_user_id and req.rr_user_id != rr_user_id:
             raise RRIntegrationError(
                 "rr_account_changed",
@@ -161,6 +191,14 @@ def create_draft(user, request_id):
             updated_at=timezone.now(),
         )
         return ResumeIntegrationRequest.objects.get(pk=req.pk)
+
+    final_code = {
+        (410, "IMPORT_TARGET_DELETED"): "rr_draft_deleted",
+        (409, "IMPORT_REQUEST_MISMATCH"): "rr_request_conflict",
+    }.get((response.status_code, payload.get("code")))
+    if final_code:
+        status, message = FINAL_ERRORS[final_code]
+        return _outcome(_fail(req, final_code, message, status=status))
 
     if response.status_code == 400 and payload.get("code") == "INVALID_JSON_RESUME":
         return _outcome(

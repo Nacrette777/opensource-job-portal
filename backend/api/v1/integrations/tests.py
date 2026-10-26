@@ -599,3 +599,68 @@ class RRDraftTests(RRTestBase):
         self.assertEqual(len(self.rr.imports), 1)
         req = ResumeIntegrationRequest.objects.get(id=self.request_id)
         self.assertEqual(req.rr_user_id, "rr-user-1")
+
+    def test_retry_after_the_draft_was_deleted_in_rr_is_final(self):
+        """RR created the draft, the response was lost, then the student deleted it in RR."""
+        self._linked()
+        self.rr.import_failure = "lost"
+        self.create()
+        self.rr.import_failure = (
+            410,
+            {"code": "IMPORT_TARGET_DELETED", "message": "The resume ... has since been deleted."},
+        )
+
+        response = self.create()
+
+        self.assertEqual(response.status_code, 410)
+        self.assertEqual(response.data["code"], "rr_draft_deleted")
+        self.assertIn("Create a new draft", response.data["error"])
+        req = ResumeIntegrationRequest.objects.get(id=self.request_id)
+        self.assertEqual(req.status, ResumeIntegrationRequest.STATUS_FAILED)
+        self.assertEqual(req.error_code, "rr_draft_deleted")
+
+        listed = self.client.get(reverse("api:v1:integrations:rr-drafts")).data
+        self.assertEqual([d["retryable"] for d in listed], [False])
+
+        # Further retries of this request are refused without calling RR again.
+        self.rr.import_failure = None
+        again = self.create()
+        self.assertEqual(again.status_code, 410)
+        self.assertEqual(again.data["code"], "rr_draft_deleted")
+        self.assertEqual(len(self.rr.imports), 2)
+        self.assertEqual(ResumeIntegrationRequest.objects.get(id=self.request_id).attempts, 2)
+
+        # A new request creates a new draft as usual.
+        fresh = self.create("0e9d8c7b-6a5f-4e3d-9c2b-1a0f9e8d7c6b")
+        self.assertEqual(fresh.data["status"], "succeeded")
+
+    def test_rr_refusing_a_reused_request_id_is_final(self):
+        self._linked()
+        self.rr.import_failure = (
+            409,
+            {"code": "IMPORT_REQUEST_MISMATCH", "message": "different document"},
+        )
+
+        response = self.create()
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["code"], "rr_request_conflict")
+        listed = self.client.get(reverse("api:v1:integrations:rr-drafts")).data
+        self.assertEqual([d["retryable"] for d in listed], [False])
+
+    def test_failed_and_pending_drafts_are_retryable_succeeded_ones_are_not(self):
+        self._linked()
+        self.rr.import_failure = "network"
+        self.create()
+        self.rr.import_failure = None
+        self.create("0e9d8c7b-6a5f-4e3d-9c2b-1a0f9e8d7c6b")
+
+        listed = {
+            str(d["id"]): d["retryable"]
+            for d in self.client.get(reverse("api:v1:integrations:rr-drafts")).data
+        }
+
+        self.assertEqual(
+            listed,
+            {self.request_id: True, "0e9d8c7b-6a5f-4e3d-9c2b-1a0f9e8d7c6b": False},
+        )

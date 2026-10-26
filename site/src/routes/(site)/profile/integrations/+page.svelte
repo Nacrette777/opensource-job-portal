@@ -248,16 +248,18 @@
 								{:else}
 									<span class="text-gray-500">In progress</span>
 								{/if}
-								<!-- Same request id: returns the draft if RR already made it. -->
-								<form method="POST" action="?/createDraft">
-									<input type="hidden" name="request_id" value={draft.id} />
-									<button
-										type="submit"
-										class="inline-flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-									>
-										<RefreshCw size={12} /> Retry
-									</button>
-								</form>
+								{#if draft.retryable}
+									<!-- Same request id: returns the draft if RR already made it. -->
+									<form method="POST" action="?/createDraft">
+										<input type="hidden" name="request_id" value={draft.id} />
+										<button
+											type="submit"
+											class="inline-flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+										>
+											<RefreshCw size={12} /> Retry
+										</button>
+									</form>
+								{/if}
 							</span>
 						{/if}
 					</li>

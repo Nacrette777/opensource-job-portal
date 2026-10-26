@@ -27,8 +27,19 @@ export type RRDraft = {
 	warnings: string[];
 	error_code: string;
 	error: string;
+	retryable: boolean;
 	created_at: string;
 };
+
+// Failures that retrying the same request cannot fix (e.g. the draft was deleted in Reactive
+// Resume); the next submit must use a fresh request id.
+const FINAL_DRAFT_ERRORS = new Set(['rr_draft_deleted', 'rr_request_conflict']);
+
+function errorCode(err: unknown) {
+	if (!(err instanceof ApiRequestError) || !err.data || typeof err.data !== 'object') return '';
+	const code = (err.data as { code?: unknown }).code;
+	return typeof code === 'string' ? code : '';
+}
 
 function errorMessage(err: unknown, fallback: string) {
 	return err instanceof ApiRequestError ? err.message : fallback;
@@ -106,10 +117,9 @@ export const actions: Actions = {
 			// Hand the same id back so "try again" retries this request. RR may
 			// already have created the draft; only the original id finds it
 			// instead of creating a duplicate.
-			return fail(errorStatus(err), {
-				error: errorMessage(err, 'Could not create the resume draft.'),
-				retryRequestId: requestId
-			});
+			const error = errorMessage(err, 'Could not create the resume draft.');
+			if (FINAL_DRAFT_ERRORS.has(errorCode(err))) return fail(errorStatus(err), { error });
+			return fail(errorStatus(err), { error, retryRequestId: requestId });
 		}
 	},
 
