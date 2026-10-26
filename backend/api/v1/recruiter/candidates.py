@@ -10,9 +10,15 @@ Search uses the PeelJobs profile (the structured, comparable data); the
 published Reactive Resume PDF is what recruiters download.
 """
 
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 
-from peeldb.models import CandidateNote, CandidateShortlist, User
+from peeldb.models import (
+    CandidateNote,
+    CandidateShortlist,
+    EducationDetails,
+    TechnicalSkill,
+    User,
+)
 from peeldb.resume_export import SKILL_LEVELS
 
 SUMMARY_PREVIEW = 240
@@ -71,20 +77,25 @@ def search(params):
     year = _int(params.get("graduation_year"), "graduation_year", 1950, 2100)
     q = (params.get("q") or "").strip()[:100]
 
+    # Every condition is an EXISTS on the candidate, never a join: joins repeat a
+    # candidate once per matching skill, project or education entry, and the
+    # DISTINCT needed to undo that dominated search time (S3-06).
+    skill_links = User.skills.through.objects
     qs = candidate_pool()
     for skill_id in skill_ids:
-        # One filter() per skill: separate joins, so all must be present.
-        qs = qs.filter(skills__skill_id=skill_id)
+        # One EXISTS per skill, so all of them must be present.
+        qs = qs.filter(Exists(skill_links.filter(user_id=OuterRef("pk"), technicalskill__skill_id=skill_id)))
 
     education = {}
     if qualification:
-        education["education__degree__degree_name_id"] = qualification
+        education["educationdetails__degree__degree_name_id"] = qualification
     if degree:
-        education["education__degree_id"] = degree
+        education["educationdetails__degree_id"] = degree
     if year:
-        education["education__to_date__year"] = year
+        education["educationdetails__to_date__year"] = year
     if education:
-        qs = qs.filter(**education)
+        # A single EXISTS: all conditions must hold for the same entry.
+        qs = qs.filter(Exists(User.education.through.objects.filter(user_id=OuterRef("pk"), **education)))
 
     if q:
         qs = qs.filter(
@@ -92,18 +103,39 @@ def search(params):
             | Q(last_name__icontains=q)
             | Q(job_role__icontains=q)
             | Q(profile_description__icontains=q)
-            | Q(skills__skill__name__icontains=q)
-            | Q(project__name__icontains=q)
+            | Exists(skill_links.filter(user_id=OuterRef("pk"), technicalskill__skill__name__icontains=q))
+            | Exists(User.project.through.objects.filter(user_id=OuterRef("pk"), project__name__icontains=q))
         )
-    return qs.distinct().order_by("-resume_publication__published_at", "id")
+    return qs.order_by("-resume_publication__published_at", "id")
+
+
+def with_list_data(qs):
+    """Load what list_item() shows for a page of candidates in three queries,
+    instead of two more per candidate."""
+    return qs.select_related("resume_publication").prefetch_related(
+        Prefetch(
+            "education",
+            queryset=EducationDetails.objects.select_related("degree__degree_name", "institute").order_by(
+                "-to_date", "-from_date"
+            ),
+        ),
+        Prefetch("skills", queryset=TechnicalSkill.objects.select_related("skill").order_by("skill__name")),
+    )
 
 
 def full_name(user):
     return " ".join(p for p in [user.first_name, user.last_name] if p).strip() or "Unnamed candidate"
 
 
+def _prefetched(user, name):
+    return name in getattr(user, "_prefetched_objects_cache", {})
+
+
 def _education(user):
-    rows = user.education.select_related("degree__degree_name", "institute").order_by("-to_date", "-from_date")
+    if _prefetched(user, "education"):
+        rows = user.education.all()  # already ordered by with_list_data()
+    else:
+        rows = user.education.select_related("degree__degree_name", "institute").order_by("-to_date", "-from_date")
     return [
         {
             "qualification": e.degree.degree_name.name,
@@ -126,7 +158,9 @@ def _skills(user):
             "level": SKILL_LEVELS.get(t.proficiency or "", ""),
             "years": t.year,
         }
-        for t in user.skills.select_related("skill").order_by("skill__name")
+        for t in (
+            user.skills.all() if _prefetched(user, "skills") else user.skills.select_related("skill").order_by("skill__name")
+        )
     ]
 
 

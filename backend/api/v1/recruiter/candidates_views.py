@@ -18,7 +18,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.v1.integrations import publishing
-from peeldb.models import CandidateNote, CandidateShortlist, Degree, Qualification, Skill
+from peeldb.models import (
+    CandidateNote,
+    CandidateShortlist,
+    Degree,
+    Qualification,
+    Skill,
+)
 
 from . import candidates
 
@@ -94,7 +100,7 @@ def search_candidates(request):
         return Response({"code": "invalid_filter", "error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
     paginator = CandidatePagination()
-    page = paginator.paginate_queryset(qs.select_related("resume_publication"), request)
+    page = paginator.paginate_queryset(candidates.with_list_data(qs), request)
     shortlisted, counts = candidates.list_context(request.user, [u.id for u in page])
     return paginator.get_paginated_response(
         [candidates.list_item(u, request.user, shortlisted, counts) for u in page]
