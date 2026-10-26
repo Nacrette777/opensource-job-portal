@@ -196,13 +196,14 @@
 		{ value: 'hybrid', label: 'Hybrid' }
 	];
 
+	// Optional perks only: superannuation (AU) and CPF (SG) are compulsory, so not listed.
 	const benefitOptions = [
-		'PF',
-		'ESI',
 		'Health Insurance',
 		'Annual Bonus',
-		'Food',
-		'Cab',
+		'Extra Leave',
+		'Learning Budget',
+		'Meals',
+		'Transport Allowance',
 		'Work From Home',
 		'Flexible Hours'
 	];

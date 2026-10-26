@@ -109,7 +109,7 @@
 
 			<h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-6 animate-fade-in-up" style="opacity: 0; animation-delay: 100ms;">
 				Hire the Best Talent in Singapore and Australia
-				<span class="block text-success mt-2">Without Spending a Rupee</span>
+				<span class="block text-success mt-2">Without Spending a Cent</span>
 			</h1>
 
 			<p class="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-3xl mx-auto animate-fade-in-up" style="opacity: 0; animation-delay: 200ms;">
