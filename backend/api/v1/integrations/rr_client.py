@@ -16,6 +16,7 @@ Endpoint paths follow RR's `/.well-known/oauth-authorization-server`.
 
 import base64
 import hashlib
+import json
 import secrets
 import time
 from datetime import timedelta
@@ -396,12 +397,33 @@ def get_access_token(user):
     return access_token
 
 
+def _token_subject(access_token):
+    """`sub` of an access token RR has just issued to us, or None if not a JWT.
+
+    The token comes straight from RR's token endpoint over our authenticated
+    back-channel, so its claims are read without checking the signature, the
+    same trust we place in the rest of that response. Unlike userinfo, this
+    does not depend on the RR browser session in which the job seeker approved
+    access: RR ends that session after some days and userinfo then rejects
+    tokens bound to it, while refreshing and the API keep working.
+    """
+    parts = access_token.split(".")
+    if len(parts) != 3:
+        return None
+    try:
+        claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+    except ValueError:
+        return None
+    sub = claims.get("sub") if isinstance(claims, dict) else None
+    return sub if isinstance(sub, str) else None
+
+
 def check_connection(user):
     """Prove the stored authorization still works: refresh, then read the account."""
     access_token = get_access_token(user)
-    info = _userinfo(access_token)
+    subject = _token_subject(access_token) or _userinfo(access_token).get("sub")
     link = ResumeAccountLink.objects.get(user=user)
-    if info.get("sub") != link.rr_user_id:
+    if subject != link.rr_user_id:
         raise RRIntegrationError(
             "subject_mismatch",
             "Reactive Resume returned a different account than the one linked.",

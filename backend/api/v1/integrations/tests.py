@@ -7,6 +7,7 @@ replaced by a fake RR that records what it was sent.
 
 import base64
 import hashlib
+import json as json_lib  # `json` is a parameter name in FakeRR.post
 from datetime import timedelta
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
@@ -62,6 +63,10 @@ class FakeRR:
         self.drafts = {}
         self.import_failure = None
         self.before_import = None
+        # When set, refreshes return JWT-shaped access tokens with this `sub`.
+        self.jwt_sub = None
+        # When set, userinfo answers with this status (e.g. 401 once RR ended the session).
+        self.userinfo_status = None
 
     def post(self, url, data=None, json=None, headers=None, timeout=None):
         if url.endswith("/api/openapi/resumes/import/json-resume"):
@@ -88,8 +93,13 @@ class FakeRR:
                 # RR's reuse window: the same response for a retried token.
                 return FakeResponse(200, self.refresh_replays[presented])
             self.refresh_counter += 1
+            access = f"access-r{self.refresh_counter}"
+            if self.jwt_sub:
+                claims = {"sub": self.jwt_sub, "jti": access}
+                payload = base64.urlsafe_b64encode(json_lib.dumps(claims).encode()).rstrip(b"=")
+                access = f"eyJhbGciOiJFZERTQSJ9.{payload.decode()}.signature"
             response = {
-                "access_token": f"access-r{self.refresh_counter}",
+                "access_token": access,
                 "refresh_token": f"refresh-r{self.refresh_counter}",
             }
             self.refresh_replays[presented] = response
@@ -121,6 +131,8 @@ class FakeRR:
     def get(self, url, headers=None, timeout=None):
         self.gets.append((url, headers))
         if url.endswith("/userinfo"):
+            if self.userinfo_status:
+                return FakeResponse(self.userinfo_status, {"error": "invalid_token"})
             return FakeResponse(
                 200, {"sub": self.sub, "email": "student@example.test", "name": "Student"}
             )
@@ -392,6 +404,29 @@ class RRLinkTests(RRTestBase):
         self.assertEqual(response.status_code, 200, response.data)
         self.assertEqual(response.data, {"ok": True, "resume_count": 1})
         self.assertEqual(self.rr.gets[-1][1]["Authorization"], "Bearer access-r1")
+
+    def test_check_works_after_rr_ended_the_session_userinfo_depends_on(self):
+        """RR's userinfo rejects tokens bound to an expired RR browser session; refresh and the API do not."""
+        self._linked()
+        self.rr.jwt_sub = "rr-user-1"
+        self.rr.userinfo_status = 401
+        before = len(self.rr.gets)
+
+        response = self.client.post(reverse("api:v1:integrations:rr-check"))
+
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data, {"ok": True, "resume_count": 1})
+        self.assertFalse([url for url, _ in self.rr.gets[before:] if url.endswith("/userinfo")])
+        self.assertEqual(self.link().status, ResumeAccountLink.STATUS_CONNECTED)
+
+    def test_check_refuses_a_token_issued_for_another_rr_account(self):
+        self._linked()
+        self.rr.jwt_sub = "rr-user-someone-else"
+
+        response = self.client.post(reverse("api:v1:integrations:rr-check"))
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["code"], "subject_mismatch")
 
     def test_check_without_a_link_is_a_conflict(self):
         response = self.client.post(reverse("api:v1:integrations:rr-check"))
