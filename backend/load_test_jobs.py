@@ -21,6 +21,10 @@ from peeldb.models import City, Company, Industry, JobPost, Qualification, Skill
 User = get_user_model()
 
 
+# Rough conversion for test salaries of jobs placed in Singapore
+SGD_PER_AUD = 0.85
+
+
 def get_or_create_company():
     """Get or create a test company and recruiter"""
     # Get or create a recruiter user
@@ -45,9 +49,9 @@ def get_or_create_company():
             "company_type": "Company",
             "is_active": True,
             "profile": "A leading technology company specializing in software development.",
-            "address": "123 Tech Park, Bangalore",
+            "address": "100 George Street, Sydney NSW",
             "website": "https://testtech.com",
-            "phone_number": "9876543210",
+            "phone_number": "+61255501234",
         },
     )
     if created:
@@ -64,8 +68,8 @@ def load_test_jobs():
     # Get some cities
     cities = list(City.objects.filter(status="Enabled")[:10])
     if not cities:
-        print("No cities found. Please load cities fixture first.")
-        print("Run: python manage.py loaddata cities.json")
+        print("No cities found. Please load the GradBridge locations first.")
+        print("Run: python manage.py load_gradbridge_locations")
         return
 
     # Get some skills
@@ -100,7 +104,8 @@ def load_test_jobs():
     # Get qualifications
     qualifications = list(Qualification.objects.filter(status="Active")[:5])
 
-    # Job templates
+    # Job templates. Salaries are yearly AUD; a job placed in Singapore is
+    # listed in SGD (see SGD_PER_AUD below).
     job_templates = [
         {
             "title": "Python Developer",
@@ -118,8 +123,8 @@ Requirements:
 - Knowledge of Django or Flask
 - Understanding of databases (PostgreSQL, MySQL)
 - Strong problem-solving skills""",
-            "min_salary": 500000,
-            "max_salary": 1200000,
+            "min_salary": 85000,
+            "max_salary": 110000,
             "min_experience": 2,
             "max_experience": 5,
             "job_type": "full-time",
@@ -138,8 +143,8 @@ Requirements:
 - 3+ years Java experience
 - Spring Boot knowledge
 - Microservices architecture""",
-            "min_salary": 600000,
-            "max_salary": 1500000,
+            "min_salary": 90000,
+            "max_salary": 120000,
             "min_experience": 3,
             "max_experience": 7,
             "job_type": "full-time",
@@ -158,8 +163,8 @@ Requirements:
 - 2+ years React experience
 - TypeScript knowledge
 - CSS/SASS expertise""",
-            "min_salary": 400000,
-            "max_salary": 1000000,
+            "min_salary": 80000,
+            "max_salary": 105000,
             "min_experience": 2,
             "max_experience": 5,
             "job_type": "full-time",
@@ -178,8 +183,8 @@ Requirements:
 - 3+ years DevOps experience
 - Docker and Kubernetes
 - AWS or Azure certification preferred""",
-            "min_salary": 800000,
-            "max_salary": 2000000,
+            "min_salary": 115000,
+            "max_salary": 150000,
             "min_experience": 3,
             "max_experience": 8,
             "job_type": "full-time",
@@ -198,8 +203,8 @@ Requirements:
 - Pursuing degree in related field
 - Basic SQL knowledge
 - Excel proficiency""",
-            "min_salary": 100000,
-            "max_salary": 200000,
+            "min_salary": 30000,
+            "max_salary": 40000,
             "min_experience": 0,
             "max_experience": 1,
             "job_type": "internship",
@@ -218,8 +223,8 @@ Requirements:
 - 4+ years full stack experience
 - React, Node.js, PostgreSQL
 - REST API design""",
-            "min_salary": 1000000,
-            "max_salary": 2500000,
+            "min_salary": 120000,
+            "max_salary": 160000,
             "min_experience": 4,
             "max_experience": 10,
             "job_type": "full-time",
@@ -238,8 +243,8 @@ Requirements:
 - B.Tech/B.E in Computer Science
 - Basic programming knowledge
 - Good communication skills""",
-            "min_salary": 300000,
-            "max_salary": 500000,
+            "min_salary": 70000,
+            "max_salary": 80000,
             "min_experience": 0,
             "max_experience": 1,
             "job_type": "full-time",
@@ -259,8 +264,8 @@ Requirements:
 - 3+ years Python
 - Self-motivated
 - Good internet connection""",
-            "min_salary": 800000,
-            "max_salary": 1800000,
+            "min_salary": 100000,
+            "max_salary": 135000,
             "min_experience": 3,
             "max_experience": 7,
             "job_type": "full-time",
@@ -274,6 +279,8 @@ Requirements:
         # Create multiple variations of each job
         for j in range(3):  # 3 jobs per template = 24 jobs total
             city = random.choice(cities)
+            in_singapore = city.state.country.slug == "singapore"
+            currency, rate = ("SGD", SGD_PER_AUD) if in_singapore else ("AUD", 1)
             industry = random.choice(industries)
             job_skills = random.sample(skills, min(5, len(skills)))
 
@@ -295,8 +302,10 @@ Requirements:
                 company=company,
                 user=recruiter,
                 status="Live",
-                min_salary=template["min_salary"],
-                max_salary=template["max_salary"],
+                min_salary=int(round(template["min_salary"] * rate, -3)),
+                max_salary=int(round(template["max_salary"] * rate, -3)),
+                salary_type="Year",
+                salary_currency=currency,
                 min_year=template["min_experience"],
                 max_year=template["max_experience"],
                 min_month=0,

@@ -11,18 +11,18 @@
     "first_name": "Ashwin",
     "last_name": "Company",
     "password": "123456",
-    "mobile": "+919959166265",
+    "mobile": "+61491570006",
     "job_title": "HR Director",
     "profile_description": "HR Director at MicroPyramid Tech overseeing all recruitment operations.",
-    "city": "Hyderabad",
+    "city": "Sydney",
     "is_admin": true,
     "company": {
       "name": "MicroPyramid Tech",
       "slug": "micropyramid-tech",
       "website": "https://www.micropyramid.com",
-      "address": "HITEC City, Hyderabad",
+      "address": "George Street, Sydney NSW",
       "profile": "<p>MicroPyramid is a leading technology company specializing in web development, cloud solutions, and IT consulting.</p>",
-      "phone_number": "+919876543210",
+      "phone_number": "+61255501234",
       "email": "hr@micropyramid.com",
       "size": "50-200",
       "company_type": "Company"
@@ -36,11 +36,11 @@
         "skills": ["Python", "Django", "PostgreSQL", "REST API"],
         "min_year": 3,
         "max_year": 7,
-        "min_salary": 1000000,
-        "max_salary": 2000000,
+        "min_salary": 120000,
+        "max_salary": 150000,
         "job_type": "full-time",
         "vacancies": 2,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "Full Stack Developer",
@@ -48,11 +48,11 @@
         "skills": ["Python", "Django", "React", "JavaScript"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 800000,
-        "max_salary": 1500000,
+        "min_salary": 100000,
+        "max_salary": 130000,
         "job_type": "full-time",
         "vacancies": 3,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "Junior Software Engineer",
@@ -60,11 +60,11 @@
         "skills": ["Python", "JavaScript", "SQL"],
         "min_year": 0,
         "max_year": 2,
-        "min_salary": 400000,
-        "max_salary": 700000,
+        "min_salary": 70000,
+        "max_salary": 85000,
         "job_type": "full-time",
         "vacancies": 5,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "DevOps Engineer",
@@ -72,11 +72,11 @@
         "skills": ["AWS", "Docker", "Kubernetes", "Jenkins", "Linux"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 900000,
-        "max_salary": 1800000,
+        "min_salary": 115000,
+        "max_salary": 145000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "React Frontend Developer",
@@ -84,11 +84,11 @@
         "skills": ["React", "JavaScript", "TypeScript", "CSS", "HTML"],
         "min_year": 2,
         "max_year": 4,
-        "min_salary": 700000,
-        "max_salary": 1400000,
+        "min_salary": 100000,
+        "max_salary": 125000,
         "job_type": "full-time",
         "vacancies": 2,
-        "city": "Bangalore"
+        "city": "Melbourne"
       }
     ]
   },
@@ -98,10 +98,10 @@
     "first_name": "Ashwin",
     "last_name": "Recruiter",
     "password": "123456",
-    "mobile": "+919959166266",
+    "mobile": "+61491570156",
     "job_title": "Senior HR Manager",
     "profile_description": "Senior HR Manager at MicroPyramid Tech with expertise in IT recruitment.",
-    "city": "Hyderabad",
+    "city": "Sydney",
     "is_admin": false,
     "company_slug": "micropyramid-tech",
     "industries": ["IT", "Software", "Technology"],
@@ -113,11 +113,11 @@
         "skills": ["Python", "Django", "PostgreSQL"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 800000,
-        "max_salary": 1500000,
+        "min_salary": 100000,
+        "max_salary": 130000,
         "job_type": "full-time",
         "vacancies": 2,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "QA Engineer",
@@ -125,11 +125,11 @@
         "skills": ["Selenium", "Python", "API Testing"],
         "min_year": 1,
         "max_year": 4,
-        "min_salary": 500000,
-        "max_salary": 1000000,
+        "min_salary": 85000,
+        "max_salary": 110000,
         "job_type": "full-time",
         "vacancies": 2,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "UI/UX Designer",
@@ -137,11 +137,11 @@
         "skills": ["Figma", "Adobe XD", "CSS", "HTML"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 600000,
-        "max_salary": 1200000,
+        "min_salary": 95000,
+        "max_salary": 120000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "Technical Writer",
@@ -149,11 +149,11 @@
         "skills": ["Technical Writing", "Documentation", "API Documentation"],
         "min_year": 1,
         "max_year": 3,
-        "min_salary": 400000,
-        "max_salary": 800000,
+        "min_salary": 85000,
+        "max_salary": 105000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Hyderabad"
+        "city": "Sydney"
       },
       {
         "title": "Project Manager",
@@ -161,11 +161,11 @@
         "skills": ["Agile", "Scrum", "JIRA", "Project Management"],
         "min_year": 5,
         "max_year": 10,
-        "min_salary": 1500000,
-        "max_salary": 2500000,
+        "min_salary": 140000,
+        "max_salary": 170000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Hyderabad"
+        "city": "Sydney"
       }
     ]
   },
@@ -175,10 +175,10 @@
     "first_name": "Ashwin",
     "last_name": "Consultant",
     "password": "123456",
-    "mobile": "+919959166267",
+    "mobile": "+61491570157",
     "job_title": "Independent IT Recruiter",
     "profile_description": "Freelance IT Recruiter with 10+ years experience in tech hiring.",
-    "city": "Bangalore",
+    "city": "Melbourne",
     "industries": ["IT", "Software", "Consulting"],
     "skills": ["Java", "Python", ".NET", "Cloud", "DevOps"],
     "job_posts": [
@@ -188,11 +188,11 @@
         "skills": ["Java", "Spring Boot", "Microservices"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 900000,
-        "max_salary": 1600000,
+        "min_salary": 72000,
+        "max_salary": 96000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Bangalore"
+        "city": "Singapore"
       },
       {
         "title": "Cloud DevOps Engineer",
@@ -200,11 +200,11 @@
         "skills": ["AWS", "Docker", "Kubernetes", "CI/CD"],
         "min_year": 3,
         "max_year": 6,
-        "min_salary": 1200000,
-        "max_salary": 2200000,
+        "min_salary": 90000,
+        "max_salary": 120000,
         "job_type": "contract",
         "vacancies": 2,
-        "city": "Bangalore"
+        "city": "Singapore"
       },
       {
         "title": "Data Engineer",
@@ -212,11 +212,11 @@
         "skills": ["Python", "Apache Spark", "SQL", "AWS", "ETL"],
         "min_year": 3,
         "max_year": 7,
-        "min_salary": 1100000,
-        "max_salary": 2000000,
+        "min_salary": 120000,
+        "max_salary": 150000,
         "job_type": "full-time",
         "vacancies": 1,
-        "city": "Bangalore"
+        "city": "Melbourne"
       },
       {
         "title": "Senior .NET Developer",
@@ -224,11 +224,11 @@
         "skills": [".NET", "C#", "Azure", "SQL Server", "Microservices"],
         "min_year": 5,
         "max_year": 10,
-        "min_salary": 1500000,
-        "max_salary": 2800000,
+        "min_salary": 140000,
+        "max_salary": 170000,
         "job_type": "full-time",
         "vacancies": 2,
-        "city": "Chennai"
+        "city": "Brisbane"
       },
       {
         "title": "QA Automation Engineer",
@@ -236,11 +236,11 @@
         "skills": ["Selenium", "Python", "Java", "API Testing", "CI/CD"],
         "min_year": 2,
         "max_year": 5,
-        "min_salary": 700000,
-        "max_salary": 1400000,
+        "min_salary": 95000,
+        "max_salary": 120000,
         "job_type": "contract",
         "vacancies": 3,
-        "city": "Pune"
+        "city": "Perth"
       }
     ]
   },
@@ -250,20 +250,20 @@
     "first_name": "Ashwin",
     "last_name": "Jobseeker",
     "password": "123456",
-    "mobile": "+919959166268",
+    "mobile": "+61491570158",
     "gender": "M",
-    "city": "Hyderabad",
+    "city": "Sydney",
     "experience_years": 5,
     "experience_months": 6,
-    "current_salary": "1200000",
-    "expected_salary": "1500000",
+    "current_salary": "125000",
+    "expected_salary": "140000",
     "notice_period": "1 Month",
     "profile_description": "Experienced Full Stack Developer with 5+ years in Python, Django, and JavaScript. Passionate about building scalable web applications.",
     "resume_title": "Ashwin Jobseeker - Full Stack Developer",
     "is_looking_for_job": true,
     "is_open_to_offers": true,
     "relocation": true,
-    "preferred_cities": ["Hyderabad", "Bangalore", "Chennai", "Pune"],
+    "preferred_cities": ["Sydney", "Melbourne", "Singapore", "Brisbane"],
     "skills": [
       {"name": "Python", "years": 5, "proficiency": "Expert", "is_major": true},
       {"name": "Django", "years": 4, "proficiency": "Expert", "is_major": false},
@@ -299,18 +299,17 @@
       }
     ],
     "education": {
-      "institute": "Indian Institute of Technology, Hyderabad",
-      "institute_address": "Kandi, Sangareddy, Telangana",
-      "qualification": "B.Tech",
-      "specialization": "Computer Science and Engineering",
-      "score": "8.5 CGPA",
+      "institute": "UNSW Sydney",
+      "institute_address": "Kensington NSW",
+      "qualification": "Bachelor's Degree",
+      "specialization": "Computer Science",
+      "score": "WAM 82",
       "years_ago_start": 9,
       "years_ago_end": 5.5
     },
     "languages": [
       {"name": "English", "read": true, "write": true, "speak": true},
-      {"name": "Hindi", "read": true, "write": true, "speak": true},
-      {"name": "Telugu", "read": true, "write": false, "speak": true}
+      {"name": "Mandarin", "read": true, "write": false, "speak": true}
     ]
   }
 }

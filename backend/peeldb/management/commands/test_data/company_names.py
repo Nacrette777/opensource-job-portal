@@ -58,121 +58,44 @@ COMPANY_SUFFIXES = [
     "Hub",
 ]
 
-COMPANY_TYPE_SUFFIXES = [
-    "Pvt Ltd",
-    "Private Limited",
-    "Solutions Pvt Ltd",
-    "Technologies Pvt Ltd",
-    "India Pvt Ltd",
-    "Software Pvt Ltd",
-    "IT Services",
-    "Consulting LLP",
-]
 
-# Realistic Indian IT company name patterns
-INDIAN_COMPANY_PATTERNS = [
-    "{prefix}{suffix}",
-    "{prefix}{suffix} {type}",
-    "{lastname} {suffix}",
-    "{lastname} {suffix} {type}",
-    "{prefix} {suffix} India",
-    "{firstname}{suffix}",
-]
+# Legal-form suffixes by country slug
+COMPANY_TYPE_SUFFIXES = {
+    "australia": ["Pty Ltd", "Group Pty Ltd", "Technologies Pty Ltd", "Consulting"],
+    "singapore": ["Pte. Ltd.", "Technologies Pte. Ltd.", "Asia Pacific Pte. Ltd.", "Consulting"],
+}
 
-# Business park and address patterns
-ADDRESS_PATTERNS = [
-    "{number}, {park}, {area}, {city}",
-    "Floor {floor}, {building}, {area}, {city}",
-    "{building}, Plot {number}, {park}, {city}",
-    "{number}/{floor}, {area}, {city} - {pincode}",
-]
-
-BUSINESS_PARKS = [
-    "Cyber Park",
-    "Tech Park",
-    "IT Park",
-    "Software Park",
-    "Business Park",
-    "Innovation Hub",
-    "Technology Campus",
-    "Corporate Park",
-    "Digital Zone",
-    "Techno Park",
-    "Info Park",
-    "Software City",
-    "IT Tower",
-    "Tech Tower",
-]
-
-BUILDINGS = [
-    "Prestige Tower",
-    "DLF Cyber City",
-    "Embassy Tech Village",
-    "RMZ Ecoworld",
-    "Manyata Tech Park",
-    "Bagmane Tech Park",
-    "ITPL",
-    "Electronic City",
-    "Mindspace",
-    "Raheja Mindspace",
-    "Cyber Gateway",
-    "Platina Tower",
-    "World Trade Center",
-    "Phoenix Market City",
-    "Orion Mall Tower",
-]
-
-AREAS = [
-    "Whitefield",
-    "Electronic City",
-    "Marathahalli",
-    "Koramangala",
-    "HSR Layout",
-    "BTM Layout",
-    "Indiranagar",
-    "Jayanagar",
-    "JP Nagar",
-    "Bannerghatta Road",
-    "HITEC City",
-    "Gachibowli",
-    "Madhapur",
-    "Kondapur",
-    "Jubilee Hills",
-    "Banjara Hills",
-    "Kukatpally",
-    "Ameerpet",
-    "Begumpet",
-    "Secunderabad",
-    "Andheri",
-    "Powai",
-    "BKC",
-    "Lower Parel",
-    "Goregaon",
-    "Malad",
-    "Thane",
-    "Gurugram",
-    "Noida",
-    "Greater Noida",
-    "Faridabad",
-    "Ghaziabad",
-    "Salt Lake",
-    "Rajarhat",
-    "New Town",
-    "Sector V",
-    "Park Street",
-    "OMR",
-    "Sholinganallur",
-    "Perungudi",
-    "Velachery",
-    "Adyar",
-    "T Nagar",
-    "Kharadi",
-    "Hinjewadi",
-    "Baner",
-    "Wakad",
-    "Viman Nagar",
-    "Magarpatta",
-]
+# Business streets by country slug, for "<number> <street>, <city>" addresses
+STREETS = {
+    "australia": [
+        "George Street",
+        "Pitt Street",
+        "Macquarie Street",
+        "Collins Street",
+        "Bourke Street",
+        "Queen Street",
+        "Eagle Street",
+        "St Georges Terrace",
+        "King William Street",
+        "Northbourne Avenue",
+        "Elizabeth Street",
+        "Flinders Street",
+    ],
+    "singapore": [
+        "Raffles Place",
+        "Shenton Way",
+        "Robinson Road",
+        "Cecil Street",
+        "Anson Road",
+        "Marina Boulevard",
+        "Orchard Road",
+        "Science Park Road",
+        "One-North Crescent",
+        "Changi Business Park Crescent",
+        "Fusionopolis Way",
+        "Tampines Avenue",
+    ],
+}
 
 # Company profiles
 COMPANY_PROFILES = [

@@ -19,7 +19,6 @@ from peeldb.models import (
     AppliedJobs,
     City,
     Company,
-    Country,
     Degree,
     EducationDetails,
     EducationInstitue,
@@ -35,11 +34,11 @@ from peeldb.models import (
 )
 
 from .test_data.company_names import (
-    BUSINESS_PARKS,
     COMPANY_PREFIXES,
     COMPANY_PROFILES,
     COMPANY_SUFFIXES,
     COMPANY_TYPE_SUFFIXES,
+    STREETS,
 )
 from .test_data.constants import (
     APPLICATION_STATUS_WEIGHTS,
@@ -61,20 +60,62 @@ from .test_data.constants import (
     USER_TYPE_JOBSEEKER,
     WORK_MODES,
 )
-from .test_data.indian_names import (
-    INDIAN_COLLEGES,
-    INDIAN_FIRST_NAMES,
-    INDIAN_FIRST_NAMES_FEMALE,
-    INDIAN_FIRST_NAMES_MALE,
-    INDIAN_LAST_NAMES,
-    INDIAN_UNIVERSITIES,
-)
 from .test_data.job_titles import (
     DEFAULT_JOB_TITLES,
     JOB_DESCRIPTION_TEMPLATES,
     JOB_TITLES_BY_SKILL,
     RECRUITER_TITLES,
 )
+from .test_data.sg_au_names import (
+    COLLEGES,
+    FIRST_NAMES,
+    FIRST_NAMES_FEMALE,
+    FIRST_NAMES_MALE,
+    LAST_NAMES,
+    UNIVERSITIES,
+)
+
+# Australian landline area codes by state slug (Singapore has none)
+AU_AREA_CODES = {
+    "new-south-wales": "2",
+    "australian-capital-territory": "2",
+    "victoria": "3",
+    "tasmania": "3",
+    "queensland": "7",
+    "south-australia": "8",
+    "western-australia": "8",
+    "northern-territory": "8",
+}
+
+
+def is_singapore(city):
+    return city.state.country.slug == "singapore"
+
+
+def currency_for(city):
+    """Salaries in Singapore are in SGD, in Australia in AUD."""
+    return "SGD" if is_singapore(city) else "AUD"
+
+
+def mobile_for(city):
+    """A random mobile number in the city's format: +65 8/9xxx xxxx or +61 4xx xxx xxx."""
+    if is_singapore(city):
+        return f"+65{random.choice('89')}{random.randint(0, 9999999):07d}"
+    return f"+614{random.randint(0, 99999999):08d}"
+
+
+def landline_for(city):
+    """A random office number: +65 6xxx xxxx or +61 <area> xxxx xxxx."""
+    if is_singapore(city):
+        return f"+656{random.randint(0, 9999999):07d}"
+    area = AU_AREA_CODES.get(city.state.slug, "2")
+    return f"+61{area}{random.randint(0, 99999999):08d}"
+
+
+def salary_band(currency, years):
+    """(min, max) yearly salary for this many years of experience."""
+    ranges = SALARY_RANGES[currency]
+    return ranges[max(k for k in ranges if k <= years)]
 
 
 class Command(BaseCommand):
@@ -130,12 +171,13 @@ class Command(BaseCommand):
         self._validate_fixtures_loaded()
 
         # Load reference data
-        self.cities = list(City.objects.filter(status="Enabled"))
+        self.cities = list(
+            City.objects.filter(status="Enabled").select_related("state__country")
+        )
         self.skills = list(Skill.objects.filter(status="Active"))
         self.industries = list(Industry.objects.filter(status="Active"))
         self.qualifications = list(Qualification.objects.all())
         self.languages = list(Language.objects.all())
-        self.country = Country.objects.filter(status="Enabled").first()
 
         with transaction.atomic():
             # Create education infrastructure first
@@ -192,32 +234,27 @@ class Command(BaseCommand):
     def _create_education_infrastructure(self):
         """Create education institutes and degrees if not enough exist."""
         # Create institutes
-        existing_institutes = EducationInstitue.objects.count()
-        if existing_institutes < 50:
-            self.stdout.write("Creating education institutes...")
-            for city in random.sample(self.cities, min(30, len(self.cities))):
-                for template in INDIAN_UNIVERSITIES[:5]:
-                    name = f"{template} {city.name}"
-                    if not EducationInstitue.objects.filter(name=name).exists():
-                        EducationInstitue.objects.create(
-                            name=name,
-                            address=f"{city.name}, {city.state.name}",
-                            city=city,
-                        )
-                for template in INDIAN_COLLEGES[:3]:
-                    name = f"{template} {city.name}"
-                    if not EducationInstitue.objects.filter(name=name).exists():
-                        EducationInstitue.objects.create(
-                            name=name,
-                            address=f"{city.name}, {city.state.name}",
-                            city=city,
-                        )
+        # Real universities, polytechnics and TAFEs, each in its own city (only
+        # cities that are loaded are used).
+        cities_by_slug = {city.slug: city for city in self.cities}
+        self.stdout.write("Creating education institutes...")
+        for name, city_slug in UNIVERSITIES + COLLEGES:
+            city = cities_by_slug.get(city_slug)
+            if city and not EducationInstitue.objects.filter(name=name).exists():
+                EducationInstitue.objects.create(
+                    name=name,
+                    address=f"{city.name}, {city.state.name}",
+                    city=city,
+                )
 
         self.institutes = list(EducationInstitue.objects.all())
 
     def _generate_unique_email(self, first_name, last_name, domain_hint):
         """Generate a unique email address."""
-        base = f"{first_name.lower()}.{last_name.lower()}"
+        def part(name):
+            return "".join(ch for ch in name.lower() if ch.isalnum())
+
+        base = f"{part(first_name)}.{part(last_name)}"
         counter = 0
         while True:
             suffix = f"{counter}" if counter > 0 else ""
@@ -244,20 +281,21 @@ class Command(BaseCommand):
         self._used_slugs.add(slug)
         return slug
 
-    def _generate_company_name(self):
-        """Generate a unique realistic company name."""
+    def _generate_company_name(self, country_slug=None):
+        """Generate a unique realistic company name (Pty Ltd in Australia, Pte. Ltd. in Singapore)."""
+        legal_forms = COMPANY_TYPE_SUFFIXES.get(
+            country_slug, COMPANY_TYPE_SUFFIXES["australia"]
+        )
         patterns = [
             lambda: (
                 f"{random.choice(COMPANY_PREFIXES)}{random.choice(COMPANY_SUFFIXES)}"
             ),
+            lambda: f"{random.choice(LAST_NAMES)} {random.choice(COMPANY_SUFFIXES)}",
             lambda: (
-                f"{random.choice(INDIAN_LAST_NAMES)} {random.choice(COMPANY_SUFFIXES)}"
+                f"{random.choice(COMPANY_PREFIXES)} {random.choice(COMPANY_SUFFIXES)} {random.choice(legal_forms)}"
             ),
             lambda: (
-                f"{random.choice(COMPANY_PREFIXES)} {random.choice(COMPANY_SUFFIXES)} {random.choice(COMPANY_TYPE_SUFFIXES)}"
-            ),
-            lambda: (
-                f"{random.choice(COMPANY_PREFIXES)}{random.choice(COMPANY_SUFFIXES)} India"
+                f"{random.choice(COMPANY_PREFIXES)}{random.choice(COMPANY_SUFFIXES)} {random.choice(legal_forms)}"
             ),
         ]
 
@@ -280,16 +318,18 @@ class Command(BaseCommand):
                 self.stdout.write(f"  Created {i + 1}/{count} companies...")
 
             city = random.choice(self.cities)
-            name = self._generate_company_name()
+            country_slug = city.state.country.slug
+            name = self._generate_company_name(country_slug)
             slug = self._generate_unique_slug(name)
+            street = random.choice(STREETS.get(country_slug, STREETS["australia"]))
 
             company = Company.objects.create(
                 name=name,
                 slug=slug,
                 website=f"https://www.{slugify(name).replace('-', '')}.com",
-                address=f"{random.randint(1, 500)}, {random.choice(BUSINESS_PARKS)}, {city.name}",
+                address=f"{random.randint(1, 500)} {street}, {city.name}",
                 profile=f"<p>{name} is a leading technology company. {random.choice(COMPANY_PROFILES)} {TEST_DATA_MARKER}</p>",
-                phone_number=f"+91{random.randint(7000000000, 9999999999)}",
+                phone_number=landline_for(city),
                 email=f"hr@{slugify(name).replace('-', '')}.com",
                 size=random.choice(COMPANY_SIZES),
                 company_type=random.choice(COMPANY_TYPES),
@@ -313,8 +353,8 @@ class Command(BaseCommand):
 
             company = random.choice(companies)
             city = random.choice(self.cities)
-            first_name = random.choice(INDIAN_FIRST_NAMES)
-            last_name = random.choice(INDIAN_LAST_NAMES)
+            first_name = random.choice(FIRST_NAMES)
+            last_name = random.choice(LAST_NAMES)
             email = self._generate_unique_email(first_name, last_name, company.slug)
 
             # First recruiter for each company is admin
@@ -336,7 +376,7 @@ class Command(BaseCommand):
                 city=city,
                 state=city.state,
                 country=city.state.country,
-                mobile=f"+91{random.randint(7000000000, 9999999999)}",
+                mobile=mobile_for(city),
                 profile_description=f"Recruiter at {company.name}. {TEST_DATA_MARKER}",
                 job_title=random.choice(RECRUITER_TITLES),
             )
@@ -370,19 +410,16 @@ class Command(BaseCommand):
 
             city = random.choice(self.cities)
             gender = random.choice(GENDERS)
-            first_names = (
-                INDIAN_FIRST_NAMES_MALE if gender == "M" else INDIAN_FIRST_NAMES_FEMALE
-            )
+            first_names = FIRST_NAMES_MALE if gender == "M" else FIRST_NAMES_FEMALE
             first_name = random.choice(first_names)
-            last_name = random.choice(INDIAN_LAST_NAMES)
+            last_name = random.choice(LAST_NAMES)
             email = self._generate_unique_email(first_name, last_name, "jobseeker")
 
             years_exp = random.randint(0, 15)
             months_exp = random.randint(0, 11)
 
-            # Calculate salary based on experience
-            salary_key = max(k for k in SALARY_RANGES if k <= years_exp)
-            min_sal, max_sal = SALARY_RANGES[salary_key]
+            # Yearly salary in the city's currency, based on experience
+            min_sal, max_sal = salary_band(currency_for(city), years_exp)
             current_salary = random.randint(min_sal, max_sal)
             expected_salary = int(current_salary * random.uniform(1.1, 1.4))
 
@@ -405,7 +442,7 @@ class Command(BaseCommand):
                 current_city=city,
                 state=city.state,
                 country=city.state.country,
-                mobile=f"+91{random.randint(7000000000, 9999999999)}",
+                mobile=mobile_for(city),
                 year=str(years_exp),
                 month=str(months_exp),
                 current_salary=str(current_salary),
@@ -492,7 +529,7 @@ class Command(BaseCommand):
             current_date = from_date - timedelta(days=random.randint(30, 90))
 
             emp = EmploymentHistory.objects.create(
-                company=self._generate_company_name(),
+                company=self._generate_company_name(user.city.state.country.slug),
                 designation=random.choice(
                     [
                         "Software Engineer",
@@ -549,7 +586,11 @@ class Command(BaseCommand):
                 degree=degree,
                 from_date=from_date,
                 to_date=to_date,
-                score=f"{random.randint(60, 95)}%",
+                score=(
+                    f"GPA {random.uniform(3.0, 5.0):.2f}/5"
+                    if institute.city and is_singapore(institute.city)
+                    else f"WAM {random.randint(60, 90)}"
+                ),
                 current_education=False,
             )
             education.append(edu)
@@ -606,16 +647,17 @@ class Command(BaseCommand):
             min_year = random.choice([0, 1, 2, 3, 5, 7])
             max_year = min_year + random.randint(2, 5)
 
-            # Salary based on experience
-            salary_key = max(k for k in SALARY_RANGES if k <= min_year)
-            min_sal, max_sal = SALARY_RANGES[salary_key]
+            # One market per job: its cities share a country and its salary
+            # is in that country's currency.
+            city = random.choice(self.cities)
+            country = city.state.country
+            currency = currency_for(city)
+            min_sal, max_sal = salary_band(currency, min_year)
             min_salary = random.randint(min_sal, (min_sal + max_sal) // 2)
             max_salary = random.randint((min_sal + max_sal) // 2, max_sal)
 
             job_type = random.choice(COMMON_JOB_TYPES)
             status = random.choices(COMMON_JOB_STATUSES, weights=JOB_STATUS_WEIGHTS)[0]
-
-            city = random.choice(self.cities)
 
             # Generate description
             description = random.choice(JOB_DESCRIPTION_TEMPLATES).format(
@@ -643,6 +685,7 @@ class Command(BaseCommand):
                 min_salary=min_salary,
                 max_salary=max_salary,
                 salary_type="Year",
+                salary_currency=currency,
                 job_type=job_type,
                 work_mode=random.choice(WORK_MODES),
                 status=status,
@@ -653,13 +696,15 @@ class Command(BaseCommand):
                 company_name=company.name,
                 company_address=company.address,
                 company_description=company.profile,
-                country=self.country,
+                country=country,
                 seniority_level=random.choice(SENIORITY_LEVELS),
             )
 
             # Add M2M relations
+            same_country = [c for c in self.cities if c.state.country_id == country.id]
+            others = [c for c in same_country if c != city]
             job.location.set(
-                random.sample(self.cities, min(random.randint(1, 3), len(self.cities)))
+                [city] + random.sample(others, min(random.randint(0, 2), len(others)))
             )
             job.skills.set(
                 [primary_skill]
