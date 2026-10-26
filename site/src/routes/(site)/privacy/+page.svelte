@@ -367,7 +367,7 @@
 							</li>
 							<li class="flex items-start gap-3">
 								<div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-								<span>We have physical, electronic, and procedural safeguards that comply with Indian laws to
+								<span>We have physical, electronic, and procedural safeguards that comply with the privacy laws of Singapore (PDPA) and Australia (Privacy Act 1988) to
 								protect personal information about you.</span>
 							</li>
 						</ul>

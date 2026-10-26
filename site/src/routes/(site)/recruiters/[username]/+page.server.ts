@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			? `${recruiter.name} — ${recruiter.company_name}`
 			: recruiter.name;
 		const suffix = page > 1 ? ` - Page ${page}` : '';
-		const count = jobs.totalJobs.toLocaleString('en-IN');
+		const count = jobs.totalJobs.toLocaleString('en-AU');
 
 		return {
 			recruiter,

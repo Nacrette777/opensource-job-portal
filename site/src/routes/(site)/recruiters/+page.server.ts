@@ -59,7 +59,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 		canonical: `${SITE_URL}/recruiters/`,
 		seo: {
 			title: `Recruiters${scope}${suffix} | PeelJobs`,
-			description: `Browse ${total.toLocaleString('en-IN')} recruiters${scope} hiring on PeelJobs. See their live job openings and apply online.`
+			description: `Browse ${total.toLocaleString('en-AU')} recruiters${scope} hiring on PeelJobs. See their live job openings and apply online.`
 		}
 	};
 };

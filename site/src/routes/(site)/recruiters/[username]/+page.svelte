@@ -12,7 +12,7 @@
     intro:
       data.recruiter.profile_description ||
       (data.totalJobs
-        ? `${data.totalJobs.toLocaleString('en-IN')} live ${data.totalJobs === 1 ? 'opening' : 'openings'}, updated daily.`
+        ? `${data.totalJobs.toLocaleString('en-AU')} live ${data.totalJobs === 1 ? 'opening' : 'openings'}, updated daily.`
         : 'No live openings right now.')
   });
 </script>

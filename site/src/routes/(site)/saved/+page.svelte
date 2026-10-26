@@ -6,7 +6,7 @@
 		Trash2,
 		ChevronRight,
 		MapPin,
-		IndianRupee,
+		Banknote,
 		Clock,
 		Search,
 		Heart,
@@ -236,7 +236,7 @@
 									<span
 										class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-light text-success text-sm font-medium rounded-full"
 									>
-										<IndianRupee size={14} />
+										<Banknote size={14} />
 										{job.salary_display}
 									</span>
 									<span class="text-xs text-muted flex items-center gap-1">

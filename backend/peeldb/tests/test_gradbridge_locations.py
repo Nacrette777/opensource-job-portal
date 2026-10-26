@@ -33,6 +33,14 @@ class LoadLocationsTests(TestCase):
             sum(len(cities) for cities in AUSTRALIA.values()),
         )
 
+    def test_loads_singapore_as_one_city_state(self):
+        load()
+
+        singapore = City.objects.get(slug="singapore")
+        self.assertEqual(singapore.state.name, "Singapore")
+        self.assertEqual(singapore.state.country.name, "Singapore")
+        self.assertEqual(singapore.status, "Enabled")
+
     def test_running_again_creates_nothing_new(self):
         load()
         counts = (Country.objects.count(), State.objects.count(), City.objects.count())
@@ -40,7 +48,7 @@ class LoadLocationsTests(TestCase):
         output = load()
 
         self.assertEqual((Country.objects.count(), State.objects.count(), City.objects.count()), counts)
-        self.assertIn("created 0 country, 0 states, 0 cities", output)
+        self.assertEqual(output.count("created 0 country, 0 states, 0 cities"), 2)
 
     def test_reuses_existing_rows_by_slug_and_re_enables_them(self):
         country = Country.objects.create(name="Australia", slug="australia", status="Disabled")

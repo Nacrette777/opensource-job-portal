@@ -17,16 +17,32 @@ from peeldb.models import (
     Skill,
 )
 
+CURRENCY_SYMBOLS = {"AUD": "A$", "SGD": "S$"}
+
+
+def currency_symbol(code: str | None) -> str:
+    """A$ / S$ for the job's salary currency (AUD when unset)."""
+    return CURRENCY_SYMBOLS.get(code or "AUD", f"{code} ")
+
+
+def thousands(amount: int) -> str:
+    """85000 -> "85k", 92500 -> "92.5k", 800 -> "800"."""
+    if amount < 1000:
+        return str(amount)
+    value = amount / 1000
+    return f"{value:.0f}k" if value == int(value) else f"{value:.1f}k"
+
 
 class LocationSerializer(serializers.ModelSerializer):
     """Serializer for job locations (cities)"""
 
     state = serializers.CharField(source="state.name", read_only=True)
     state_slug = serializers.CharField(source="state.slug", read_only=True)
+    country = serializers.CharField(source="state.country.name", read_only=True)
 
     class Meta:
         model = City
-        fields = ["id", "name", "slug", "state", "state_slug"]
+        fields = ["id", "name", "slug", "state", "state_slug", "country"]
 
 
 @extend_schema_serializer(component_name="JobSkill")
@@ -106,6 +122,7 @@ class JobListSerializer(serializers.ModelSerializer):
             "min_salary",
             "max_salary",
             "salary_type",
+            "salary_currency",
             "min_year",
             "max_year",
             "min_month",
@@ -147,29 +164,24 @@ class JobListSerializer(serializers.ModelSerializer):
             return f"{min_exp}-{max_exp} years"
 
     def get_salary_display(self, obj) -> str:
-        """Format salary range as readable string"""
+        """Format the salary as a yearly range, e.g. "A$85k–95k a year"."""
         if obj.min_salary == 0 and obj.max_salary == 0:
             return "Not Disclosed"
 
-        # Normalize to LPA (Lakhs Per Annum)
-        min_sal = obj.min_salary
-        max_sal = obj.max_salary
-
-        if obj.salary_type == "Month":
-            min_sal = (min_sal * 12) / 100000  # Convert to lakhs
-            max_sal = (max_sal * 12) / 100000
-        else:
-            min_sal = min_sal / 100000
-            max_sal = max_sal / 100000
+        # Normalise to a yearly amount
+        months = 12 if obj.salary_type == "Month" else 1
+        min_sal = obj.min_salary * months
+        max_sal = obj.max_salary * months
+        symbol = currency_symbol(obj.salary_currency)
 
         if min_sal == 0 and max_sal > 0:
-            return f"Up to ₹{max_sal:.1f} LPA"
+            return f"Up to {symbol}{thousands(max_sal)} a year"
         elif min_sal > 0 and max_sal == 0:
-            return f"From ₹{min_sal:.1f} LPA"
+            return f"From {symbol}{thousands(min_sal)} a year"
         elif min_sal == max_sal:
-            return f"₹{min_sal:.1f} LPA"
+            return f"{symbol}{thousands(min_sal)} a year"
         else:
-            return f"₹{min_sal:.1f}-{max_sal:.1f} LPA"
+            return f"{symbol}{thousands(min_sal)}–{thousands(max_sal)} a year"
 
     def get_location_display(self, obj) -> str:
         """Get primary location for display"""

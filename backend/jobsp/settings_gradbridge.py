@@ -27,8 +27,9 @@ SECRET_KEY = os.environ["SECRET_KEY"]  # fail fast rather than run without one
 
 # USE_TZ is False, so datetimes are stored as naive local time in this zone.
 # Choose it before the first data is written; changing it later shifts every
-# stored time.
-TIME_ZONE = os.getenv("TIME_ZONE") or TIME_ZONE
+# stored time. GradBridge serves Australia and Singapore, so the fallback is
+# Sydney rather than the upstream Asia/Kolkata.
+TIME_ZONE = os.getenv("TIME_ZONE") or "Australia/Sydney"
 
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")

@@ -310,7 +310,7 @@
 						type="tel"
 						name="phone_number"
 						bind:value={formData.phone}
-						placeholder="+91-9876543210"
+						placeholder="+61 2 9876 5432 or +65 6123 4567"
 						disabled={!isAdmin}
 						class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-surface disabled:text-muted"
 					/>

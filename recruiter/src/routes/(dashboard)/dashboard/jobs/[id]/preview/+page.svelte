@@ -13,6 +13,7 @@
 		AlertCircle,
 		CheckCircle2
 	} from '@lucide/svelte';
+	import { formatSalary } from '$lib/utils/salary';
 
 	let { data } = $props();
 	let job = $derived(data.job);
@@ -21,19 +22,6 @@
 		if (!dateString) return 'Not set';
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-	}
-
-	function formatSalary(min: number, max: number, type: string): string {
-		if (!min && !max) return 'Not disclosed';
-		const formatAmount = (amount: number) => {
-			if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
-			if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
-			return `₹${(amount / 1000).toFixed(0)}K`;
-		};
-		const minStr = min ? formatAmount(min) : '';
-		const maxStr = max ? formatAmount(max) : '';
-		const range = minStr && maxStr ? `${minStr} - ${maxStr}` : minStr || maxStr;
-		return `${range} per ${type === 'Month' ? 'month' : 'year'}`;
 	}
 
 	function formatExperience(minYear: number, maxYear: number, minMonth: number, maxMonth: number, fresher: boolean): string {
@@ -188,7 +176,7 @@
 						<div>
 							<div class="text-sm text-muted">Salary</div>
 							<div class="font-medium text-black">
-								{formatSalary(job.min_salary, job.max_salary, job.salary_type)}
+								{formatSalary(job.min_salary, job.max_salary, job.salary_type, job.salary_currency)}
 							</div>
 						</div>
 					</div>

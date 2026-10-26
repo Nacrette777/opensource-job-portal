@@ -25,6 +25,7 @@
 	import { Button, Card, Badge } from '$lib/components/ui';
 	import { JOBSEEKER_URL } from '$lib/config/env';
 	import type { JobStatus } from '$lib/types';
+	import { formatSalary } from '$lib/utils/salary';
 
 	let { data } = $props();
 	let togglingNotifications = $state(false);
@@ -52,14 +53,6 @@
 		if (!dateString) return 'N/A';
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-	}
-
-	function formatSalary(min: number, max: number, type: string): string {
-		if (!min && !max) return 'Not disclosed';
-		const minStr = min ? `₹${(min / 100000).toFixed(1)}L` : '';
-		const maxStr = max ? `₹${(max / 100000).toFixed(1)}L` : '';
-		const range = minStr && maxStr ? `${minStr} - ${maxStr}` : minStr || maxStr;
-		return `${range} per ${type === 'Month' ? 'month' : 'year'}`;
 	}
 
 	function getStatusVariant(status: JobStatus): 'success' | 'warning' | 'error' | 'neutral' {
@@ -310,7 +303,7 @@
 					<div>
 						<div class="text-sm font-medium text-muted mb-1">Salary</div>
 						<div class="text-black">
-							{formatSalary(data.job.min_salary, data.job.max_salary, data.job.salary_type)}
+							{formatSalary(data.job.min_salary, data.job.max_salary, data.job.salary_type, data.job.salary_currency)}
 						</div>
 					</div>
 

@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 		...data,
 		seo: buildSeo({
 			heading: 'Internship Jobs',
-			subject: 'internships across India',
+			subject: 'internships across Singapore and Australia',
 			totalJobs: data.totalJobs,
 			page
 		}),

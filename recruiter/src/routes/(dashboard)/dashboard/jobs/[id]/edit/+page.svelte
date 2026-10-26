@@ -20,6 +20,7 @@
 	import type { PageData, ActionData } from './$types';
 	import type { WorkMode } from '$lib/types';
 	import JobTypeFields from '$lib/components/recruiter/JobTypeFields.svelte';
+	import { SALARY_CURRENCIES, currencySymbol } from '$lib/utils/salary';
 	import { EMPLOYMENT_TYPES, hasTypeSpecificFields, jobTypeFieldsFrom } from '$lib/constants/jobs';
 
 	// Receive data from server-side load function (Svelte 5 runes mode)
@@ -65,6 +66,7 @@
 			salaryMin: job.min_salary?.toString() || '',
 			salaryMax: job.max_salary?.toString() || '',
 			salaryType: job.salary_type || 'Year',
+			salaryCurrency: job.salary_currency || 'AUD',
 			// Seeded from the job, not from a blank. These three used to start
 			// empty and submit anyway: `hideSalary` was never sent at all,
 			// `benefits` was posted under the `company_description` key — so
@@ -333,6 +335,7 @@
 			<input type="hidden" name="max_salary" value={formData.salaryMax} />
 		{/if}
 		<input type="hidden" name="salary_type" bind:value={formData.salaryType} />
+		<input type="hidden" name="salary_currency" value={formData.salaryCurrency} />
 		<input type="hidden" name="show_salary" value={!formData.hideSalary} />
 		<input type="hidden" name="benefits" bind:value={formData.benefits} />
 
@@ -492,7 +495,7 @@
 							id="edit-job-locations-search"
 							type="text"
 							bind:value={searchCity}
-							placeholder="Search city... (e.g., Bangalore, Mumbai)"
+							placeholder="Search city... (e.g., Sydney, Singapore)"
 							class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
 							disabled={formData.selectedLocationIds.length >= 3}
 						/>
@@ -750,6 +753,19 @@
 				</div>
 
 				<div>
+					<label for="edit-salary-currency" class="block text-sm font-medium text-muted mb-2">Currency</label>
+					<select
+						id="edit-salary-currency"
+						bind:value={formData.salaryCurrency}
+						class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+					>
+						{#each SALARY_CURRENCIES as currency}
+							<option value={currency.value}>{currency.label}</option>
+						{/each}
+					</select>
+				</div>
+
+				<div>
 					<label for="edit-salary-type" class="block text-sm font-medium text-muted mb-2">Salary Period</label>
 					<select
 						id="edit-salary-type"
@@ -893,7 +909,7 @@
 							<div>
 								<h4 class="font-semibold text-black mb-2">Salary Range</h4>
 								<p class="text-muted">
-									${formData.salaryMin || '0'} - ${formData.salaryMax || '0'}
+									{currencySymbol(formData.salaryCurrency)}{formData.salaryMin || '0'} - {currencySymbol(formData.salaryCurrency)}{formData.salaryMax || '0'}
 								</p>
 							</div>
 						{/if}

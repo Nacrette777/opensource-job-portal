@@ -108,7 +108,7 @@
 					Join 10,000+ Companies Hiring with PeelJobs
 				</h1>
 				<p class="text-base xl:text-lg text-muted leading-relaxed">
-					Access India's largest talent pool with 100k+ active job seekers. Post unlimited jobs for free and find the perfect candidates faster.
+					Reach students and graduates across Singapore and Australia. Post unlimited jobs for free and find the perfect candidates faster.
 				</p>
 			</div>
 

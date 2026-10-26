@@ -58,7 +58,7 @@
 		{
 			icon: MapPin,
 			title: 'Office Location',
-			details: 'Hyderabad, Telangana, India',
+			details: 'Singapore · Australia',
 			link: null,
 			description: 'Head Office'
 		}
@@ -467,7 +467,7 @@
 					<div class="mt-4 pt-4 border-t border-border">
 						<p class="text-xs text-muted flex items-center gap-2">
 							<Clock size={12} />
-							Indian Standard Time (IST)
+							Singapore (SGT) and Australian Eastern (AEST/AEDT) time
 						</p>
 					</div>
 				</div>

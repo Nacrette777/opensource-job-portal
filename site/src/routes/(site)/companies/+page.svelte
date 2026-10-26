@@ -277,8 +277,8 @@
 </script>
 
 <svelte:head>
-  <title>Top Companies Hiring in India - PeelJobs</title>
-  <meta name="description" content="Discover top companies hiring in India. Browse {totalCompanies.toLocaleString()} companies by industry, location, and company type." />
+  <title>Top Companies Hiring in Singapore and Australia - PeelJobs</title>
+  <meta name="description" content="Discover top companies hiring in Singapore and Australia. Browse {totalCompanies.toLocaleString()} companies by industry, location, and company type." />
 </svelte:head>
 
 <div class="min-h-screen bg-surface">

@@ -277,6 +277,7 @@ class RecruiterJobDetailSerializer(RecruiterJobListSerializer):
             "min_salary",
             "max_salary",
             "salary_type",
+            "salary_currency",
             "min_year",
             "max_year",
             "min_month",
@@ -369,6 +370,16 @@ class RecruiterJobDetailSerializer(RecruiterJobListSerializer):
         ]
 
 
+def default_salary_currency(cities):
+    """SGD when every chosen city is in Singapore, otherwise AUD."""
+    countries = (
+        set(cities.values_list("state__country__slug", flat=True))
+        if cities is not None
+        else set()
+    )
+    return "SGD" if countries == {"singapore"} else "AUD"
+
+
 class RecruiterJobCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new jobs"""
 
@@ -442,6 +453,7 @@ class RecruiterJobCreateSerializer(serializers.ModelSerializer):
             "min_salary",
             "max_salary",
             "salary_type",
+            "salary_currency",
             "min_year",
             "max_year",
             "min_month",
@@ -550,12 +562,16 @@ class RecruiterJobCreateSerializer(serializers.ModelSerializer):
             desc = validated_data.get("description", "")
             validated_data["meta_description"] = desc[:160] if desc else ""
 
+        cities = City.objects.filter(id__in=location_ids) if location_ids else None
+        if "salary_currency" not in validated_data:
+            validated_data["salary_currency"] = default_salary_currency(cities)
+
         # Create job
         job = JobPost.objects.create(**validated_data)
 
         # Set many-to-many relationships
         if location_ids:
-            job.location.set(City.objects.filter(id__in=location_ids))
+            job.location.set(cities)
         if skill_ids:
             job.skills.set(Skill.objects.filter(id__in=skill_ids))
         if industry_ids:

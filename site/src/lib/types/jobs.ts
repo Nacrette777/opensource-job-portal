@@ -9,6 +9,7 @@ export interface Location {
   slug: string;
   state: string;
   state_slug: string;
+  country: string;
 }
 
 export interface Skill {
@@ -41,6 +42,7 @@ export interface Company {
 export type JobType = 'full-time' | 'internship' | 'walk-in' | 'government' | 'Fresher';
 
 export type SalaryType = 'Month' | 'Year';
+export type SalaryCurrency = 'AUD' | 'SGD';
 
 /**
  * Job listing model (lightweight for list views)
@@ -58,6 +60,7 @@ export interface Job {
   min_salary: number;
   max_salary: number;
   salary_type: SalaryType;
+  salary_currency: SalaryCurrency;
   min_year: number;
   max_year: number;
   min_month: number;
@@ -157,8 +160,8 @@ export interface JobSearchParams {
   industry?: string[];  // Industry slugs
   education?: string[]; // Qualification slugs
   job_type?: string[];  // Job type values
-  min_salary?: number;  // In LPA
-  max_salary?: number;  // In LPA
+  min_salary?: number;  // Thousands a year
+  max_salary?: number;  // Thousands a year
   min_experience?: number;  // In years
   max_experience?: number;  // In years
   fresher?: boolean;

@@ -51,7 +51,7 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     - industry: Filter by industry slugs (multiple)
     - education: Filter by qualification slugs (multiple)
     - job_type: Filter by job type (full-time, internship, etc.)
-    - min_salary, max_salary: Salary range in LPA
+    - min_salary, max_salary: Yearly salary range in thousands (e.g. 80 = 80,000)
     - min_experience, max_experience: Experience range in years
     - fresher: Fresher jobs only (boolean)
     - is_remote: Remote jobs only (boolean)
@@ -93,7 +93,9 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             JobPost.objects.filter(status="Live")
             .select_related("company", "country", "major_skill")
-            .prefetch_related("location", "skills", "industry", "edu_qualification")
+            .prefetch_related(
+                "location__state__country", "skills", "industry", "edu_qualification"
+            )
             # search_vector is a generated column, so Django selects it like any
             # other field — a tsvector of the full description, on every row of
             # every page, that no serializer reads. Filtering and ranking still
@@ -212,13 +214,13 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
             OpenApiParameter(
                 name="min_salary",
                 type=OpenApiTypes.NUMBER,
-                description="Minimum salary in LPA (Lakhs Per Annum)",
+                description="Minimum yearly salary in thousands (e.g. 80 = 80,000)",
                 required=False,
             ),
             OpenApiParameter(
                 name="max_salary",
                 type=OpenApiTypes.NUMBER,
-                description="Maximum salary in LPA (Lakhs Per Annum)",
+                description="Maximum yearly salary in thousands (e.g. 120 = 120,000)",
                 required=False,
             ),
             OpenApiParameter(

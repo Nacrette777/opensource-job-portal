@@ -65,7 +65,7 @@
   let showIndustryModal = $state(false);
   let showEducationModal = $state(false);
 
-  // Salary filter (INR in Lakhs per Annum)
+  // Salary filter (thousands a year, in each job's own currency: AUD or SGD)
   let salaryMin = $state<number | null>(null);
   let salaryMax = $state<number | null>(null);
 
@@ -369,8 +369,8 @@
 
     // Salary chip
     if (salaryMin !== null || salaryMax !== null) {
-      const min = salaryMin !== null ? `${salaryMin}L` : '0';
-      const max = salaryMax !== null ? `${salaryMax}L` : '∞';
+      const min = salaryMin !== null ? `${salaryMin}k` : '0';
+      const max = salaryMax !== null ? `${salaryMax}k` : '∞';
       chips.push({ label: `Salary: ${min} - ${max}`, value: 'salary', type: 'salary' });
     }
 
@@ -652,7 +652,7 @@
 
             <!-- Salary Range -->
             <CollapsibleFilterSection
-              title="Salary (LPA)"
+              title="Salary ($k a year)"
               hasActiveFilter={salaryMin !== null || salaryMax !== null}
             >
               <div class="grid grid-cols-2 gap-3">

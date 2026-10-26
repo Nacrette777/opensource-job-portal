@@ -92,10 +92,10 @@ class JobFilter(filters.FilterSet):
 
     # Salary filters
     min_salary = filters.NumberFilter(
-        method="filter_min_salary", label="Minimum Salary (LPA)"
+        method="filter_min_salary", label="Minimum yearly salary (thousands)"
     )
     max_salary = filters.NumberFilter(
-        method="filter_max_salary", label="Maximum Salary (LPA)"
+        method="filter_max_salary", label="Maximum yearly salary (thousands)"
     )
 
     # Experience filters
@@ -208,14 +208,14 @@ class JobFilter(filters.FilterSet):
 
     def filter_min_salary(self, queryset, name, value):
         """
-        Filter jobs where max_salary >= user's min_salary (in LPA)
+        Filter jobs where max_salary >= user's min_salary (thousands a year,
+        in the job's own currency: AUD and SGD are not converted)
         Handles both Month and Year salary types
         """
         if not value:
             return queryset
 
-        # Convert LPA to actual salary value
-        min_salary_value = int(value * 100000)  # Convert lakhs to rupees
+        min_salary_value = int(value * 1000)
 
         return queryset.filter(
             Q(
@@ -232,14 +232,13 @@ class JobFilter(filters.FilterSet):
 
     def filter_max_salary(self, queryset, name, value):
         """
-        Filter jobs where min_salary <= user's max_salary (in LPA)
+        Filter jobs where min_salary <= user's max_salary (thousands a year)
         Handles both Month and Year salary types
         """
         if not value:
             return queryset
 
-        # Convert LPA to actual salary value
-        max_salary_value = int(value * 100000)
+        max_salary_value = int(value * 1000)
 
         return queryset.filter(
             Q(

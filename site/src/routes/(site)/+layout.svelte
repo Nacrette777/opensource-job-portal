@@ -141,43 +141,43 @@
   ];
 
   const locations = [
-    { name: "Chennai", slug: "chennai" },
-    { name: "Bangalore", slug: "bangalore" },
-    { name: "Mumbai", slug: "mumbai" },
-    { name: "Kolkata", slug: "kolkata" },
-    { name: "Delhi", slug: "delhi" },
-    { name: "Hyderabad", slug: "hyderabad" },
-    { name: "Noida", slug: "noida" },
-    { name: "Gurgaon", slug: "gurgaon" },
-    { name: "Pune", slug: "pune" },
-    { name: "Ahmedabad", slug: "ahmedabad" },
-    { name: "Odisha", slug: "odisha" },
-    { name: "Coimbatore", slug: "coimbatore" },
-    { name: "Jaipur", slug: "jaipur" },
-    { name: "Indore", slug: "indore" },
-    { name: "Thane", slug: "thane" },
-    { name: "Gujarat", slug: "gujarat" },
-    { name: "Kochi", slug: "kochi" },
+    { name: "Sydney", slug: "sydney" },
+    { name: "Melbourne", slug: "melbourne" },
+    { name: "Singapore", slug: "singapore" },
+    { name: "Brisbane", slug: "brisbane" },
+    { name: "Perth", slug: "perth" },
+    { name: "Adelaide", slug: "adelaide" },
+    { name: "Canberra", slug: "canberra" },
+    { name: "Gold Coast", slug: "gold-coast" },
+    { name: "Newcastle", slug: "newcastle" },
+    { name: "Hobart", slug: "hobart" },
+    { name: "Darwin", slug: "darwin" },
+    { name: "Geelong", slug: "geelong" },
+    { name: "Wollongong", slug: "wollongong" },
+    { name: "Sunshine Coast", slug: "sunshine-coast" },
+    { name: "Townsville", slug: "townsville" },
+    { name: "Cairns", slug: "cairns" },
+    { name: "Launceston", slug: "launceston" },
   ];
 
   const internshipCities = [
-    { name: "Hyderabad", slug: "hyderabad" },
-    { name: "Bangalore", slug: "bangalore" },
-    { name: "Chennai", slug: "chennai" },
-    { name: "Pune", slug: "pune" },
-    { name: "Delhi", slug: "delhi" },
-    { name: "Mumbai", slug: "mumbai" },
-    { name: "Coimbatore", slug: "coimbatore" },
-    { name: "Goa", slug: "goa" },
-    { name: "Kanchipuram", slug: "kanchipuram" },
-    { name: "Kerala", slug: "kerala" },
-    { name: "Kochi", slug: "kochi" },
-    { name: "Trivandrum", slug: "trivandrum" },
-    { name: "Gujarat", slug: "gujarat" },
-    { name: "Nasik", slug: "nasik" },
-    { name: "Noida", slug: "noida" },
-    { name: "Kolkata", slug: "kolkata" },
-    { name: "Gurgaon", slug: "gurgaon" },
+    { name: "Singapore", slug: "singapore" },
+    { name: "Sydney", slug: "sydney" },
+    { name: "Melbourne", slug: "melbourne" },
+    { name: "Brisbane", slug: "brisbane" },
+    { name: "Perth", slug: "perth" },
+    { name: "Adelaide", slug: "adelaide" },
+    { name: "Canberra", slug: "canberra" },
+    { name: "Gold Coast", slug: "gold-coast" },
+    { name: "Newcastle", slug: "newcastle" },
+    { name: "Hobart", slug: "hobart" },
+    { name: "Darwin", slug: "darwin" },
+    { name: "Geelong", slug: "geelong" },
+    { name: "Wollongong", slug: "wollongong" },
+    { name: "Sunshine Coast", slug: "sunshine-coast" },
+    { name: "Townsville", slug: "townsville" },
+    { name: "Cairns", slug: "cairns" },
+    { name: "Launceston", slug: "launceston" },
   ];
 </script>
 
@@ -745,8 +745,8 @@
             <span class="text-xl font-semibold">PeelJobs</span>
           </a>
           <p class="text-gray-400 text-sm leading-relaxed mb-5 max-w-sm">
-            India's trusted job platform connecting professionals with verified
-            opportunities at top companies.
+            Connecting students and graduates in Singapore and Australia with
+            verified opportunities at top companies.
           </p>
           <div class="flex items-center gap-2">
             <a
@@ -870,7 +870,7 @@
               >
                 <MapPin size={14} />
               </div>
-              <span class="text-sm">Hyderabad, Telangana, India</span>
+              <span class="text-sm">Singapore · Australia</span>
             </div>
           </div>
         </div>

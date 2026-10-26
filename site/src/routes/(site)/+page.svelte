@@ -8,7 +8,7 @@
     Clock,
     ChevronRight,
     Building2,
-    IndianRupee,
+    Banknote,
     GraduationCap,
     ArrowRight,
     Home,
@@ -157,10 +157,10 @@
 </script>
 
 <svelte:head>
-  <title>PeelJobs - Find Your Dream Job | India's Smart Job Platform</title>
+  <title>PeelJobs - Find Your Dream Job | Jobs in Singapore and Australia</title>
   <meta
     name="description"
-    content="Discover thousands of job opportunities across India. PeelJobs connects talented professionals with top companies using intelligent job matching."
+    content="Discover job opportunities across Singapore and Australia. PeelJobs connects talented professionals with top companies using intelligent job matching."
   />
 </svelte:head>
 
@@ -209,7 +209,7 @@
         >
           Join over <span class="font-semibold text-black"
             >1 million professionals</span
-          > who use PeelJobs to discover verified opportunities at India's top companies.
+          > who use PeelJobs to discover verified opportunities at top companies in Singapore and Australia.
         </p>
 
         <!-- Trust Badges -->
@@ -297,7 +297,7 @@
               >
               <Autocomplete
                 id="location-search"
-                placeholder="e.g. Bangalore, Mumbai, Remote"
+                placeholder="e.g. Sydney, Singapore, Remote"
                 bind:value={location}
                 icon={MapPin}
                 suggestions={locationSuggestions}
@@ -348,7 +348,7 @@
           <div class="mt-5 pt-5 border-t border-border">
             <p class="text-xs text-muted mb-2">Popular:</p>
             <div class="flex flex-wrap gap-2">
-              {#each ["Python Developer", "React", "Bangalore", "Remote", "Fresher"] as term}
+              {#each ["Python Developer", "React", "Singapore", "Sydney", "Remote"] as term}
                 <a
                   href="/jobs/?search={encodeURIComponent(term)}"
                   class="px-3 py-1 bg-surface text-muted hover:text-primary-600 hover:bg-primary-50 rounded-full text-xs font-medium transition-colors"
@@ -572,7 +572,7 @@
               </div>
               {#if job.salary_display}
                 <div class="flex items-center gap-2 text-sm text-muted">
-                  <IndianRupee size={14} class="flex-shrink-0" />
+                  <Banknote size={14} class="flex-shrink-0" />
                   <span class="truncate">{job.salary_display}</span>
                 </div>
               {/if}

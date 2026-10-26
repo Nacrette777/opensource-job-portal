@@ -302,6 +302,8 @@ function extractJobDataFromForm(formData: FormData): JobUpdateData {
 		max_salary: getNumber('max_salary'),
 		salary_type: (getString('salary_type') || 'Year') as any,
 		show_salary: getBoolean('show_salary'),
+		// Empty means "let the API choose from the job's cities" (SGD for Singapore).
+		...(getString('salary_currency') ? { salary_currency: getString('salary_currency') as any } : {}),
 
 		// Experience
 		min_year: getNumber('min_year'),

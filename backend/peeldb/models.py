@@ -1219,6 +1219,13 @@ class JobPost(models.Model):
         ("Month", "Month"),
         ("Year", "Year"),
     )
+    # GradBridge serves Australia and Singapore. Salary and application fee are
+    # in this currency; it defaults from the job's city (see
+    # api.v1.recruiter.job_serializers.default_salary_currency).
+    SALARY_CURRENCY = (
+        ("AUD", "AUD"),
+        ("SGD", "SGD"),
+    )
     user = models.ForeignKey(User, related_name="jobposts", on_delete=models.CASCADE)
     code = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
@@ -1297,6 +1304,9 @@ class JobPost(models.Model):
     )
     min_salary = models.IntegerField(default=0)
     max_salary = models.IntegerField(default=0)
+    salary_currency = models.CharField(
+        choices=SALARY_CURRENCY, max_length=3, default="AUD"
+    )
     published_on = models.DateTimeField(null=True, blank=True)
     created_on = models.DateField(auto_now_add=True)
     status = models.CharField(choices=POST_STATUS, max_length=50)

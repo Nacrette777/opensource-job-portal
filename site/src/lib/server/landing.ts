@@ -256,13 +256,13 @@ export function buildSeo(params: {
 }) {
 	const { heading, subject, totalJobs, page } = params;
 	const suffix = page > 1 ? ` - Page ${page}` : '';
-	const count = totalJobs.toLocaleString('en-IN');
+	const count = totalJobs.toLocaleString('en-AU');
 
 	return {
 		title: `${heading}${suffix} | PeelJobs`,
 		description: totalJobs
-			? `Browse ${count} latest ${subject}. Apply online to vacancies across India on PeelJobs.`
-			: `Latest ${subject} on PeelJobs. Browse job openings across India.`,
+			? `Browse ${count} latest ${subject}. Apply online to vacancies across Singapore and Australia on PeelJobs.`
+			: `Latest ${subject} on PeelJobs. Browse job openings across Singapore and Australia.`,
 		heading,
 		intro: totalJobs
 			? `${count} ${totalJobs === 1 ? 'opening' : 'openings'} — ${subject}, updated daily.`

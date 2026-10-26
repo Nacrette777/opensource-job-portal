@@ -213,13 +213,13 @@
         '@type': 'PostalAddress',
         addressLocality: loc.name,
         addressRegion: loc.state,
-        addressCountry: 'IN',
+        addressCountry: loc.country === 'Singapore' ? 'SG' : 'AU',
       },
     })),
     baseSalary: job.min_salary > 0 || job.max_salary > 0
       ? {
           '@type': 'MonetaryAmount',
-          currency: 'INR',
+          currency: job.salary_currency || 'AUD',
           value: {
             '@type': 'QuantitativeValue',
             minValue: job.min_salary || undefined,
@@ -491,10 +491,10 @@
                     <p class="text-xs text-muted">Date</p>
                     <p class="text-black font-medium">
                       {#if job.walkin_from_date}
-                        {new Date(job.walkin_from_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        {new Date(job.walkin_from_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                       {#if job.walkin_to_date}
-                        - {new Date(job.walkin_to_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        - {new Date(job.walkin_to_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                     </p>
                   </div>
@@ -553,7 +553,7 @@
                   <Banknote size={18} class="text-muted" />
                   <div>
                     <p class="text-xs text-muted">Application Fee</p>
-                    <p class="text-black font-medium">₹{job.application_fee}</p>
+                    <p class="text-black font-medium">{job.salary_currency === 'SGD' ? 'S$' : 'A$'}{job.application_fee}</p>
                   </div>
                 </div>
               {/if}
@@ -564,10 +564,10 @@
                     <p class="text-xs text-muted">Application Period</p>
                     <p class="text-black font-medium">
                       {#if job.govt_from_date}
-                        {new Date(job.govt_from_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        {new Date(job.govt_from_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                       {#if job.govt_to_date}
-                        - {new Date(job.govt_to_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        - {new Date(job.govt_to_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                     </p>
                   </div>
@@ -579,7 +579,7 @@
                   <div>
                     <p class="text-xs text-muted">Exam Date</p>
                     <p class="text-black font-medium">
-                      {new Date(job.govt_exam_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                      {new Date(job.govt_exam_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                     </p>
                   </div>
                 </div>

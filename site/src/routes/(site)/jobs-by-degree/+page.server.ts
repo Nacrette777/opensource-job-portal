@@ -23,8 +23,8 @@ export const load: PageServerLoad = async ({ fetch }) => {
 				totalJobs,
 				page: 1
 			}),
-			intro: `Browse ${total.toLocaleString('en-IN')} qualifications with ${totalJobs.toLocaleString(
-				'en-IN'
+			intro: `Browse ${total.toLocaleString('en-AU')} qualifications with ${totalJobs.toLocaleString(
+				'en-AU'
 			)} live openings between them.`
 		},
 		canonical: `${SITE_URL}/jobs-by-degree/`,

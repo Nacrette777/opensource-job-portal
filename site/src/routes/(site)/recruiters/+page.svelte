@@ -52,7 +52,7 @@
 					Recruiters{data.letter ? ` — ${data.letter}` : ''}
 				</h1>
 				<p class="text-sm text-gray-600">
-					{data.total.toLocaleString('en-IN')}
+					{data.total.toLocaleString('en-AU')}
 					{data.total === 1 ? 'recruiter' : 'recruiters'} with live openings
 				</p>
 			</div>

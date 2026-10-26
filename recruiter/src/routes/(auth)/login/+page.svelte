@@ -42,7 +42,7 @@
 					Welcome Back to PeelJobs
 				</h1>
 				<p class="text-base xl:text-lg text-muted leading-relaxed">
-					Continue managing your job postings and connecting with top talent across India.
+					Continue managing your job postings and connecting with top talent across Singapore and Australia.
 				</p>
 			</div>
 

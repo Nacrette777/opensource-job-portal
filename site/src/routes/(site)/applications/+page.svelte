@@ -79,7 +79,7 @@
 	});
 
 	function formatDate(dateString: string): string {
-		return new Date(dateString).toLocaleDateString('en-IN', {
+		return new Date(dateString).toLocaleDateString('en-AU', {
 			month: 'short',
 			day: 'numeric',
 			year: 'numeric'

@@ -28,7 +28,7 @@
 	const faqs = [
 		{
 			question: 'Is PeelJobs really 100% free?',
-			answer: "Yes! We never charge for job postings, candidate access, or any recruiting features. Our mission is to connect employers with the best talent in India at zero cost."
+			answer: "Yes! We never charge for job postings, candidate access, or any recruiting features. Our mission is to connect employers with the best talent in Singapore and Australia at zero cost."
 		},
 		{
 			question: 'Are there any hidden fees or premium plans?',
@@ -40,7 +40,7 @@
 		},
 		{
 			question: 'Will you start charging in the future?',
-			answer: "No. We're committed to keeping PeelJobs free forever. Our goal is to make quality hiring accessible to every employer in India, from startups to enterprises."
+			answer: "No. We're committed to keeping PeelJobs free forever. Our goal is to make quality hiring accessible to every employer in Singapore and Australia, from startups to enterprises."
 		},
 		{
 			question: 'How many jobs can I post?',
@@ -68,10 +68,10 @@
 </script>
 
 <svelte:head>
-	<title>Pricing - 100% Free Forever | PeelJobs - India's Free Job Posting Platform</title>
+	<title>Pricing - 100% Free Forever | PeelJobs - Free Job Posting in Singapore and Australia</title>
 	<meta name="description" content="Post unlimited jobs for FREE. No hidden costs, no premium plans. Access 1M+ candidates, advanced hiring tools, and unlimited job postings at zero cost. Join 50K+ employers hiring on PeelJobs." />
 	<meta property="og:title" content="100% Free Job Posting Platform - PeelJobs Pricing" />
-	<meta property="og:description" content="Never pay for job postings again. Unlimited free access to India's largest talent pool. Post jobs, search resumes, and hire the best candidates - all for free." />
+	<meta property="og:description" content="Never pay for job postings again. Unlimited free access to talent across Singapore and Australia. Post jobs, search resumes, and hire the best candidates - all for free." />
 	<meta property="og:type" content="website" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="100% Free Job Posting Platform - PeelJobs Pricing" />
@@ -108,7 +108,7 @@
 			</div>
 
 			<h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-6 animate-fade-in-up" style="opacity: 0; animation-delay: 100ms;">
-				Hire the Best Talent in India
+				Hire the Best Talent in Singapore and Australia
 				<span class="block text-success mt-2">Without Spending a Rupee</span>
 			</h1>
 
@@ -169,7 +169,7 @@
 					<div class="text-center mb-8">
 						<h3 class="text-2xl lg:text-3xl font-semibold text-black mb-4">Free Forever Plan</h3>
 						<div class="mb-4">
-							<span class="text-6xl lg:text-7xl font-semibold text-primary">₹0</span>
+							<span class="text-6xl lg:text-7xl font-semibold text-primary">$0</span>
 							<span class="text-2xl text-muted ml-2">forever</span>
 						</div>
 						<p class="text-muted text-lg">Everything you need to build your team. No catch.</p>
@@ -223,7 +223,7 @@
 					</div>
 					<div class="p-4 lg:p-6 text-center border-l border-border">
 						<div class="font-semibold text-black text-lg lg:text-xl">Competitors</div>
-						<div class="text-xs lg:text-sm text-muted mt-1">₹10K-50K/month</div>
+						<div class="text-xs lg:text-sm text-muted mt-1">Paid plans</div>
 					</div>
 				</div>
 
@@ -267,7 +267,7 @@
 		<div class="text-center mb-12">
 			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Why Is PeelJobs Free?</h2>
 			<p class="text-base lg:text-lg text-muted max-w-3xl mx-auto">
-				Our mission is simple: connect employers with the best talent in India without financial barriers.
+				Our mission is simple: connect employers with the best talent in Singapore and Australia without financial barriers.
 			</p>
 		</div>
 

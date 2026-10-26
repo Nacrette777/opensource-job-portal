@@ -233,10 +233,13 @@ az group delete -n gradbridge-rg                                      # 全部�
 - Django admin 的静态文件未由 gunicorn 提供；如需使用 admin，另行配置静态文件托管。
 - 邮件默认输出到控制台；正式环境需要配置 SMTP/SES。
 
-## 8a 地区选项与电话格式（S3-04）
+## 8a 地区、货币与电话格式（S3-04，2026-10-27 增加新加坡与货币）
 
-- 首次部署后执行 `python manage.py load_gradbridge_locations`：载入澳大利亚 8 个州/领地及主要城市（数据写在该命令里，依据 ABS 的州/领地列表）。命令可重复执行，只新建或重新启用，不删除；修改城市列表后再执行一次即可更新。上游的 `countries/states/cities.json` 夹具是印度为主的示例数据，GradBridge 不载入。
+- 首次部署后执行 `python manage.py load_gradbridge_locations`：载入澳大利亚 8 个州/领地及主要城市（数据写在该命令里，依据 ABS 的州/领地列表），以及新加坡（国家、州、城市都是 Singapore）。命令可重复执行，只新建或重新启用，不删除；修改城市列表后再执行一次即可更新。上游的 `countries/states/cities.json` 夹具是印度为主的示例数据，GradBridge 不载入。
 - 备用手机号与邮编以文本保存（迁移 0086）：保留开头的 0 和 +（如 0412…、+61…、邮编 0800）。迁移前已经以数字保存的值原样转成文本，丢失的前导 0 无法也不会被猜测补回。
+- 学生端顶部菜单的 “Jobs by Location / Internship” 城市列表写在 `site/src/routes/(site)/+layout.svelte`，链接为 `/jobs/?location=<城市 slug>`，slug 必须与上面命令载入的城市一致。Find Jobs 页的地区筛选项来自数据库中有在招职位的城市。
+- 职位薪资货币（迁移 0087 新增 `salary_currency`，取值 AUD/SGD，旧数据默认 AUD）：招聘方发布时可选；不选时，职位城市全部在新加坡则为 SGD，否则为 AUD。学生端统一显示年薪，如 `A$85k–95k a year`、`S$60k–78k a year`（按月填写的工资乘以 12）。薪资筛选参数 `min_salary`/`max_salary` 以“千/年”为单位（80 即 80,000），不做 AUD 与 SGD 之间的换算。
+- 未设 `TIME_ZONE` 环境变量时，生产配置默认 `Australia/Sydney`；开发配置 `jobsp/settings.py` 仍为上游的 `Asia/Kolkata`，因为本地已有数据按该时区保存，改动会让所有已存时间偏移。
 - 0086 的反向迁移会把文本转回数字：只有全部值都是纯数字时才能成功，且会再次丢掉前导 0；需要回退时先导出这两列。
 - JSON Resume 导出 `city`、`region`、`postalCode`（RR 导入时忽略地址与邮编），不填写 `countryCode`（国家表没有 ISO 代码）；备用手机号不导出，招聘端也看不到电话、地址和邮编。
 
