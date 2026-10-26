@@ -428,6 +428,25 @@ class RRLinkTests(RRTestBase):
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.data["code"], "subject_mismatch")
 
+    def test_token_encrypted_with_another_key_asks_to_reconnect(self):
+        """S3-08: a restore without the original RR_TOKEN_ENCRYPTION_KEY."""
+        self._linked()
+        ResumeAccountLink.objects.filter(user=self.user).update(
+            refresh_token_encrypted=Fernet(Fernet.generate_key()).encrypt(b"refresh-x").decode()
+        )
+        before = len(self.rr.calls("token"))
+
+        response = self.client.post(reverse("api:v1:integrations:rr-check"))
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["code"], "token_unreadable")
+        link = self.link()
+        self.assertEqual(link.status, ResumeAccountLink.STATUS_ERROR)
+        self.assertEqual(link.refresh_token_encrypted, "")
+        self.assertEqual(len(self.rr.calls("token")), before)  # nothing was sent to RR
+        status_response = self.client.get(reverse("api:v1:integrations:rr-status"))
+        self.assertEqual(status_response.data["status"], "needs_reconnect")
+
     def test_check_without_a_link_is_a_conflict(self):
         response = self.client.post(reverse("api:v1:integrations:rr-check"))
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)

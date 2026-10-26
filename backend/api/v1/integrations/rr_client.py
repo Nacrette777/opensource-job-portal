@@ -361,12 +361,25 @@ def get_access_token(user):
             )
         else:
             try:
-                status_code, body = _refresh(decrypt(link.refresh_token_encrypted))
+                refresh_token = decrypt(link.refresh_token_encrypted)
             except RRIntegrationError as exc:
-                # RR could not be reached even after retries. The stored token
-                # may still be valid (or replayable), so the link is left as is.
+                # Encrypted with another RR_TOKEN_ENCRYPTION_KEY (the key was
+                # rotated or lost, e.g. a restore without it). It can never be
+                # read again, so ask the job seeker to reconnect.
+                link.status = ResumeAccountLink.STATUS_ERROR
+                link.refresh_token_encrypted = ""
+                link.last_error = "The stored authorization can no longer be read."
+                link.save()
                 failure = exc
-                status_code, body = None, {}
+                refresh_token = None
+            if refresh_token is not None:
+                try:
+                    status_code, body = _refresh(refresh_token)
+                except RRIntegrationError as exc:
+                    # RR could not be reached even after retries. The stored token
+                    # may still be valid (or replayable), so the link is left as is.
+                    failure = exc
+                    status_code, body = None, {}
         if failure is None:
             access_token = body.get("access_token")
             new_refresh = body.get("refresh_token")
