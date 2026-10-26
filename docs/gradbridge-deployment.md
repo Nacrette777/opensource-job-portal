@@ -94,6 +94,32 @@ docker compose ... exec api python manage.py setup_rr_dev_integration \
 
 前提：已有订阅和预算上限；本节命令会创建**付费资源**，由 PM 或负责人执行。名称仅为示例。
 
+**状态（2026-10-26）：未部署，阻塞于订阅与费用授权（S3-07）。** 已准备好可执行脚本 `deploy/gradbridge/azure/deploy.ps1`：默认只打印将要执行的全部命令（密钥打码），加 `-Execute -MonthlyBudget <澳元>` 才会真正创建资源。密钥模板见同目录 `azure.env.example`。
+
+### 5.0 开通前必须确定的事项（签字后再执行）
+
+| 事项 | 需要谁决定 | 说明 |
+|---|---|---|
+| 是否仍部署 Azure | advisor / PM | 原计划要求 Azure；若取消需有书面范围决定 |
+| 订阅、区域、资源名前缀 | 费用负责人 | 脚本默认 `australiaeast`、前缀 `gradbridge` |
+| 月度预算与告警邮箱 | 费用负责人 | 脚本创建预算；80%/100% 告警需在门户补充 |
+| 费用估算 | 费用负责人 | 资源与规格：ACR Basic、PostgreSQL Flexible Server Burstable B1ms（32 GB，备份 7 天）、Storage Standard LRS（两个 5 GB 共享）、Container Apps 4 个应用各 0.5 vCPU / 1 GiB、1 个副本、Log Analytics。请用 Azure 价格计算器按所选区域估算，本文不给出未经核实的价格 |
+| 域名与 HTTPS | PM | 默认使用 Container Apps 自带域名与证书；换自定义域名必须重建前端镜像（公共地址在构建时写入） |
+| PostgreSQL 版本 | 部署负责人 | 本地 RR 库为 18、PeelJobs 库为 16；脚本使用 Azure 上稳定提供的 16（RR 要求 16 及以上）。从本地迁移数据时注意大版本差异（导出导入） |
+| 网络 | 部署负责人 | 脚本用“允许 Azure 服务”的防火墙规则；正式环境建议改为 VNet 集成 |
+| 邮件 | PM | 默认输出到控制台；验收可用合成账号绕过邮件，正式使用需配置 SMTP/SES |
+| 密钥保管 | PM | `RR_TOKEN_ENCRYPTION_KEY` 等密钥存入密钥库或密码管理器，与备份分开（第 10 节） |
+
+### 5.1 与 Azure 的兼容性核查（读代码，未在云端实测）
+
+- RR 本地文件存储只用普通的读、写、建目录、删除，没有符号链接或重命名，可放在 Azure Files（SMB）上；启动时会检查目录可读写，权限不对会立即失败。RR 以 uid 1000 运行，api 以 uid 10001 运行，脚本为两个共享分别设置了 `uid/gid` 挂载选项。
+- 主站私有文件使用 Django 的文件系统存储，写入后会重新读取并核对 SHA-256，SMB 上同样适用。
+- Azure Blob 不是 S3 兼容存储，不能填入 RR 的 `S3_*`。
+- Container Apps 不能设置 `init`：RR 切换修订版时会等到终止宽限期结束（第 3 节）。
+- 冷启动后第一次生成 PDF 较慢（S3-06：开发模式约 20 秒）；每次部署 RR 后先做一次预热渲染。
+
+### 5.2 手工步骤（脚本所做内容的说明）
+
 ```bash
 RG=gradbridge-rg; LOC=australiaeast; ACR=gradbridgeacr$RANDOM; ENV=gradbridge-env
 az group create -n $RG -l $LOC
@@ -122,6 +148,20 @@ az containerapp env create -g $RG -n $ENV -l $LOC
 8. **验收**：按第 6 节逐项检查，然后重启各应用的修订版，确认关联、已发布 PDF、RR 草稿仍在。
 
 部署顺序：数据库 → 存储 → RR → API → 注册客户端 → 前端。回滚：Container Apps 保留旧修订版，切回旧修订版即可；数据库迁移只新增表与列，旧代码可以忽略它们。
+
+## 6a 云端验收清单（S3-07，部署后由未参与开发的成员执行）
+
+| 检查 | 通过标准 |
+|---|---|
+| HTTPS 全链路 | 独立浏览器经 HTTPS 完成：学生连接 RR → 创建草稿 → 发布 → HR 搜索、下载 PDF |
+| OAuth 地址 | 授权与回调都在 Azure 域名上，没有任何一步跳回 localhost；回调后 RR 账号仍是学生本人的 |
+| 不意外公开 | 数据库只接受环境内访问；Storage 关闭公共访问；直接访问文件共享或猜测 URL 拿不到 PDF；`/media/` 不提供私有文件 |
+| 实例替换后数据仍在 | 对四个应用各重启一次修订版、再部署一次新修订版后：关联、已发布 PDF 的 SHA-256、HR 备注与收藏、RR 草稿数不变 |
+| PDF | 中文 PDF 字体正常；冷启动首次渲染时间与预热后渲染时间都记录下来 |
+| 停止与切换 | 记录 RR 修订版切换的实际耗时（无 init，会等终止宽限期） |
+| 邮件 | 已配置并实测，或写明使用合成账号的限制 |
+| 记录 | 镜像对应的两个仓库提交、资源清单、公共地址、密钥名称（不含值）、费用上限与实际费用 |
+| 备份 | 按第 10 节在云端做一次备份并恢复到隔离环境 |
 
 ## 6 部署后检查清单
 
