@@ -94,23 +94,25 @@ docker compose ... exec api python manage.py setup_rr_dev_integration \
 
 前提：已有订阅和预算上限；本节命令会创建**付费资源**，由 PM 或负责人执行。名称仅为示例。
 
-**状态（2026-10-26）：未部署，阻塞于订阅与费用授权（S3-07）。** 已准备好可执行脚本 `deploy/gradbridge/azure/deploy.ps1`：默认只打印将要执行的全部命令（密钥打码），加 `-Execute -MonthlyBudget <澳元>` 才会真正创建资源。密钥模板见同目录 `azure.env.example`。
+**状态（2026-10-27）：已部署到 Azure for Students 订阅，区域 eastasia**（订阅策略只允许 malaysiawest、koreacentral、indiasouthcentral、japaneast、eastasia），记录见 5.3。脚本 `deploy/gradbridge/azure/deploy.ps1` 默认只打印将要执行的全部命令（密钥打码），加 `-Execute -MonthlyBudget <订阅计费货币金额>` 才会真正创建资源；`-From/-To` 可以从失败的步骤继续，每一步都可以重复执行。密钥模板见同目录 `azure.env.example`。执行前把 Azure CLI 加入 PATH，并由负责人本人 `az login`。
 
 ### 5.0 开通前必须确定的事项（签字后再执行）
 
 | 事项 | 需要谁决定 | 说明 |
 |---|---|---|
 | 是否仍部署 Azure | advisor / PM | 原计划要求 Azure；若取消需有书面范围决定 |
-| 订阅、区域、资源名前缀 | 费用负责人 | 脚本默认 `australiaeast`、前缀 `gradbridge` |
-| 月度预算与告警邮箱 | 费用负责人 | 脚本创建预算；80%/100% 告警需在门户补充 |
-| 费用估算 | 费用负责人 | 资源与规格：ACR Basic、PostgreSQL Flexible Server Burstable B1ms（32 GB，备份 7 天）、Storage Standard LRS（两个 5 GB 共享）、Container Apps 4 个应用各 0.5 vCPU / 1 GiB、1 个副本、Log Analytics。请用 Azure 价格计算器按所选区域估算，本文不给出未经核实的价格 |
+| 订阅、区域、资源名前缀 | 费用负责人 | 脚本默认 `eastasia`、前缀 `gradbridge`；先用 `az account list-locations` 或门户确认订阅策略允许的区域 |
+| 月度预算与告警 | 费用负责人 | 脚本通过 REST 创建订阅级月度预算，实际费用达 80%/100%、预测达 100% 时通知订阅所有者（Owner 角色）。金额按订阅计费货币（学生订阅为美元） |
+| 费用估算 | 费用负责人 | 资源与规格：ACR Basic、PostgreSQL Flexible Server Burstable B1ms（32 GB，备份 7 天）、Storage Standard LRS（两个 5 GB 共享）、Container Apps：rr 0.5 vCPU / 1 GiB 常驻 1 个副本，api 0.25 vCPU / 0.5 GiB 常驻 1 个副本，site 与 recruiter 各 0.25 / 0.5 GiB、空闲时缩到 0；Log Analytics 保留 30 天。按 2026-10 Azure 零售价目 API（eastasia，美元）估算：PostgreSQL 约 21 + 存储约 5、ACR 约 5、两个常驻应用空闲时约 18，合计约 50 美元/月，持续高负载时约 85 美元/月（未扣除 Container Apps 每月免费额度） |
 | 域名与 HTTPS | PM | 默认使用 Container Apps 自带域名与证书；换自定义域名必须重建前端镜像（公共地址在构建时写入） |
 | PostgreSQL 版本 | 部署负责人 | 本地 RR 库为 18、PeelJobs 库为 16；脚本使用 Azure 上稳定提供的 16（RR 要求 16 及以上）。从本地迁移数据时注意大版本差异（导出导入） |
 | 网络 | 部署负责人 | 脚本用“允许 Azure 服务”的防火墙规则；正式环境建议改为 VNet 集成 |
 | 邮件 | PM | 默认输出到控制台；验收可用合成账号绕过邮件，正式使用需配置 SMTP/SES |
 | 密钥保管 | PM | `RR_TOKEN_ENCRYPTION_KEY` 等密钥存入密钥库或密码管理器，与备份分开（第 10 节） |
 
-### 5.1 与 Azure 的兼容性核查（读代码，未在云端实测）
+### 5.1 与 Azure 的兼容性核查
+
+2026-10-27 云端实测：RR 健康检查显示数据库与 Azure Files 存储均正常；PeelJobs 全部迁移（含 0079 的 pg_trgm）在 Azure PostgreSQL 16 上执行成功。下列其余各条为读代码结论。
 
 - RR 本地文件存储只用普通的读、写、建目录、删除，没有符号链接或重命名，可放在 Azure Files（SMB）上；启动时会检查目录可读写，权限不对会立即失败。RR 以 uid 1000 运行，api 以 uid 10001 运行，脚本为两个共享分别设置了 `uid/gid` 挂载选项。
 - 主站私有文件使用 Django 的文件系统存储，写入后会重新读取并核对 SHA-256，SMB 上同样适用。
@@ -122,10 +124,11 @@ docker compose ... exec api python manage.py setup_rr_dev_integration \
 ### 5.2 手工步骤（脚本所做内容的说明）
 
 ```bash
-RG=gradbridge-rg; LOC=australiaeast; ACR=gradbridgeacr$RANDOM; ENV=gradbridge-env
+RG=gradbridge-rg; LOC=eastasia; ACR=gradbridgeacr; ENV=gradbridge-env
 az group create -n $RG -l $LOC
 az acr create -g $RG -n $ACR --sku Basic
-az containerapp env create -g $RG -n $ENV -l $LOC
+# 必须是 WorkloadProfiles：新版 CLI 默认建 Express 环境，不能挂载 Azure Files
+az containerapp env create -g $RG -n $ENV -l $LOC --environment-mode WorkloadProfiles
 ```
 
 1. **数据库**：创建一台 Azure Database for PostgreSQL Flexible Server，建两个库与两个独立用户（`peeljobs`、`reactive_resume`），只开放给 Container Apps 环境（VNet 集成或防火墙规则）。开启自动备份。RR 需要 PostgreSQL 16 及以上。
@@ -149,6 +152,41 @@ az containerapp env create -g $RG -n $ENV -l $LOC
 8. **验收**：按第 6 节逐项检查，然后重启各应用的修订版，确认关联、已发布 PDF、RR 草稿仍在。
 
 部署顺序：数据库 → 存储 → RR → API → 注册客户端 → 前端。回滚：Container Apps 保留旧修订版，切回旧修订版即可；数据库迁移只新增表与列，旧代码可以忽略它们。
+
+### 5.3 实际部署记录（2026-10-27，Azure CLI 2.91.0）
+
+公共地址（Container Apps 自带域名与证书）：
+
+| 应用 | 地址 |
+|---|---|
+| 学生端 | `https://gradbridge-site.mangowater-328d9d2e.eastasia.azurecontainerapps.io` |
+| 招聘端 | `https://gradbridge-recruiter.mangowater-328d9d2e.eastasia.azurecontainerapps.io` |
+| API | `https://gradbridge-api.mangowater-328d9d2e.eastasia.azurecontainerapps.io` |
+| RR | `https://gradbridge-rr.mangowater-328d9d2e.eastasia.azurecontainerapps.io` |
+
+镜像来自 PeelJobs `1949a46`、RR `363c45a0d`，在本机构建后推送到 `gradbridgeacr`（标签 `1`）。资源组 `gradbridge-rg` 中有：ACR、拉取身份 `gradbridge-pull`、Log Analytics、环境 `gradbridge-env`、PostgreSQL 16 `gradbridge-pg`、存储账户 `gradbridgefiles`（共享 `api-data`、`rr-data`）和四个应用。迁移在 api 首次启动时执行到 0086，地区数据已导入。
+
+首次真实执行时遇到并已在脚本中修正的问题：
+
+| 问题 | 处理 |
+|---|---|
+| `az consumption budget create` 返回 400（要求新版筛选接口） | 改用 REST API 创建订阅级预算 |
+| `az acr build`（ACR Tasks）在学生订阅不可用 | 本机 `docker build` 后推送 |
+| `--high-availability` 参数已被移除 | 改为 `--zonal-resiliency Disabled` |
+| `flexible-server db create -d`、`firewall-rule --rule-name` 参数名变化 | 改为 `-n`；防火墙规则用 `-s <服务器> -n <规则>` |
+| 新版 CLI 默认创建 Express 环境，不支持 Azure Files | 用 `--environment-mode WorkloadProfiles` 重建环境（域名随之改变，前端镜像需重建） |
+| `az containerapp create --yaml`（扩展使用 2025-10-02-preview API）返回 “could not be converted to System.Boolean” | 改为 `az rest` 以正式版 API `2025-01-01` 提交 JSON 定义 |
+
+运维命令（在 api 容器内执行管理命令、暂停数据库以节省费用）：
+
+```powershell
+az containerapp exec -g gradbridge-rg -n gradbridge-api --command "python manage.py showmigrations peeldb"
+az postgres flexible-server stop -g gradbridge-rg -n gradbridge-pg    # 停止期间不收计算费，7 天后 Azure 会自动启动
+az postgres flexible-server start -g gradbridge-rg -n gradbridge-pg
+az group delete -n gradbridge-rg                                      # 全部删除（不可恢复，先按第 10 节备份）
+```
+
+注册新账号需要邮件验证，而邮件目前只输出到 api 容器日志。在配置 SMTP 之前，验证链接要从日志中取得：`az containerapp logs show -g gradbridge-rg -n gradbridge-api --tail 100 | Select-String verify-email`。
 
 ## 6a 云端验收清单（S3-07，部署后由未参与开发的成员执行）
 
