@@ -14,7 +14,10 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	const upstream = await fetch(
 		`${API_BASE_URL}/integrations/publication/versions/${params.id}/pdf/`
 	);
-	if (!upstream.ok || !upstream.body) error(upstream.status === 404 ? 404 : 502, 'PDF unavailable');
+	if (!upstream.ok || !upstream.body) {
+		// Pass on refusals as they are; only real upstream failures become 502.
+		error([401, 403, 404].includes(upstream.status) ? upstream.status : 502, 'PDF unavailable');
+	}
 
 	return new Response(upstream.body, {
 		status: 200,

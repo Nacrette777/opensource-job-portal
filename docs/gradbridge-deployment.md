@@ -153,3 +153,11 @@ az containerapp env create -g $RG -n $ENV -l $LOC
 - `api` 的 `/data` 为单个共享卷；多副本需要支持多写的存储（Azure Files 可以）。
 - Django admin 的静态文件未由 gunicorn 提供；如需使用 admin，另行配置静态文件托管。
 - 邮件默认输出到控制台；正式环境需要配置 SMTP/SES。
+
+## 9 已发布简历的隐私规则（S3-03B）
+
+- 学生发布即同意招聘方下载该 PDF 的全文。主站不修改 PDF：招聘端页面隐藏电话、地址（邮箱只在学生选择公开时显示），但 PDF 里写了什么，招聘方就能看到什么。
+- 发布页在发布前提供 **Preview PDF**（由 RR 按当前内容渲染，不保存），并在发布确认框中写明上述规则。
+- 撤回只阻止之后的搜索、详情和下载；招聘方已经下载的 PDF 无法收回。
+- 已发布文件只存在 `GRADBRIDGE_PRIVATE_MEDIA_ROOT`（不在 `MEDIA_ROOT` 下，也没有公开 URL），只能经主站鉴权下载，响应带 `Cache-Control: private, no-store`。
+- 招聘方的收藏与备注按个人隔离：同公司同事和其他公司都看不到、改不了；目前没有任何导出路径包含备注。Django admin 没有注册这些模型。

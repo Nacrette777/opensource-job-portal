@@ -19,6 +19,11 @@ urlpatterns = [
     path("publication/publish/", publication_views.publish, name="publication-publish"),
     path("publication/withdraw/", publication_views.withdraw, name="publication-withdraw"),
     path(
+        "publication/preview/<str:external_resume_id>/pdf/",
+        publication_views.preview_pdf,
+        name="publication-preview-pdf",
+    ),
+    path(
         "publication/versions/<uuid:version_id>/pdf/",
         publication_views.version_pdf,
         name="publication-version-pdf",

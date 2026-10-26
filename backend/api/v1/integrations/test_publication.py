@@ -245,6 +245,45 @@ class PublicationTests(RRTestBase):
 
         self.assertEqual(response.status_code, 404)
 
+    # --- preview before publishing ---------------------------------------------
+
+    def preview(self, resume_id="res-1"):
+        return self.client.get(
+            reverse("api:v1:integrations:publication-preview-pdf", args=[resume_id])
+        )
+
+    def test_preview_returns_the_pdf_rr_renders_now_without_storing_anything(self):
+        self._linked()
+
+        response = self.preview()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertEqual(response.content, PDF)
+        self.assertIn("inline", response["Content-Disposition"])
+        self.assertEqual(response["Cache-Control"], "private, no-store")
+        self.assertFalse(ResumeVersion.objects.exists())
+        self.assertIsNone(self.current())
+        self.assertEqual(list(Path(self.tmp).rglob("*")), [])
+
+    def test_preview_of_a_resume_outside_the_account_is_not_found(self):
+        self._linked()
+        response = self.preview("someone-elses")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data["code"], "resume_not_found")
+
+    def test_preview_rejects_a_malformed_id_without_calling_rr(self):
+        self._linked()
+        before = len(self.rr.gets)
+        response = self.client.get("/api/v1/integrations/publication/preview/res.1%3Fx/pdf/")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.rr.gets), before)
+
+    def test_preview_needs_a_linked_account_and_a_job_seeker(self):
+        self.assertEqual(self.preview().status_code, 409)
+        self.client.force_authenticate(user=make_user("hr2@example.test", user_type="EM"))
+        self.assertEqual(self.preview().status_code, 403)
+
     def test_recruiters_cannot_use_student_publication(self):
         self.client.force_authenticate(user=make_user("hr@example.test", user_type="EM"))
         self.assertEqual(self.client.get(reverse("api:v1:integrations:publication")).status_code, 403)

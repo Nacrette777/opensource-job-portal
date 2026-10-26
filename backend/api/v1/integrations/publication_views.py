@@ -5,7 +5,9 @@ Recruiters only ever see the version the publication pointer names; see
 publishing.py for how a version is snapshotted and stored.
 """
 
-from django.http import FileResponse
+import re
+
+from django.http import FileResponse, HttpResponse
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
@@ -20,6 +22,8 @@ from .views import _error, _guard
 
 TAGS = ["Integrations"]
 HISTORY_LIMIT = 10
+# RR resume ids are UUIDs; anything else never reaches RR's URL.
+RR_ID = re.compile(r"[0-9A-Za-z-]{1,64}")
 
 
 class RRResumeSerializer(serializers.Serializer):
@@ -177,6 +181,34 @@ def version_pdf(request, version_id):
     if not version:
         return Response({"code": "not_found", "error": "Version not found."}, status=404)
     return _pdf_response(version)
+
+
+@extend_schema(
+    tags=TAGS,
+    summary="Preview a resume's PDF before publishing it",
+    description=(
+        "Renders the PDF of one of the job seeker's Reactive Resume resumes as it "
+        "is now, so they can see exactly what recruiters would download. Nothing "
+        "is stored or published."
+    ),
+    responses={(200, "application/pdf"): bytes, 404: RRErrorSerializer, 409: RRErrorSerializer, 502: RRErrorSerializer},
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def preview_pdf(request, external_resume_id):
+    if denied := _guard(request):
+        return denied
+    if not RR_ID.fullmatch(external_resume_id):
+        return Response({"code": "not_found", "error": "Resume not found."}, status=404)
+    try:
+        pdf = publishing.preview_pdf(request.user, external_resume_id)
+    except rr_client.RRIntegrationError as exc:
+        return _error(exc)
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = 'inline; filename="resume-preview.pdf"'
+    response["Cache-Control"] = "private, no-store"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
 def _pdf_response(version):

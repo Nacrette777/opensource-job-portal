@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FileCheck2, Download, Send, EyeOff, AlertTriangle, CheckCircle2, Link2 } from '@lucide/svelte';
+	import { FileCheck2, Download, Send, Eye, EyeOff, AlertTriangle, CheckCircle2, Link2 } from '@lucide/svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -12,6 +12,12 @@
 		value ? new Date(value).toLocaleString() : '';
 	const formatSize = (bytes: number) => `${Math.max(1, Math.round(bytes / 1024))} KB`;
 	const pdfHref = (id: string) => `/profile/published-resume/versions/${id}/pdf/`;
+	const previewHref = (id: string) => `/profile/published-resume/preview/${id}/pdf/`;
+
+	const PUBLISH_CONFIRM =
+		'Recruiters will be able to download this PDF exactly as it is, including any phone number, email or address in it. Publish it?';
+	const WITHDRAW_CONFIRM =
+		'Withdraw your resume? Recruiters will no longer find it. Copies they have already downloaded cannot be recalled.';
 </script>
 
 <svelte:head>
@@ -66,7 +72,7 @@
 				<a href={pdfHref(current.id)} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
 					<Download size={16} /> Download published PDF
 				</a>
-				<form method="POST" action="?/withdraw" onsubmit={(e) => { if (!confirm('Withdraw your resume? Recruiters will no longer find it.')) e.preventDefault(); else busy = 'withdraw'; }}>
+				<form method="POST" action="?/withdraw" onsubmit={(e) => { if (!confirm(WITHDRAW_CONFIRM)) e.preventDefault(); else busy = 'withdraw'; }}>
 					<button type="submit" disabled={busy !== ''} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-error-600/30 text-sm font-medium text-error-600 hover:bg-error-50 disabled:opacity-60">
 						<EyeOff size={16} /> {busy === 'withdraw' ? 'Withdrawing…' : 'Withdraw'}
 					</button>
@@ -74,7 +80,8 @@
 			</div>
 			<p class="mt-3 text-xs text-gray-500">
 				Editing this resume in Reactive Resume does not change what recruiters see until you publish
-				again.
+				again. Withdrawing stops recruiters finding or downloading it from then on; copies they have
+				already downloaded cannot be recalled.
 			</p>
 		{:else}
 			<p class="mt-2 text-sm text-gray-600">
@@ -104,6 +111,15 @@
 				Publishing saves a copy of the resume as it is now (data and PDF). Later edits stay private
 				until you publish again.
 			</p>
+			<div class="mt-4 flex items-start gap-3 rounded-xl border border-warning-500/20 bg-warning-light p-4 text-sm text-warning-600" role="note">
+				<AlertTriangle size={18} class="mt-0.5 shrink-0" />
+				<span>
+					Recruiters can download the PDF exactly as it is, including any phone number, email or
+					address written in it. Recruiter pages hide your phone number and address, but the PDF is
+					never changed. Preview it first, and remove anything you do not want to share in Reactive
+					Resume before publishing.
+				</span>
+			</div>
 			<ul class="mt-4 divide-y divide-gray-100 rounded-xl border border-gray-100">
 				{#each data.resumes as resume (resume.id)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
@@ -111,12 +127,17 @@
 							<span class="font-medium text-gray-900">{resume.name || 'Untitled resume'}</span>
 							<span class="block text-xs text-gray-500">Last saved {formatDate(resume.updated_at)}{#if current?.external_resume_id === resume.id} · currently published{/if}</span>
 						</span>
-						<form method="POST" action="?/publish" onsubmit={() => (busy = resume.id)}>
-							<input type="hidden" name="external_resume_id" value={resume.id} />
-							<button type="submit" disabled={busy !== ''} class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-full text-xs font-medium hover:bg-primary-700 disabled:opacity-60">
-								<Send size={14} /> {busy === resume.id ? 'Publishing…' : current?.external_resume_id === resume.id ? 'Publish again' : 'Publish'}
-							</button>
-						</form>
+						<span class="flex flex-wrap items-center gap-2">
+							<a href={previewHref(resume.id)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50">
+								<Eye size={14} /> Preview PDF
+							</a>
+							<form method="POST" action="?/publish" onsubmit={(e) => { if (!confirm(PUBLISH_CONFIRM)) e.preventDefault(); else busy = resume.id; }}>
+								<input type="hidden" name="external_resume_id" value={resume.id} />
+								<button type="submit" disabled={busy !== ''} class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-full text-xs font-medium hover:bg-primary-700 disabled:opacity-60">
+									<Send size={14} /> {busy === resume.id ? 'Publishing…' : current?.external_resume_id === resume.id ? 'Publish again' : 'Publish'}
+								</button>
+							</form>
+						</span>
 					</li>
 				{/each}
 			</ul>

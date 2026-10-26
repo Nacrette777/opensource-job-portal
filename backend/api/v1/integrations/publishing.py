@@ -111,6 +111,16 @@ def _fetch_pdf(external_resume_id, access_token):
     return response.content
 
 
+def preview_pdf(user, external_resume_id):
+    """The PDF RR renders for the job seeker's resume right now, for a look
+    before publishing. Nothing is stored; RR only returns the job seeker's own
+    resumes, because the request carries their own access token."""
+    _connected_link(user)
+    access_token = get_access_token(user)
+    _fetch_resume(external_resume_id, access_token)  # 404 for any other resume
+    return _fetch_pdf(external_resume_id, access_token)
+
+
 def _snapshot(external_resume_id, access_token):
     """JSON + PDF of the same stored state of the resume."""
     for _attempt in range(SNAPSHOT_ATTEMPTS):
