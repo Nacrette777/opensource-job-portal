@@ -223,6 +223,28 @@ az role assignment create --role "Key Vault Secrets User" --assignee-object-id (
 - 轮换密钥：先改本机文件，再带 `-KeyVault` 重新运行对应的步骤。也可以直接在 Key Vault 里新建版本，然后重启对应的应用修订版。注意 `token-key` 不能单独轮换，否则已保存的 RR 令牌会无法解密，学生需要重新关联 RR。
 - 部署脚本每次只更新一个镜像标签，所以 rr 和 api 标签不同时要分两次运行。例如：`-ImageTag 5 -From 6 -To 6 -KeyVault ...`，然后 `-ImageTag 10 -From 8 -To 8 -KeyVault ...`。
 
+### 5.6 可用性监控（S4-08，2026-11-08）
+- Application Insights `gradbridge-insights`，基于现有的 Log Analytics `gradbridge-logs`，区域 eastasia。
+- 3 个标准可用性测试，每 15 分钟一次，超时 60 秒，失败会重试，要求返回 200，并检查 TLS 证书（到期前 7 天报警）：
+
+| 测试 | 地址 | 检测地点 |
+|---|---|---|
+| `gb-api` | api `/api/v1/jobs/?page_size=1`（会访问数据库） | Australia East、Southeast Asia |
+| `gb-rr` | rr `/api/auth/get-session` | Australia East、Southeast Asia |
+| `gb-site` | site 首页 | Australia East（只用一个地点，减少把缩到 0 的 site 唤醒的次数） |
+
+- 告警规则 `gradbridge-availability`：任一测试在 30 分钟内的可用率低于 60% 时触发，每 15 分钟评估一次，严重级别 1。动作组 `gradbridge-owner` 会以公共告警格式发邮件给订阅的 Owner 角色成员，不需要填写邮箱地址。
+- 费用：标准测试每次检测约 0.0005 美元，每个地点各算一次。按每月约 1.4 万次计算，约 7 美元，另加少量日志写入费用。
+- 2026-11-08 首批结果：5 组全部通过。api 0.25–1.1 秒，rr 0.17–0.74 秒，site 平均 21 秒（每次都从 0 个副本冷启动）。
+
+```powershell
+az extension add --name application-insights
+az monitor app-insights component create --app gradbridge-insights -g gradbridge-rg --location eastasia --workspace <gradbridge-logs id> --kind web --application-type web
+az monitor app-insights web-test create -g gradbridge-rg --name gb-api --location eastasia --web-test-kind standard --defined-web-test-name gb-api --synthetic-monitor-id gb-api --enabled true --frequency 900 --timeout 60 --retry-enabled true --locations Id=emea-au-syd-edge --locations Id=apac-sg-sin-azr --http-verb GET --request-url <url> --expected-status-code 200 --ssl-check true --ssl-lifetime-check 7 --tags "hidden-link:<component id>=Resource"
+az monitor action-group create -g gradbridge-rg -n gradbridge-owner --short-name gbowner --action armrole owner 8e3af657-a8ff-443c-a75c-2fe8c4bcb635 usecommonalertschema
+az monitor metrics alert create -n gradbridge-availability -g gradbridge-rg --scopes <component id> --condition "avg availabilityResults/availabilityPercentage < 60 where availabilityResult/name includes *" --window-size 30m --evaluation-frequency 15m --severity 1 --action <action group id>
+```
+
 ## 6a 云端验收清单（S3-07，部署后由未参与开发的成员执行）
 
 | 检查 | 通过标准 |
@@ -331,6 +353,28 @@ az role assignment create --role "Key Vault Secrets User" --assignee-object-id (
 - 只回退镜像期间，旧代码按数字读写备用手机号：带 `+` 的号码再次保存时会丢掉 `+`。回退窗口应尽量短。
 - 只回退镜像期间，旧版 RR 创建的草稿不会写入导入记录表（S3-02）；重新升级后，这些草稿的重试仍按旧的 slug 方式匹配。
 - RR 的 drizzle 迁移只会向前执行；旧镜像遇到数据库里多出的新迁移记录时不报错。
+
+
+### 10.4 Azure 上的备份与恢复演练（S4-07，2026-11-08 实测）
+- **PostgreSQL**：灵活服务器自带时间点恢复（PITR），保留 7 天，未开启异地冗余。演练时恢复到一台**新的**服务器，不覆盖正在使用的服务器：
+  ```powershell
+  az postgres flexible-server restore -g gradbridge-rg --name gradbridge-pg-drill --source-server gradbridge-pg --restore-time <UTC 时间>
+  # 恢复出来的服务器不带防火墙规则，必须手动加回去：
+  az postgres flexible-server firewall-rule create -g gradbridge-rg --server-name gradbridge-pg-drill --name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+  ```
+  - 2026-11-08 实测：恢复到 14:39:05Z 的时间点，用时 9 分钟。
+  - 在 api 容器中用应用账号连接正式库和恢复库，对比结果：用户 11、职位 40、公司 9、RR 关联 1、简历版本 2、迁移 150 条、最新迁移 0089，两边完全一致；`peeljobs` 和 `reactive_resume` 两个库都存在。
+  - 核对完成后已删除演练服务器（`az postgres flexible-server delete ... --yes`），它按小时计费。
+  - 实际切换到恢复库的步骤：把 api 的 `DB_HOST`、rr 的 `database-url`（Key Vault 机密）改为新服务器地址，然后重新部署第 6 步和第 8 步。
+- **Azure Files**（`api-data` 存放已发布的 PDF，`rr-data` 存放 RR 上传的文件）：使用共享快照，不另建备份保管库。
+  ```powershell
+  az storage share-rm snapshot --storage-account gradbridgefiles -g gradbridge-rg --name api-data
+  az storage share-rm list --storage-account gradbridgefiles -g gradbridge-rg --include-snapshot -o table
+  ```
+  - 2026-11-08 实测：快照与当前共享一致（api-data 4 个文件、61,983 字节；rr-data 为空）。
+  - 恢复方法：用 `az storage file copy start --source-share <share> --source-snapshot <time>` 把文件复制回去，或者在门户的“快照”页面直接恢复。
+  - 快照不会自动生成。如需每日自动备份，要另建 Recovery Services 保管库并启用 Azure Backup（属于付费资源，需另行批准）。
+- `token-key` 必须和数据库一起保留（已放在 Key Vault 和本机文件中）；缺少它，恢复后所有学生都要重新关联 RR。
 
 ## 11 访问频率限制与 RR 客户端注册（S4-05，2026-11-08）
 
