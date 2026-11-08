@@ -132,3 +132,48 @@ class CreateTestUsersTests(TestCase):
         self.assertTrue(seeker.mobile.startswith("+61"))
         self.assertEqual(seeker.education.get().institute.name, "UNSW Sydney")
         self.assertEqual(sorted(seeker.language.values_list("language__name", flat=True)), ["English", "Mandarin"])
+
+
+class GradBridgeDemoDataTests(TestCase):
+    """load_gradbridge_demo_data: labelled, harmless on a public site, removable."""
+
+    @classmethod
+    def setUpTestData(cls):
+        run("load_initial_data")
+        cls.real_company = Company.objects.create(
+            name="Real Employer Pty Ltd", slug="real-employer", profile="<p>Real.</p>", phone_number=""
+        )
+
+    def demo_jobs(self):
+        return JobPost.objects.filter(meta_description__contains="[GRADBRIDGE DEMO]")
+
+    def test_creates_labelled_live_jobs_owned_by_recruiters_who_cannot_sign_in(self):
+        out = run("load_gradbridge_demo_data")
+        self.assertIn("Created 8 demo companies", out)
+        jobs = self.demo_jobs()
+        self.assertEqual(jobs.count(), 40)
+        self.assertEqual(set(jobs.values_list("status", flat=True)), {"Live"})
+        for job in jobs.select_related("company", "user"):
+            self.assertTrue(job.description.startswith("<p><strong>Demo listing.</strong>"))
+            self.assertTrue(job.company.name.endswith(" (Demo)"))
+            self.assertEqual(job.company_name, job.company.name)
+            self.assertTrue(job.slug.startswith("demo-"))
+            self.assertFalse(job.user.has_usable_password())
+            self.assertTrue(job.user.email.endswith(".test"), job.user.email)
+            self.assertIsNone(job.user.mobile)
+        for company in Company.objects.filter(profile__contains="[GRADBRIDGE DEMO]"):
+            self.assertTrue(company.profile.startswith("<p><strong>Demo company.</strong>"))
+            self.assertEqual((company.website, company.email, company.phone_number), ("", None, ""))
+        self.assertFalse(JobPost.objects.filter(meta_description__contains="[TEST DATA]").exists())
+
+    def test_running_again_replaces_the_set_and_remove_deletes_only_demo_data(self):
+        run("load_gradbridge_demo_data", companies=2, jobs_per_company=1)
+        out = run("load_gradbridge_demo_data", companies=2, jobs_per_company=1)
+        self.assertIn("Removed 2 demo jobs, 2 demo recruiters, 2 demo companies.", out)
+        self.assertEqual(self.demo_jobs().count(), 2)
+
+        run("load_gradbridge_demo_data", remove=True)
+        self.assertFalse(self.demo_jobs().exists())
+        self.assertFalse(Company.objects.filter(name__endswith=" (Demo)").exists())
+        self.assertFalse(User.objects.filter(profile_description__contains="[GRADBRIDGE DEMO]").exists())
+        self.assertTrue(Company.objects.filter(pk=self.real_company.pk).exists())

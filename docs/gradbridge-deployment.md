@@ -262,6 +262,14 @@ az communication email domain sender-username update --sender-username DoNotRepl
 - 0086 的反向迁移会把文本转回数字：只有全部值都是纯数字时才能成功，且会再次丢掉前导 0；需要回退时先导出这两列。
 - JSON Resume 导出 `city`、`region`、`postalCode`（RR 导入时忽略地址与邮编），不填写 `countryCode`（国家表没有 ISO 代码）；备用手机号不导出，招聘端也看不到电话、地址和邮编。
 
+### 8b 演示数据（S4-03）
+`python manage.py load_gradbridge_demo_data` 会生成 8 家演示公司，每家 5 个已上线职位，币种按城市分别用 AUD 或 SGD；`--remove` 会全部删除。数据都有明确标注：
+- 公司名以 “(Demo)” 结尾；公司简介和职位描述开头都有 “Demo company / Demo listing” 说明；
+- 职位所属的招聘方账号使用 example.test 邮箱和不可用密码，无法登录；
+- 不设置网站、邮箱或电话。
+
+再次运行会先删除上一批，再重新生成。学生对演示职位的申请会随 `--remove` 一起删除。`create_test_data` 只能在开发环境使用：它生成的账号共用仓库里写明的密码，网站和电话看起来也像真的。
+
 ## 9 已发布简历的隐私规则（S3-03B）
 
 - 学生发布即同意招聘方下载该 PDF 的全文。主站不修改 PDF：招聘端页面隐藏电话、地址（邮箱只在学生选择公开时显示），但 PDF 里写了什么，招聘方就能看到什么。
