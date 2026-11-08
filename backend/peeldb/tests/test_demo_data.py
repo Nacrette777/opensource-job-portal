@@ -177,3 +177,17 @@ class GradBridgeDemoDataTests(TestCase):
         self.assertFalse(Company.objects.filter(name__endswith=" (Demo)").exists())
         self.assertFalse(User.objects.filter(profile_description__contains="[GRADBRIDGE DEMO]").exists())
         self.assertTrue(Company.objects.filter(pk=self.real_company.pk).exists())
+
+    def test_each_demo_company_advertises_in_one_country(self):
+        run("load_gradbridge_demo_data")
+        countries = {}
+        for job in self.demo_jobs().prefetch_related("location__state__country"):
+            names = {c.state.country.name for c in job.location.all()}
+            self.assertEqual(len(names), 1, job.title)
+            countries.setdefault(job.company_id, set()).update(names)
+            if "Pte. Ltd." in job.company_name:
+                self.assertEqual(names, {"Singapore"}, job.company_name)
+            if "Pty Ltd" in job.company_name:
+                self.assertEqual(names, {"Australia"}, job.company_name)
+        self.assertTrue(all(len(c) == 1 for c in countries.values()), countries)
+        self.assertEqual(sum(c == {"Singapore"} for c in countries.values()), 2)

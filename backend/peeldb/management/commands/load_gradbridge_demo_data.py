@@ -79,15 +79,25 @@ class Command(BaseCommand):
 
         generator = TestDataCommand(stdout=io.StringIO())
         generator._validate_fixtures_loaded()
-        generator.cities = list(
+        cities = list(
             City.objects.filter(status="Enabled").select_related("state__country")
         )
+        by_country = {}
+        for city in cities:
+            by_country.setdefault(city.state.country.slug, []).append(city)
         generator.skills = list(Skill.objects.filter(status="Active"))
         generator.industries = list(Industry.objects.filter(status="Active"))
         generator.qualifications = list(Qualification.objects.all())
 
         total_jobs = 0
-        for company in generator._create_companies(options["companies"]):
+        for i in range(options["companies"]):
+            # One country per company, so a "Pte. Ltd." does not advertise in
+            # Perth; every fourth company is in Singapore when it is loaded.
+            country = "singapore" if i % 4 == 3 and "singapore" in by_country else None
+            generator.cities = by_country.get(country) or by_country.get(
+                "australia", cities
+            )
+            company = generator._create_companies(1)[0]
             self._label_company(company)
             recruiter = generator._create_recruiters(1, [company])[0]
             self._label_recruiter(recruiter)
