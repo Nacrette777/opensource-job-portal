@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Count, F, JSONField, Q
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 # from microurl import google_mini
@@ -1480,6 +1481,19 @@ class JobPost(models.Model):
                 + "/"
             )
         return qs
+
+    def public_slug(self):
+        """Slug for the public job page: readable, URL-safe and unique (ends in the id).
+
+        get_absolute_url keeps characters such as "#" or "?" from the title
+        ("C# Developer"), which break the link; this slugifies instead. The job
+        must be saved first.
+        """
+        if str(self.job_type) == "internship":
+            middle = self.company.slug if self.company else "company"
+        else:
+            middle = f"{self.min_year}-to-{self.max_year}-years"
+        return f"/{slugify(f'{self.title} {middle}')}-{self.id}/"
 
     def get_total_views_count(self):
         # TODO: Implement proper analytics tracking system

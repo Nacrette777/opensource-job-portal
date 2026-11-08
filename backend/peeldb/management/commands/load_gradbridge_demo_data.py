@@ -142,5 +142,5 @@ class Command(BaseCommand):
         job.meta_title = f"{job.title} Jobs - {company.name}"
         job.company_name = company.name
         job.company_description = company.profile
-        job.slug = f"demo-{job.slug}-{job.pk}"
+        job.slug = job.public_slug()
         job.save()

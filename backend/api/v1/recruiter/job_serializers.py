@@ -568,6 +568,10 @@ class RecruiterJobCreateSerializer(serializers.ModelSerializer):
 
         # Create job
         job = JobPost.objects.create(**validated_data)
+        # The public URL needs the id, which exists only now; a bare
+        # slugify(title) is not unique, and the job page could not find it.
+        job.slug = job.public_slug()
+        job.save(update_fields=["slug"])
 
         # Set many-to-many relationships
         if location_ids:
@@ -606,9 +610,9 @@ class RecruiterJobUpdateSerializer(RecruiterJobCreateSerializer):
         for field, value in validated_data.items():
             setattr(instance, field, value)
 
-        # Update slug if title changed
-        if "title" in validated_data:
-            instance.slug = slugify(validated_data["title"])
+        # The slug is built from the title, experience range and job type.
+        if {"title", "min_year", "max_year", "job_type"} & validated_data.keys():
+            instance.slug = instance.public_slug()
 
         instance.save()
 

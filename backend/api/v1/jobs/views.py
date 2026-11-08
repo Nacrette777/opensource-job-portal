@@ -128,16 +128,19 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
             if lookup_value.isdigit():
                 instance = self.get_queryset().get(id=int(lookup_value))
             else:
-                # Normalize slug: ensure it starts and ends with /
-                # Database slugs are stored as /slug-text/
-                normalized_slug = lookup_value.strip()
-                if not normalized_slug.startswith("/"):
-                    normalized_slug = "/" + normalized_slug
-                if not normalized_slug.endswith("/"):
-                    normalized_slug = normalized_slug + "/"
-
-                # Try by normalized slug
-                instance = self.get_queryset().get(slug=normalized_slug)
+                # Slugs are stored as /slug-text-<id>/ (JobPost.get_absolute_url).
+                # Jobs posted through the recruiter API before S4-03 were stored
+                # as bare slugify(title), which is neither slashed nor unique, so
+                # accept both forms and prefer the newest job.
+                bare = lookup_value.strip().strip("/")
+                instance = (
+                    self.get_queryset()
+                    .filter(slug__in=[f"/{bare}/", bare])
+                    .order_by("-id")
+                    .first()
+                )
+                if instance is None:
+                    raise JobPost.DoesNotExist
         except JobPost.DoesNotExist:
             return Response(
                 {"detail": "Job not found."}, status=status.HTTP_404_NOT_FOUND

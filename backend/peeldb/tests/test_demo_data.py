@@ -157,7 +157,7 @@ class GradBridgeDemoDataTests(TestCase):
             self.assertTrue(job.description.startswith("<p><strong>Demo listing.</strong>"))
             self.assertTrue(job.company.name.endswith(" (Demo)"))
             self.assertEqual(job.company_name, job.company.name)
-            self.assertTrue(job.slug.startswith("demo-"))
+            self.assertEqual(job.slug, job.public_slug())
             self.assertFalse(job.user.has_usable_password())
             self.assertTrue(job.user.email.endswith(".test"), job.user.email)
             self.assertIsNone(job.user.mobile)
