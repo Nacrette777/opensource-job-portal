@@ -186,6 +186,18 @@ class ProfilePatchTests(TestCase):
         self.assertEqual(self.user.country, self.country)
         self.assertEqual(list(self.user.preferred_city.all()), [self.city])
 
+    def test_main_mobile_is_stored_like_the_alternate(self):
+        # Found on Azure: "+61 491 570 006" was kept with spaces while the alternate
+        # number was compacted.
+        response = self.client.patch(self.url, {"mobile": "+61 491 570 006"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.mobile, "+61491570006")
+
+        response = self.client.patch(self.url, {"mobile": "call me"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_unknown_location_ids_are_rejected_not_ignored(self):
         response = self.client.patch(
             self.url, {"state_id": 999999, "country_id": 999999}, format="json"

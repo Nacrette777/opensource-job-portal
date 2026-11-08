@@ -42,8 +42,15 @@
 	let retrying = $derived(Boolean(retryRequestId));
 	let draftRequestId = $derived(retryRequestId || data.draftRequestId);
 
+	// Dates are formatted in the browser only: during server rendering they would use
+	// the container's zone (UTC) and locale, and flash a different time before hydration.
+	let hydrated = $state(false);
+	$effect(() => {
+		hydrated = true;
+	});
+
 	function formatDate(value: string) {
-		return new Date(value).toLocaleString();
+		return hydrated ? new Date(value).toLocaleString() : '';
 	}
 </script>
 
@@ -114,7 +121,7 @@
 				</p>
 				{#if rr.linked_at}
 					<p class="mt-1 text-xs text-gray-500">
-						Since {new Date(rr.linked_at).toLocaleString()}
+						Since {formatDate(rr.linked_at)}
 					</p>
 				{/if}
 			{:else if rr.status === 'needs_reconnect'}

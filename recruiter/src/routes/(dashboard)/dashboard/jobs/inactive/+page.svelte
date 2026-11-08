@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { untrack } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -253,9 +254,10 @@
 							<form
 								method="POST"
 								action="?/delete"
-								use:enhance={() => {
-									if (!confirm('Are you sure you want to permanently delete this job?')) {
-										return () => {};
+								use:enhance={async ({ cancel }) => {
+									if (!(await confirmAction('Permanently delete this job?', { confirmLabel: 'Delete', danger: true }))) {
+										cancel();
+										return;
 									}
 									submittingAction = job.id;
 									return async ({ result }) => {

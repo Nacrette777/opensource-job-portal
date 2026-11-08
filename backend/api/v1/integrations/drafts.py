@@ -34,6 +34,7 @@ from peeldb.models import ResumeAccountLink, ResumeIntegrationRequest
 from peeldb.resume_export import build_json_resume
 
 from .rr_client import HTTP_TIMEOUT, RRIntegrationError, get_access_token
+from .times import as_server_time
 
 IMPORT_PATH = "/api/openapi/resumes/import/json-resume"
 SUCCEEDED = ResumeIntegrationRequest.STATUS_SUCCEEDED
@@ -160,8 +161,10 @@ def create_draft(user, request_id):
     except RRIntegrationError as exc:
         return _outcome(_fail(req, exc.code, exc.message, status=exc.status))
 
-    # From the request, not the attempt, so every retry asks for the same name.
-    name = f"GradBridge draft {req.created_at:%Y-%m-%d %H:%M}"
+    # From the request, not the attempt, so every retry asks for the same name. The
+    # zone abbreviation says whose clock the time is on (the server's TIME_ZONE).
+    created = as_server_time(req.created_at)
+    name = f"GradBridge draft {created:%Y-%m-%d %H:%M} {created.tzname()}"
     try:
         response = requests.post(
             f"{settings.RR_INTERNAL_URL}{IMPORT_PATH}",

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmSubmit } from '$lib/confirm.svelte';
 	import { FileCheck2, Download, Send, Eye, EyeOff, AlertTriangle, CheckCircle2, Link2 } from '@lucide/svelte';
 	import type { ActionData, PageData } from './$types';
 
@@ -72,7 +73,7 @@
 				<a href={pdfHref(current.id)} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
 					<Download size={16} /> Download published PDF
 				</a>
-				<form method="POST" action="?/withdraw" onsubmit={(e) => { if (!confirm(WITHDRAW_CONFIRM)) e.preventDefault(); else busy = 'withdraw'; }}>
+				<form method="POST" action="?/withdraw" onsubmit={confirmSubmit(WITHDRAW_CONFIRM, { confirmLabel: 'Withdraw', danger: true, onConfirm: () => (busy = 'withdraw') })}>
 					<button type="submit" disabled={busy !== ''} class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-error-600/30 text-sm font-medium text-error-600 hover:bg-error-50 disabled:opacity-60">
 						<EyeOff size={16} /> {busy === 'withdraw' ? 'Withdrawing…' : 'Withdraw'}
 					</button>
@@ -131,7 +132,7 @@
 							<a href={previewHref(resume.id)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50">
 								<Eye size={14} /> Preview PDF
 							</a>
-							<form method="POST" action="?/publish" onsubmit={(e) => { if (!confirm(PUBLISH_CONFIRM)) e.preventDefault(); else busy = resume.id; }}>
+							<form method="POST" action="?/publish" onsubmit={confirmSubmit(PUBLISH_CONFIRM, { confirmLabel: 'Publish', onConfirm: () => (busy = resume.id) })}>
 								<input type="hidden" name="external_resume_id" value={resume.id} />
 								<button type="submit" disabled={busy !== ''} class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-full text-xs font-medium hover:bg-primary-700 disabled:opacity-60">
 									<Send size={14} /> {busy === resume.id ? 'Publishing…' : current?.external_resume_id === resume.id ? 'Publish again' : 'Publish'}

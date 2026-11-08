@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { FolderOpen, Plus, Rocket } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -39,7 +40,7 @@
 	}
 
 	async function handleDeleteProject(id: number) {
-		if (!confirm('Are you sure you want to delete this project?')) {
+		if (!(await confirmAction('Delete this project?', { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 

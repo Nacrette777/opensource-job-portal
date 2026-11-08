@@ -484,6 +484,8 @@ class RRDraftTests(RRTestBase):
         self.assertEqual(sent["body"]["resume"]["basics"]["name"], "Test Student")
         self.assertEqual(sent["body"]["resume"]["basics"]["label"], "Data Analyst")
         self.assertTrue(sent["headers"]["Authorization"].startswith("Bearer access-r"))
+        # The draft name says whose clock its time is on.
+        self.assertRegex(sent["body"]["name"], r"^GradBridge draft \d{4}-\d\d-\d\d \d\d:\d\d \S+$")
 
         req = ResumeIntegrationRequest.objects.get(id=self.request_id)
         self.assertEqual(req.user, self.user)

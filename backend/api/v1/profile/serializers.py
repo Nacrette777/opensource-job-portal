@@ -36,6 +36,17 @@ class ContactFieldsMixin:
     phone numbers; nothing else is changed. Empty input clears the field.
     """
 
+    def validate_mobile(self, value):
+        """Same rule as the alternate mobile; empty stays as sent (the field is not nullable)."""
+        if not value or not value.strip():
+            return value
+        compact = re.sub(r"[\s().-]", "", value)
+        if not PHONE_RE.fullmatch(compact):
+            raise serializers.ValidationError(
+                "Enter a phone number of 6 to 15 digits, optionally starting with +."
+            )
+        return compact
+
     def validate_alternate_mobile(self, value):
         if value is None or not value.strip():
             return None
@@ -523,17 +534,6 @@ class ProfileSerializer(ContactFieldsMixin, serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.resume.url)
             return obj.resume.url
         return None
-
-    def validate_mobile(self, value):
-        """Validate mobile number format"""
-        if (
-            value
-            and not value.replace("+", "").replace("-", "").replace(" ", "").isdigit()
-        ):
-            raise serializers.ValidationError(
-                "Mobile number must contain only digits, spaces, hyphens, or plus sign"
-            )
-        return value
 
     def validate(self, data):
         """Cross-field validation"""

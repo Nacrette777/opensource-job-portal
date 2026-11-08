@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { Award, Plus, FileText } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -39,7 +40,7 @@
 	}
 
 	async function handleDeleteCertification(id: number) {
-		if (!confirm('Are you sure you want to delete this certification?')) {
+		if (!(await confirmAction('Delete this certification?', { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 

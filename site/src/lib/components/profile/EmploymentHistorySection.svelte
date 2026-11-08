@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { Briefcase, Plus, X, Pencil, Trash2, Save, Loader, Calendar, Building2 } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -153,7 +154,7 @@
 	}
 
 	async function handleDeleteEmployment(employmentId: number, company: string) {
-		if (!confirm(`Are you sure you want to remove your employment at "${company}"?`)) {
+		if (!(await confirmAction(`Remove your employment at "${company}"?`, { confirmLabel: 'Remove', danger: true }))) {
 			return;
 		}
 

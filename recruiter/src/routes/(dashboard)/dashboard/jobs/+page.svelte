@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { untrack } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -84,7 +85,7 @@
 	}
 
 	async function handleDelete(jobId: number, jobTitle: string) {
-		if (!confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
+		if (!(await confirmAction(`Delete "${jobTitle}"?`, { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 

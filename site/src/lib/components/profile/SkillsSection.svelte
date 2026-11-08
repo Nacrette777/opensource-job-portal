@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { Code, Plus, X, Pencil, Trash2, Save, Loader, Search, Star } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -182,7 +183,7 @@
 	}
 
 	async function handleDeleteSkill(skillId: number, skillName: string) {
-		if (!confirm(`Are you sure you want to remove "${skillName}" from your profile?`)) {
+		if (!(await confirmAction(`Remove "${skillName}" from your profile?`, { confirmLabel: 'Remove', danger: true }))) {
 			return;
 		}
 

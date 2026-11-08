@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { GraduationCap, Plus, BookOpen } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -39,7 +40,7 @@
 	}
 
 	async function handleDeleteEducation(id: number) {
-		if (!confirm('Are you sure you want to delete this education entry?')) {
+		if (!(await confirmAction('Delete this education entry?', { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 
