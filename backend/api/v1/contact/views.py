@@ -7,12 +7,13 @@ from django.conf import settings
 from django.template import loader
 from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from dashboard.tasks import send_email
 
+from ..throttles import ContactGlobalThrottle
 from .serializers import ContactResponseSerializer, ContactSerializer
 
 
@@ -66,6 +67,7 @@ from .serializers import ContactResponseSerializer, ContactSerializer
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([ContactGlobalThrottle])
 def submit_contact_form(request):
     """
     Submit a contact inquiry form

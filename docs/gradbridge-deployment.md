@@ -288,3 +288,29 @@ az group delete -n gradbridge-rg                                      # 全部�
 - 只回退镜像期间，旧代码按数字读写备用手机号：带 `+` 的号码再次保存时会丢掉 `+`。回退窗口应尽量短。
 - 只回退镜像期间，旧版 RR 创建的草稿不会写入导入记录表（S3-02）；重新升级后，这些草稿的重试仍按旧的 slug 方式匹配。
 - RR 的 drizzle 迁移只会向前执行；旧镜像遇到数据库里多出的新迁移记录时不报错。
+
+## 11 访问频率限制与 RR 客户端注册（S4-05，2026-11-08）
+
+### 11.1 PeelJobs api 的频率限制
+浏览器不直接调用登录、注册等接口，而是由学生端和招聘端的 SvelteKit 服务器调用，所以 api 看到的来源地址只有这两台服务器。按 IP 限流会把所有用户算在一起，因此改为按“请求针对的对象”计数（`backend/api/v1/throttles.py`）：
+
+| 接口（学生端与招聘端相同） | 计数方式 | 频率（`settings_gradbridge.py`） |
+|---|---|---|
+| 登录 | 目标邮箱（大小写和首尾空格不区分；缓存里只存哈希） | 20 次/小时 |
+| 找回密码 | 目标邮箱 | 5 次/小时 |
+| 重发验证邮件 | 目标邮箱 | 5 次/小时 |
+| 注册 | 全站合计（两个注册入口共用） | 100 次/小时 |
+| 联系表单 | 全站合计 | 30 次/小时 |
+
+- 学生端与招聘端的同一邮箱共用计数；不合格的请求也计数（限流在校验之前）。
+- 超过限制时返回 429，`detail` 为 “Too many attempts. Please try again in N minutes.”，各页面会直接显示这句话。
+- 计数存放在数据库缓存表 `gradbridge_throttle_cache`，由迁移 0089 创建（执行 `createcachetable`）。这样 3 个 gunicorn 进程共用同一份计数。开发设置没有配置频率，所以开发环境和测试不限流。
+- 代价：别人故意输错密码，可以让某个邮箱在最多 1 小时内无法用密码登录（Google 登录不受影响）。如需调整，只改 `settings_gradbridge.py` 中的 `DEFAULT_THROTTLE_RATES`。
+
+### 11.2 RR 的动态客户端注册（决定：保留上游做法）
+RR 上游开启了 OAuth 动态客户端注册（RFC 7591），并允许未登录时注册，用于 MCP 客户端（如 Claude）接入。具体规则见 `reactive-resume/packages/auth/src/config.ts` 和 `packages/utils/src/url-security.node.ts`：
+- 回调地址只能是 RR 自己的地址、本机地址（http://localhost 或 127.0.0.1），或者公网 https 地址。内网地址和私有地址都会被拒绝。授权时回调地址必须与注册时完全一致。
+- 新注册的客户端在获取简历数据之前，用户必须在 RR 的授权页亲自点 Allow。生产环境下，Better Auth 对注册和授权接口都有自带的频率限制。
+- 剩余风险：任何人都能注册一个名字看起来可信的客户端，然后诱导用户在授权页点 Allow，这和普通的 OAuth 钓鱼一样。GradBridge 主站的客户端是用 `setup_rr_dev_integration` 预先注册的，不依赖动态注册。
+- 如果不需要 MCP 接入，只要在 `config.ts` 中把 `allowDynamicClientRegistration` 设为 `false`，就能关闭这个风险，不影响 GradBridge 的账号关联、草稿和发布。目前保留上游行为，以减少和上游的差异。
+- 生产环境不得设置 `FLAG_ALLOW_UNSAFE_OAUTH_REDIRECT_URI`（默认 false，部署脚本没有设置它）。

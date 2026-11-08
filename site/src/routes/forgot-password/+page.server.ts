@@ -37,10 +37,11 @@ export const actions: Actions = {
 		}
 
 		if (!response.ok) {
-			// The only 400 here is a malformed address; the endpoint does not
-			// distinguish known from unknown emails.
+			// A 400 is a malformed address (the endpoint does not distinguish known
+			// from unknown emails); a 429 carries its message in `detail`.
 			const data = await response.json().catch(() => null);
-			const detail = data && typeof data === 'object' ? (data as Record<string, unknown>).email : null;
+			const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+			const detail = record.email ?? record.detail;
 			const message = Array.isArray(detail) ? detail[0] : detail;
 
 			return fail(response.status, {
