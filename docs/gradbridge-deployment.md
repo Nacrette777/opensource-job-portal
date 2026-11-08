@@ -188,6 +188,23 @@ az group delete -n gradbridge-rg                                      # 全部�
 
 注册新账号需要邮件验证，而邮件目前只输出到 api 容器日志。在配置 SMTP 之前，验证链接要从日志中取得：`az containerapp logs show -g gradbridge-rg -n gradbridge-api --tail 100 | Select-String verify-email`。
 
+### 5.4 发信：Azure Communication Services（S4-02，2026-11-08）
+api 通过 ACS 的 REST 接口发信（`backend/jobsp/acs_email.py`）。它用连接串做 HMAC 签名，所以不需要 Azure SDK，也不需要 ACS SMTP 所要求的 Entra 应用注册。实际执行过的开通命令如下（`communication` CLI 扩展 1.14.0）：
+
+```powershell
+az provider register --namespace Microsoft.Communication --wait
+az extension add --name communication
+az communication email create --name gradbridge-email -g gradbridge-rg --location global --data-location Australia
+az communication email domain create --domain-name AzureManagedDomain --email-service-name gradbridge-email -g gradbridge-rg --location global --domain-management AzureManaged --user-engmnt-tracking Disabled
+$domainId = az communication email domain show --domain-name AzureManagedDomain --email-service-name gradbridge-email -g gradbridge-rg --query id -o tsv
+az communication create --name gradbridge-acs -g gradbridge-rg --location global --data-location Australia --linked-domains $domainId
+az communication email domain sender-username update --sender-username DoNotReply --username DoNotReply --display-name GradBridge --domain-name AzureManagedDomain --email-service-name gradbridge-email -g gradbridge-rg
+```
+
+- 把连接串（`az communication list-key --name gradbridge-acs -g gradbridge-rg --query primaryConnectionString -o tsv`，属于密钥，不要打印）和发件地址 `DoNotReply@<mailFromSenderDomain>` 写入 env 文件同目录下的 `acs-email.json`，格式为 `{"connection_string": "...", "sender": "..."}`。之后 `deploy.ps1` 第 8 步会把连接串设为 api 的密钥 `acs-email-connection`，并设置 `EMAIL_BACKEND=jobsp.acs_email.EmailBackend` 和 `DEFAULT_FROM_EMAIL`。没有这个文件时，邮件只输出到 api 日志。
+- Azure 托管域名的发送配额很低，只适合演示和测试；正式使用应换成自有域名（需要在 DNS 中添加 SPF/DKIM 记录并验证）。ACS 接受邮件后返回 202，再异步投递；投递失败只能在 ACS 资源的日志里看到。
+- 费用按封数计算，演示用量下几乎为零。
+
 ## 6a 云端验收清单（S3-07，部署后由未参与开发的成员执行）
 
 | 检查 | 通过标准 |

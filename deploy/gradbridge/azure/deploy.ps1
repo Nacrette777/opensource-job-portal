@@ -35,6 +35,13 @@ if (Test-Path $oauthFile) {
     $oauth = Get-Content $oauthFile -Raw | ConvertFrom-Json
     $script:secretValues += $oauth.RR_OAUTH_CLIENT_SECRET
 }
+# Optional: Azure Communication Services email (guide 5.4). Without it the api prints mail to its log.
+$acsFile = Join-Path $private 'acs-email.json'       # {"connection_string": "...", "sender": "DoNotReply@..."}
+$acs = $null
+if (Test-Path $acsFile) {
+    $acs = Get-Content $acsFile -Raw | ConvertFrom-Json
+    $script:secretValues += $acs.connection_string
+}
 
 $rg = "$Prefix-rg"; $acr = ($Prefix -replace '[^a-z0-9]', '') + 'acr'; $envName = "$Prefix-env"
 $pg = "$Prefix-pg"; $storage = ($Prefix -replace '[^a-z0-9]', '') + 'files'; $logs = "$Prefix-logs"; $pull = "$Prefix-pull"
@@ -274,17 +281,25 @@ if (Step 7 'Register the PeelJobs OAuth client at RR (run here; only client id a
 # --- 8 --------------------------------------------------------------------------------------
 if (Step 8 'api (uid 10001 owns its share; migrations on start while it has one replica)') {
     if ($Execute -and -not $oauth) { throw "step 7 has not produced $oauthFile" }
-    App 'api' 8000 "gradbridge/api:$ImageTag" @{
+    $apiSecrets = @{
         'secret-key' = $cfg.DJANGO_SECRET_KEY; 'db-password' = $cfg.PEELJOBS_DB_PASSWORD; 'token-key' = $cfg.RR_TOKEN_ENCRYPTION_KEY
         'rr-client-secret' = $(if ($oauth) { $oauth.RR_OAUTH_CLIENT_SECRET } else { 'from-step-7' })
-    } @{
+    }
+    $apiEnvs = @{
         SECRET_KEY = 'secret:secret-key'; DB_NAME = 'peeljobs'; DB_USER = 'peeljobs'; DB_PASSWORD = 'secret:db-password'; DB_HOST = $pgHost; DB_PORT = '5432'
         ALLOWED_HOSTS = "$Prefix-api.$domain,$Prefix-api"; CSRF_TRUSTED_ORIGINS = "$($url.site),$($url.recruiter)"; CORS_ALLOWED_ORIGINS = "$($url.site),$($url.recruiter)"
         SITE_FRONTEND_URL = $url.site; RECRUITER_FRONTEND_URL = $url.recruiter; TIME_ZONE = $cfg.TIME_ZONE; DJANGO_MIGRATE_ON_START = '1'
         RR_BASE_URL = $url.rr; RR_INTERNAL_URL = $url.rr; RR_TOKEN_ENCRYPTION_KEY = 'secret:token-key'
         RR_OAUTH_CLIENT_ID = $(if ($oauth) { $oauth.RR_OAUTH_CLIENT_ID } else { 'from-step-7' }); RR_OAUTH_CLIENT_SECRET = 'secret:rr-client-secret'
         RR_OAUTH_REDIRECT_URI = "$($url.site)/profile/integrations/rr/callback/"
-    } 'api-data' '/data' 'uid=10001,gid=10001,dir_mode=0750,file_mode=0640' '0.25' '0.5Gi' 1
+    }
+    if ($acs) {
+        $apiSecrets['acs-email-connection'] = $acs.connection_string
+        $apiEnvs.EMAIL_BACKEND = 'jobsp.acs_email.EmailBackend'
+        $apiEnvs.ACS_EMAIL_CONNECTION_STRING = 'secret:acs-email-connection'
+        $apiEnvs.DEFAULT_FROM_EMAIL = $acs.sender
+    } else { Show "   $acsFile not found: mail is printed to the api log" }
+    App 'api' 8000 "gradbridge/api:$ImageTag" $apiSecrets $apiEnvs 'api-data' '/data' 'uid=10001,gid=10001,dir_mode=0750,file_mode=0640' '0.25' '0.5Gi' 1
 }
 
 # --- 9 --------------------------------------------------------------------------------------

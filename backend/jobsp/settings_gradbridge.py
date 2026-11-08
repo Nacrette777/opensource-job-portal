@@ -48,10 +48,13 @@ SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Mail: console by default (no SES dependency); set EMAIL_BACKEND to an SMTP
-# or SES backend in a real deployment.
+# or SES backend in a real deployment. Azure: "jobsp.acs_email.EmailBackend"
+# with ACS_EMAIL_CONNECTION_STRING (a secret) and DEFAULT_FROM_EMAIL set to
+# the domain's DoNotReply@... sender.
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
 )
+ACS_EMAIL_CONNECTION_STRING = os.getenv("ACS_EMAIL_CONNECTION_STRING", "")
 
 # Without a Celery worker, run tasks (e.g. verification mail) inline.
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", True)
