@@ -108,6 +108,19 @@ class PublicationTests(RRTestBase):
         # Every RR read used the job seeker's own bearer token.
         self.assertTrue(all(h["Authorization"].startswith("Bearer access-r") for _, h in self.rr.gets[-3:]))
 
+    def test_times_carry_the_server_offset(self):
+        # Found on Azure: naive times were read as the browser's local time, while RR's
+        # carry UTC, so "published" and "saved" on one line were hours apart.
+        self._linked()
+
+        with self.settings(TIME_ZONE="Australia/Sydney"):
+            body = self.publish().json()
+
+        offset = r"[+-]\d\d:\d\d$"
+        self.assertRegex(body["published_at"], offset)
+        self.assertRegex(body["current"]["created_at"], offset)
+        self.assertRegex(body["history"][0]["created_at"], offset)
+
     def test_lists_resumes_of_the_linked_account(self):
         self._linked()
         response = self.client.get(reverse("api:v1:integrations:rr-resumes"))

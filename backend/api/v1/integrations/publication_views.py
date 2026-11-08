@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from peeldb.models import ResumePublication, ResumeVersion
 
 from . import publishing, rr_client
-from .serializers import RRErrorSerializer
+from .serializers import RRErrorSerializer, ServerDateTimeField, as_server_time
 from .views import _error, _guard
 
 TAGS = ["Integrations"]
@@ -34,6 +34,7 @@ class RRResumeSerializer(serializers.Serializer):
 
 class ResumeVersionSerializer(serializers.ModelSerializer):
     is_current = serializers.SerializerMethodField()
+    created_at = ServerDateTimeField(read_only=True)
 
     class Meta:
         model = ResumeVersion
@@ -80,8 +81,8 @@ def _publication_payload(user):
     history = ResumeVersion.objects.filter(user=user)[:HISTORY_LIMIT]
     return {
         "published": bool(current),
-        "published_at": publication.published_at if current else None,
-        "withdrawn_at": publication.withdrawn_at if publication else None,
+        "published_at": as_server_time(publication.published_at) if current else None,
+        "withdrawn_at": as_server_time(publication.withdrawn_at) if publication else None,
         "current": ResumeVersionSerializer(current, context=context).data if current else None,
         "history": ResumeVersionSerializer(history, many=True, context=context).data,
     }

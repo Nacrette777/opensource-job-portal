@@ -1,10 +1,36 @@
 """Serializers for the GradBridge Reactive Resume integration."""
 
+from zoneinfo import ZoneInfo
+
+from django.conf import settings
+from django.utils import timezone
 from rest_framework import serializers
 
 from peeldb.models import ResumeAccountLink
 
 from .drafts import is_retryable
+
+
+def as_server_time(value):
+    """Attach TIME_ZONE to a naive datetime (USE_TZ is off, so that is what it is).
+
+    Sent naive, a browser reads the time as its own local time, while RR's timestamps
+    carry UTC; the publish page then showed "published 20:12 · saved 17:10" for edits
+    two minutes apart. With the offset both convert to the viewer's time.
+    """
+    if value is None or timezone.is_aware(value):
+        return value
+    return timezone.make_aware(value, ZoneInfo(settings.TIME_ZONE))
+
+
+class ServerDateTimeField(serializers.DateTimeField):
+    """DateTimeField whose output always carries the server's UTC offset.
+
+    DRF's own field turns an aware value back into naive UTC when USE_TZ is off.
+    """
+
+    def to_representation(self, value):
+        return as_server_time(value).isoformat() if value else None
 
 
 class RRLinkStatusSerializer(serializers.Serializer):
@@ -33,7 +59,7 @@ class RRLinkStatusSerializer(serializers.Serializer):
             "status": state,
             "rr_email": link.rr_email if connected else "",
             "rr_name": link.rr_name if connected else "",
-            "linked_at": link.linked_at if connected else None,
+            "linked_at": as_server_time(link.linked_at) if connected else None,
             "rr_base_url": rr_base_url,
         }
 
@@ -89,5 +115,5 @@ class RRDraftSerializer(serializers.Serializer):
             "error_code": req.error_code,
             "error": req.error,
             "retryable": is_retryable(req),
-            "created_at": req.created_at,
+            "created_at": as_server_time(req.created_at),
         }
