@@ -205,6 +205,24 @@ az communication email domain sender-username update --sender-username DoNotRepl
 - Azure 托管域名的发送配额很低，只适合演示和测试；正式使用应换成自有域名（需要在 DNS 中添加 SPF/DKIM 记录并验证）。ACS 接受邮件后返回 202，再异步投递；投递失败只能在 ACS 资源的日志里看到。
 - 费用按封数计算，演示用量下几乎为零。
 
+### 5.5 密钥放进 Key Vault（S4-07，2026-11-08）
+应用的密钥存放在 Key Vault `gradbridge-kv-53888c`（RBAC 模式，软删除保留 7 天，未开启清除保护）。Container Apps 用拉取镜像的托管身份 `gradbridge-pull` 读取这些密钥（角色为 “Key Vault Secrets User”）；部署者需要有 “Key Vault Secrets Officer” 角色。
+
+```powershell
+az provider register --namespace Microsoft.KeyVault --wait
+az keyvault create --name gradbridge-kv-53888c -g gradbridge-rg --location eastasia --enable-rbac-authorization true --retention-days 7
+$kvId = az keyvault show -n gradbridge-kv-53888c --query id -o tsv
+az role assignment create --role "Key Vault Secrets Officer" --assignee-object-id (az ad signed-in-user show --query id -o tsv) --assignee-principal-type User --scope $kvId
+az role assignment create --role "Key Vault Secrets User" --assignee-object-id (az identity show -g gradbridge-rg -n gradbridge-pull --query principalId -o tsv) --assignee-principal-type ServicePrincipal --scope $kvId
+```
+
+- 带 `-KeyVault gradbridge-kv-53888c` 运行 `deploy.ps1` 时，第 6 步和第 8 步会先把每个应用密钥写入同名的 Key Vault 机密（通过临时文件写入，命令行和输出中都不出现密钥值），然后在应用里只引用 `keyVaultUrl`。另外还会写入 `pg-admin-password`。
+  - rr 使用的机密：`auth-secret`、`database-url`。
+  - api 使用的机密：`secret-key`、`db-password`、`token-key`、`rr-client-secret`、`acs-email-connection`。
+- 本机的 `azure.env`、`rr-oauth.json`、`acs-email.json` 仍作为备份保留：它们是部署时写入 Key Vault 的来源，也能在 Key Vault 不可用时去掉 `-KeyVault` 重新部署。
+- 轮换密钥：先改本机文件，再带 `-KeyVault` 重新运行对应的步骤。也可以直接在 Key Vault 里新建版本，然后重启对应的应用修订版。注意 `token-key` 不能单独轮换，否则已保存的 RR 令牌会无法解密，学生需要重新关联 RR。
+- 部署脚本每次只更新一个镜像标签，所以 rr 和 api 标签不同时要分两次运行。例如：`-ImageTag 5 -From 6 -To 6 -KeyVault ...`，然后 `-ImageTag 10 -From 8 -To 8 -KeyVault ...`。
+
 ## 6a 云端验收清单（S3-07，部署后由未参与开发的成员执行）
 
 | 检查 | 通过标准 |

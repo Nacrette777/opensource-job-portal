@@ -8,6 +8,7 @@ param(
     [int]$MonthlyBudget = 0,                         # in the subscription's billing currency; required with -Execute
     [int]$From = 1,                                  # resume at this step after fixing a failure
     [int]$To = 9,
+    [string]$KeyVault = '',                          # vault name: app secrets are stored there and referenced (guide 5.5)
     [switch]$Execute                                  # without it, only print the commands
 )
 # GradBridge on Azure Container Apps (S3-07). Creates PAID resources when run with -Execute.
@@ -66,6 +67,13 @@ function Az([string[]]$a, [switch]$Capture, [switch]$AllowFail) {
         throw "az $($a[0]) $($a[1]) failed (step $script:step)"
     }
     if ($Capture) { return (($out | Where-Object { $_ -is [string] }) -join "`n").Trim() }
+}
+function KvSecret([string]$name, [string]$value) {
+    # Through a temporary file, so the value is neither on a command line nor in the output.
+    $tmp = Join-Path ([IO.Path]::GetTempPath()) "$Prefix-kv-$name.txt"
+    [IO.File]::WriteAllText($tmp, $value)
+    try { Az @('keyvault', 'secret', 'set', '--vault-name', $KeyVault, '-n', $name, '--file', $tmp, '--encoding', 'utf-8', '-o', 'none') | Out-Null }
+    finally { Remove-Item $tmp -ErrorAction SilentlyContinue }
 }
 function Run([string]$exe, [string[]]$a) {
     Show ("$exe " + ($a -join ' '))
@@ -215,7 +223,14 @@ function App([string]$name, [int]$port, [string]$image, [hashtable]$secrets, [ha
         ingress = [ordered]@{ external = $true; targetPort = $port; transport = 'auto' }
         registries = @([ordered]@{ server = "$acr.azurecr.io"; identity = $facts.pullId })
     }
-    if ($secrets.Count) { $configuration.secrets = @($secrets.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ name = $_.Key; value = [string]$_.Value } }) }
+    if ($secrets.Count) {
+        $configuration.secrets = @($secrets.GetEnumerator() | Sort-Object Name | ForEach-Object {
+            if ($KeyVault) {
+                # The vault holds the value; the app reads it with the pull identity ("Key Vault Secrets User").
+                KvSecret $_.Key ([string]$_.Value)
+                [ordered]@{ name = $_.Key; keyVaultUrl = "https://$KeyVault.vault.azure.net/secrets/$($_.Key)"; identity = $facts.pullId }
+            } else { [ordered]@{ name = $_.Key; value = [string]$_.Value } } })
+    }
     $template = [ordered]@{ terminationGracePeriodSeconds = 30; scale = [ordered]@{ minReplicas = $minReplicas; maxReplicas = 1 }; containers = @($container) }
     if ($share) {
         $template.volumes = @([ordered]@{ name = 'data'; storageType = 'AzureFile'; storageName = $share; mountOptions = $mountOptions })
@@ -245,6 +260,12 @@ function App([string]$name, [int]$port, [string]$image, [hashtable]$secrets, [ha
     }
     Show "   $Prefix-$name provisioning: $state"
     if ($state -ne 'Succeeded') { throw "$Prefix-$name did not provision (step $script:step)" }
+}
+
+# The PostgreSQL admin password is used only by step 3; with -KeyVault it is kept in the vault too.
+if ($KeyVault -and $From -le 8 -and $To -ge 6) {
+    Show "`n== Key Vault ${KeyVault}: app secrets are written there and referenced by the apps"
+    KvSecret 'pg-admin-password' $cfg.PG_ADMIN_PASSWORD
 }
 
 # --- 6 --------------------------------------------------------------------------------------
