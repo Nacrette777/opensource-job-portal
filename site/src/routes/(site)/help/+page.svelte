@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { HelpCircle, Search, ChevronDown, ChevronUp, Book, UserCircle, Briefcase, Settings, MessageCircle, Shield, ChevronRight, ArrowRight } from '@lucide/svelte';
 
 	type IconComponent = typeof HelpCircle;
@@ -224,7 +225,7 @@
 <svelte:head>
 	<title>Help Center - PeelJobs | Find Answers to Your Questions</title>
 	<meta name="description" content="Find answers to common questions about using PeelJobs. Learn how to search for jobs, create your profile, apply to positions, and more." />
-	<link rel="canonical" href="https://peeljobs.com/help/" />
+	<link rel="canonical" href={`${SITE_URL}/help/`} />
 </svelte:head>
 
 <!-- Hero Section -->

@@ -4,6 +4,7 @@
 	import { getContext } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { Button, Input, Card, FormField } from '$lib/components/ui';
+	import { JOBSEEKER_URL } from '$lib/config/env';
 
 	type AuthLayoutContext = {
 		containerClass: string;
@@ -265,7 +266,7 @@
 			<div class="mt-5 pt-5 border-t border-border">
 				<p class="text-center text-sm text-muted">
 					Looking for a job?
-					<a href="https://peeljobs.com/login/" class="font-medium text-primary hover:text-primary-hover transition-colors">
+					<a href={`${JOBSEEKER_URL}/login/`} class="font-medium text-primary hover:text-primary-hover transition-colors">
 						Job Seeker Login
 					</a>
 				</p>

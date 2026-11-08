@@ -251,6 +251,7 @@ class Command(BaseCommand):
 
     def _generate_unique_email(self, first_name, last_name, domain_hint):
         """Generate a unique email address."""
+
         def part(name):
             return "".join(ch for ch in name.lower() if ch.isalnum())
 
@@ -561,21 +562,19 @@ class Command(BaseCommand):
             institute = random.choice(self.institutes)
             qualification = random.choice(self.qualifications)
 
-            # Create degree if not exists
-            degree, _ = Degree.objects.get_or_create(
-                degree_name=qualification,
-                defaults={
-                    "degree_type": "Permanent",
-                    "specialization": random.choice(
-                        [
-                            "Computer Science",
-                            "Information Technology",
-                            "Electronics",
-                            "Mechanical",
-                            "Civil",
-                        ]
+            # Use one of the qualification's degrees (load_gradbridge_reference_data
+            # creates several per qualification); create one only if there is none.
+            degrees = list(Degree.objects.filter(degree_name=qualification))
+            degree = (
+                random.choice(degrees)
+                if degrees
+                else Degree.objects.create(
+                    degree_name=qualification,
+                    degree_type="Permanent",
+                    specialization=random.choice(
+                        ["Computer Science", "Information Technology", "Business"]
                     ),
-                },
+                )
             )
 
             to_date = datetime.now().date() - timedelta(days=random.randint(365, 3650))

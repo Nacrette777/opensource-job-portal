@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { Shield, ChevronRight, Lock, Database, UserCheck, AlertTriangle, Eye, Cookie, Globe, Users, Bell, MessageCircle, ArrowRight } from '@lucide/svelte';
 
 	const lastUpdated = 'October 19, 2025';
@@ -38,13 +39,13 @@
 		name="description"
 		content="PeelJobs privacy policy explains how we collect, use, and protect your personal information. Learn about our commitment to data security, cookies, third-party services, and your privacy rights."
 	/>
-	<link rel="canonical" href="https://peeljobs.com/privacy/" />
+	<link rel="canonical" href={`${SITE_URL}/privacy/`} />
 
 	<!-- Open Graph -->
 	<meta property="og:title" content="Privacy Policy - PeelJobs" />
 	<meta property="og:description" content="Learn how PeelJobs protects your privacy and personal information." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/privacy/" />
+	<meta property="og:url" content={`${SITE_URL}/privacy/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />

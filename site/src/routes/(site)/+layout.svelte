@@ -23,6 +23,7 @@
     Home,
   } from "@lucide/svelte";
   import Toast from "$lib/components/Toast.svelte";
+  import { RECRUITER_URL } from "$lib/config/env";
   import { enhance } from "$app/forms";
   import type { SubmitFunction } from "@sveltejs/kit";
 
@@ -827,14 +828,14 @@
           <ul class="space-y-2.5">
             <li>
               <a
-                href="https://recruiter.peeljobs.com"
+                href={RECRUITER_URL}
                 class="text-gray-400 hover:text-white transition-colors text-sm"
                 >Post a Job</a
               >
             </li>
             <li>
               <a
-                href="https://recruiter.peeljobs.com/dashboard"
+                href={`${RECRUITER_URL}/dashboard/`}
                 class="text-gray-400 hover:text-white transition-colors text-sm"
                 >Employer Dashboard</a
               >

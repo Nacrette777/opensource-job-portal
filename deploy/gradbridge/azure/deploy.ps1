@@ -294,5 +294,7 @@ if (Step 9 'site and recruiter (scale to zero when idle)') {
     }
 }
 
-Write-Host "`nAfter deploying: run 'python manage.py load_gradbridge_locations' in the api app, warm up one PDF render, then the checklist in section 6a." -ForegroundColor Cyan
+# load_initial_data loads locations, skills, industries, qualifications, degrees, institutes and
+# languages; without it students cannot add skills or education (found on the first cloud test).
+Write-Host "`nAfter deploying: run 'python manage.py load_initial_data' in the api app (az containerapp exec), warm up one PDF render, then the checklist in section 6a." -ForegroundColor Cyan
 if (-not $Execute) { Write-Host 'Dry run only: nothing was created.' -ForegroundColor Yellow }

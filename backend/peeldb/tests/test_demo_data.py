@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from peeldb.management.commands.load_gradbridge_reference_data import (
+    FIELDS_OF_STUDY,
     LANGUAGES,
     QUALIFICATIONS,
 )
@@ -14,6 +15,7 @@ from peeldb.models import (
     City,
     Company,
     Country,
+    Degree,
     EducationInstitue,
     JobPost,
     Language,
@@ -46,11 +48,30 @@ class InitialDataTests(TestCase):
         self.assertEqual(sorted(Language.objects.values_list("name", flat=True)), sorted(LANGUAGES))
         self.assertFalse(Qualification.objects.filter(name__in=["B.Tech", "MCA", "10th pass"]).exists())
 
+    def test_every_qualification_offers_degrees(self):
+        # The education form lists a qualification's degrees; with none, a fresh
+        # deployment could not save any education entry (found on Azure).
+        for qualification in Qualification.objects.all():
+            self.assertTrue(Degree.objects.filter(degree_name=qualification).exists(), qualification.name)
+        self.assertEqual(Degree.objects.count(), sum(len(f) for f in FIELDS_OF_STUDY.values()))
+        self.assertTrue(
+            Degree.objects.filter(degree_name__name="Bachelor's Degree", specialization="Computer Science").exists()
+        )
+
+    def test_universities_polytechnics_and_tafes_are_in_their_cities(self):
+        nus = EducationInstitue.objects.get(name="National University of Singapore")
+        self.assertEqual(nus.city.slug, "singapore")
+        self.assertEqual(EducationInstitue.objects.get(name="TAFE NSW").city.slug, "sydney")
+        self.assertEqual([t for t in EducationInstitue.objects.values_list("name", flat=True) if INDIAN.search(t)], [])
+
     def test_reference_data_is_idempotent(self):
-        counts = (Qualification.objects.count(), Language.objects.count())
+        def counts():
+            return tuple(m.objects.count() for m in (Qualification, Degree, EducationInstitue, Language))
+
+        before = counts()
         output = run("load_gradbridge_reference_data")
-        self.assertEqual((Qualification.objects.count(), Language.objects.count()), counts)
-        self.assertIn("created 0", output)
+        self.assertEqual(counts(), before)
+        self.assertEqual(output.count("(created 0)"), 4)
 
 
 class CreateTestDataTests(TestCase):

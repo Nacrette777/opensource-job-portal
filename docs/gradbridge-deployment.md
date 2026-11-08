@@ -235,7 +235,8 @@ az group delete -n gradbridge-rg                                      # 全部�
 
 ## 8a 地区、货币与电话格式（S3-04，2026-10-27 增加新加坡与货币）
 
-- 首次部署后执行 `python manage.py load_gradbridge_locations`：载入澳大利亚 8 个州/领地及主要城市（数据写在该命令里，依据 ABS 的州/领地列表），以及新加坡（国家、州、城市都是 Singapore）。命令可重复执行，只新建或重新启用，不删除；修改城市列表后再执行一次即可更新。上游的 `countries/states/cities.json` 夹具是印度为主的示例数据，GradBridge 不载入。
+- **首次部署后必须执行 `python manage.py load_initial_data`**（云端用 `az containerapp exec`）：它依次载入地区、技能、行业、学历、学位、院校、语言和职能领域。2026-11-08 首次云端登录测试发现，只执行地区和学历命令时，学生无法添加技能（技能表为空），也无法保存教育经历（没有学位可选）。
+- `python manage.py load_gradbridge_locations`：载入澳大利亚 8 个州/领地及主要城市（数据写在该命令里，依据 ABS 的州/领地列表），以及新加坡（国家、州、城市都是 Singapore）。命令可重复执行，只新建或重新启用，不删除；修改城市列表后再执行一次即可更新。上游的 `countries/states/cities.json` 夹具是印度为主的示例数据，GradBridge 不载入。
 - 备用手机号与邮编以文本保存（迁移 0086）：保留开头的 0 和 +（如 0412…、+61…、邮编 0800）。迁移前已经以数字保存的值原样转成文本，丢失的前导 0 无法也不会被猜测补回。
 - 学历与语言选项：执行 `python manage.py load_gradbridge_reference_data`（澳大利亚 AQF 与新加坡的学历，两国常用语言；可重复执行）。`load_initial_data` 已改为调用这两个 GradBridge 命令，不再载入上游的印度地区、学历、语言夹具；演示数据工具 `create_test_data`、`create_test_users`（`test-users.json`）、`load_test_jobs.py` 也只生成新加坡与澳大利亚的数据。
 - 学生端顶部菜单的 “Jobs by Location / Internship” 城市列表写在 `site/src/routes/(site)/+layout.svelte`，链接为 `/jobs/?location=<城市 slug>`，slug 必须与上面命令载入的城市一致。Find Jobs 页的地区筛选项来自数据库中有在招职位的城市。

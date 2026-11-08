@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import {
 		Zap,
 		Users,
@@ -95,13 +96,13 @@
 		name="description"
 		content="PeelJobs is a free job portal connecting talent with opportunity. Learn about our mission to democratize hiring, making exceptional recruitment accessible to businesses of all sizes without financial barriers."
 	/>
-	<link rel="canonical" href="https://peeljobs.com/about/" />
+	<link rel="canonical" href={`${SITE_URL}/about/`} />
 
 	<!-- Open Graph -->
 	<meta property="og:title" content="About PeelJobs - Democratizing Hiring, One Connection at a Time" />
 	<meta property="og:description" content="Discover how PeelJobs is transforming recruitment with our free, accessible platform that empowers companies and job seekers alike." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/about/" />
+	<meta property="og:url" content={`${SITE_URL}/about/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image" />

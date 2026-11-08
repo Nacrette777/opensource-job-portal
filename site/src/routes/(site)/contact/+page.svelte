@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { Mail, MapPin, Send, Clock, MessageCircle, HelpCircle, CheckCircle, AlertCircle, ChevronRight, ArrowRight } from '@lucide/svelte';
 	import { submitContactForm, type ContactFormData } from '$lib/api/contact';
 	import { toast } from '$lib/stores/toast';
@@ -174,13 +175,13 @@
 <svelte:head>
 	<title>Contact Us - PeelJobs | Get in Touch with Our Support Team</title>
 	<meta name="description" content="Have questions or need help? Contact the PeelJobs support team. We're here to assist job seekers and employers with our free job portal platform." />
-	<link rel="canonical" href="https://peeljobs.com/contact/" />
+	<link rel="canonical" href={`${SITE_URL}/contact/`} />
 
 	<!-- Open Graph -->
 	<meta property="og:title" content="Contact PeelJobs Support - We're Here to Help" />
 	<meta property="og:description" content="Get in touch with our team for any questions about our free job portal." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/contact/" />
+	<meta property="og:url" content={`${SITE_URL}/contact/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />

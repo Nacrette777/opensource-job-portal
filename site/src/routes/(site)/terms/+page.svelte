@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { FileText, ChevronRight, AlertCircle, Building2, Users, Shield, Key, UserCircle, Ban, Scale, RefreshCw, ArrowRight, MessageCircle } from '@lucide/svelte';
 
 	const lastUpdated = 'October 19, 2025';
@@ -37,13 +38,13 @@
 		name="description"
 		content="Read PeelJobs' Terms of Service, user agreement, and acceptable use policy. Understand your rights and responsibilities when using our free job portal platform for job seekers and employers."
 	/>
-	<link rel="canonical" href="https://peeljobs.com/terms/" />
+	<link rel="canonical" href={`${SITE_URL}/terms/`} />
 
 	<!-- Open Graph -->
 	<meta property="og:title" content="Terms & Conditions - PeelJobs" />
 	<meta property="og:description" content="User agreement and terms of service for using PeelJobs platform." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/terms/" />
+	<meta property="og:url" content={`${SITE_URL}/terms/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />
