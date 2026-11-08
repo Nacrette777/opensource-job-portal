@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>Unsubscribe | PeelJobs</title>
+	<title>Unsubscribe | GradBridge</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
@@ -59,7 +59,7 @@
 				href="/"
 				class="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-white hover:bg-primary-hover"
 			>
-				Go to PeelJobs
+				Go to GradBridge
 			</a>
 		{/if}
 	</div>

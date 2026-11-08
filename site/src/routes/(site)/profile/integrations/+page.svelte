@@ -48,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>Integrations - Profile - PeelJobs</title>
+	<title>Integrations - Profile - GradBridge</title>
 	<meta name="description" content="Connect your Reactive Resume account" />
 </svelte:head>
 

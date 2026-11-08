@@ -277,7 +277,7 @@
 </script>
 
 <svelte:head>
-  <title>Top Companies Hiring in Singapore and Australia - PeelJobs</title>
+  <title>Top Companies Hiring in Singapore and Australia - GradBridge</title>
   <meta name="description" content="Discover top companies hiring in Singapore and Australia. Browse {totalCompanies.toLocaleString()} companies by industry, location, and company type." />
 </svelte:head>
 

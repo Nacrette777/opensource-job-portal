@@ -49,8 +49,8 @@
 </script>
 
 <svelte:head>
-  <title>Verify Email - PeelJobs</title>
-  <meta name="description" content="Verify your PeelJobs email address" />
+  <title>Verify Email - GradBridge</title>
+  <meta name="description" content="Verify your GradBridge email address" />
 </svelte:head>
 
 <div class="min-h-screen bg-surface flex items-center justify-center p-6">
@@ -61,7 +61,7 @@
         <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
           <span class="text-xl font-semibold text-white">P</span>
         </div>
-        <span class="text-2xl font-semibold text-black">PeelJobs</span>
+        <span class="text-2xl font-semibold text-black">GradBridge</span>
       </a>
     </div>
 
@@ -180,12 +180,12 @@
           </h2>
 
           <p class="text-muted mb-6">
-            Your email has been verified. You can now access all features of PeelJobs.
+            Your email has been verified. You can now access all features of GradBridge.
           </p>
 
           <div class="bg-success-light rounded-lg p-4 mb-6">
             <p class="text-sm font-medium text-success mb-1">
-              Welcome to PeelJobs!
+              Welcome to GradBridge!
             </p>
             <p class="text-sm text-muted">
               Redirecting you to home page...

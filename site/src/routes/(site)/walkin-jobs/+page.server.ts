@@ -15,12 +15,12 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 	return {
 		...data,
 		seo: buildSeo({
-			heading: 'Walk-in Jobs',
-			subject: 'walk-in interviews and drives across Singapore and Australia',
+			heading: 'Open Days',
+			subject: 'open days and on-the-spot interviews across Singapore and Australia',
 			totalJobs: data.totalJobs,
 			page
 		}),
 		canonical: `${SITE_URL}/walkin-jobs/`,
-		breadcrumb: { label: 'Walk-ins', href: '/walkin-jobs/' }
+		breadcrumb: { label: 'Open Days', href: '/walkin-jobs/' }
 	};
 };

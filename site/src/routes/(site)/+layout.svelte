@@ -135,7 +135,7 @@
     { name: "Construction", slug: "construction" },
     { name: "Automobile", slug: "automobile" },
     { name: "Aviation", slug: "aviation" },
-    { name: "Freshers", slug: "freshers" },
+    { name: "Graduates", slug: "freshers" },
     { name: "IT-Hardware", slug: "it-hardware" },
     { name: "Recruitment", slug: "recruitment" },
     { name: "Digital Marketing", slug: "digital-marketing" },
@@ -195,8 +195,8 @@
       <div class="flex justify-between items-center h-14">
         <!-- Logo -->
         <a href="/" data-sveltekit-reload class="flex items-center gap-2 group">
-          <img src="/logo.png" alt="PeelJobs" class="h-8 w-auto" />
-          <span class="text-xl font-semibold text-black">PeelJobs</span>
+          <img src="/logo.png" alt="GradBridge" class="h-8 w-auto" />
+          <span class="text-xl font-semibold text-black">GradBridge</span>
         </a>
 
         <!-- Desktop Navigation -->
@@ -335,7 +335,7 @@
                       </ul>
                     </div>
 
-                    <!-- Fresher Column -->
+                    <!-- Graduate Column -->
                     <div class="w-48 flex-shrink-0">
                       <div class="flex items-center gap-2 mb-3">
                         <div
@@ -346,7 +346,7 @@
                         <a
                           href="/jobs/?fresher=true"
                           class="font-semibold text-black hover:text-primary-700 text-sm"
-                          >Fresher</a
+                          >Graduate</a
                         >
                       </div>
                       <ul class="space-y-0.5">
@@ -356,7 +356,7 @@
                               href="/jobs/?fresher=true&skills={skill.slug}"
                               class="block px-2 py-1.5 text-xs text-muted rounded hover:bg-primary-100 hover:text-primary-700 transition-colors"
                             >
-                              {skill.name} Fresher Jobs
+                              {skill.name} Graduate Jobs
                             </a>
                           </li>
                         {/each}
@@ -394,7 +394,7 @@
             href="/jobs/?fresher=true"
             class="px-4 py-2 text-sm font-medium text-muted rounded-full hover:bg-surface hover:text-black transition-colors"
           >
-            Fresher Jobs
+            Graduate Jobs
           </a>
           <a
             href="/jobs/?is_remote=true"
@@ -620,7 +620,7 @@
                 class="flex flex-col items-center gap-2 p-4 bg-success-light rounded-lg hover:bg-success-light/80 transition-colors"
               >
                 <GraduationCap size={20} class="text-success-600" />
-                <span class="text-xs font-medium text-success-600">Fresher</span
+                <span class="text-xs font-medium text-success-600">Graduate</span
                 >
               </a>
               <a
@@ -742,42 +742,13 @@
         <!-- Brand Column -->
         <div class="lg:col-span-2">
           <a href="/" class="flex items-center gap-2 mb-5">
-            <img src="/logo.png" alt="PeelJobs" class="h-8 w-auto" />
-            <span class="text-xl font-semibold">PeelJobs</span>
+            <img src="/logo.png" alt="GradBridge" class="h-8 w-auto" />
+            <span class="text-xl font-semibold">GradBridge</span>
           </a>
           <p class="text-gray-400 text-sm leading-relaxed mb-5 max-w-sm">
             Connecting students and graduates in Singapore and Australia with
             verified opportunities at top companies.
           </p>
-          <div class="flex items-center gap-2">
-            <a
-              href="https://x.com/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on Twitter"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Twitter size={16} />
-            </a>
-            <a
-              href="https://linkedin.com/company/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on LinkedIn"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Linkedin size={16} />
-            </a>
-            <a
-              href="https://facebook.com/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on Facebook"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Facebook size={16} />
-            </a>
-          </div>
         </div>
 
         <!-- For Job Seekers -->
@@ -795,7 +766,7 @@
               <a
                 href="/jobs/?fresher=true"
                 class="text-gray-400 hover:text-white transition-colors text-sm"
-                >Fresher Jobs</a
+                >Graduate Jobs</a
               >
             </li>
             <li>
@@ -854,17 +825,6 @@
         <div>
           <h5 class="font-semibold text-white mb-4 text-sm">Get in Touch</h5>
           <div class="space-y-3">
-            <a
-              href="mailto:peeljobs@micropyramid.com"
-              class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
-            >
-              <div
-                class="w-8 h-8 rounded bg-white/10 flex items-center justify-center group-hover:bg-primary-600 transition-colors"
-              >
-                <Mail size={14} />
-              </div>
-              <span class="text-sm">peeljobs@micropyramid.com</span>
-            </a>
             <div class="flex items-center gap-3 text-gray-400">
               <div
                 class="w-8 h-8 rounded bg-white/10 flex items-center justify-center"
@@ -885,7 +845,7 @@
           class="flex flex-col md:flex-row justify-between items-center gap-4"
         >
           <p class="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} PeelJobs. All rights reserved.
+            &copy; {new Date().getFullYear()} GradBridge. All rights reserved.
           </p>
           <div class="flex flex-wrap justify-center gap-6 text-sm">
             <a

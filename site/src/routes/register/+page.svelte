@@ -56,7 +56,7 @@
       description: 'Looking for your next career opportunity',
       icon: UserCircle,
       benefits: [
-        { icon: Briefcase, text: 'Browse thousands of jobs' },
+        { icon: Briefcase, text: 'Browse jobs in Singapore and Australia' },
         { icon: Target, text: 'Get personalized recommendations' },
         { icon: TrendingUp, text: 'Track your applications' }
       ]
@@ -196,8 +196,8 @@
 </script>
 
 <svelte:head>
-  <title>Sign Up - PeelJobs</title>
-  <meta name="description" content="Create your PeelJobs account and start your journey to finding the perfect job or hiring top talent." />
+  <title>Sign Up - GradBridge</title>
+  <meta name="description" content="Create your GradBridge account and start your journey to finding the perfect job or hiring top talent." />
 </svelte:head>
 
 <div class="min-h-screen flex">
@@ -215,7 +215,7 @@
         <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
           <span class="text-xl font-bold text-white">P</span>
         </div>
-        <span class="text-2xl font-semibold text-white">PeelJobs</span>
+        <span class="text-2xl font-semibold text-white">GradBridge</span>
       </a>
 
       <!-- Main Heading -->
@@ -223,7 +223,7 @@
         Take the next step in your career journey
       </h1>
       <p class="text-lg text-gray-400 mb-12">
-        Join millions of professionals finding their dream jobs every day.
+        Turn your profile into a resume and let employers find you.
       </p>
 
       <!-- Features -->
@@ -233,8 +233,8 @@
             <Briefcase class="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 class="text-white font-medium mb-1">50,000+ Active Jobs</h3>
-            <p class="text-gray-400 text-sm">New opportunities added every day from top companies</p>
+            <h3 class="text-white font-medium mb-1">Jobs in Singapore and Australia</h3>
+            <p class="text-gray-400 text-sm">Graduate roles and internships from local employers</p>
           </div>
         </div>
 
@@ -243,8 +243,8 @@
             <Shield class="w-5 h-5 text-success" />
           </div>
           <div>
-            <h3 class="text-white font-medium mb-1">Verified Employers</h3>
-            <p class="text-gray-400 text-sm">All companies are verified for your safety</p>
+            <h3 class="text-white font-medium mb-1">Your resume, your choice</h3>
+            <p class="text-gray-400 text-sm">Employers only see the resume you publish, and you can withdraw it at any time</p>
           </div>
         </div>
 
@@ -270,7 +270,7 @@
           <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <span class="text-sm font-bold text-white">P</span>
           </div>
-          <span class="text-lg font-semibold text-black">PeelJobs</span>
+          <span class="text-lg font-semibold text-black">GradBridge</span>
         </a>
         <div class="text-sm text-muted ml-auto">
           Already have an account?{' '}
@@ -286,7 +286,7 @@
           <div class="animate-fade-in-up" style="opacity: 0; animation-fill-mode: forwards;">
             <div class="text-center mb-10">
               <h1 class="text-2xl font-semibold text-black mb-2">
-                Join PeelJobs Today
+                Join GradBridge Today
               </h1>
               <p class="text-muted">
                 Choose how you'd like to get started
@@ -345,7 +345,7 @@
                 </div>
                 <div class="flex items-center gap-1.5">
                   <Users class="w-4 h-4 text-muted" />
-                  <span>1M+ users</span>
+                  <span>Free for students</span>
                 </div>
               </div>
             </div>

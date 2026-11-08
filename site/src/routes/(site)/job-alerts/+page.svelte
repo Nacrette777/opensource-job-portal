@@ -9,10 +9,10 @@
 </script>
 
 <svelte:head>
-	<title>Job Alerts — get new jobs by email | PeelJobs</title>
+	<title>Job Alerts — get new jobs by email | GradBridge</title>
 	<meta
 		name="description"
-		content="Get an email when jobs matching your skills and preferred cities are posted on PeelJobs. Free, and unsubscribe any time."
+		content="Get an email when jobs matching your skills and preferred cities are posted on GradBridge. Free, and unsubscribe any time."
 	/>
 	<link rel="canonical" href={data.canonical} />
 </svelte:head>

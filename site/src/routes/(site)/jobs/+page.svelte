@@ -76,8 +76,8 @@
   // Remote filter
   let isRemote = $state(false);
 
-  // Fresher filter
-  let isFresher = $state(false);
+  // Graduate filter
+  let isGraduate = $state(false);
 
   // Track if we're syncing from URL (to prevent triggering navigation)
   let isSyncingFromUrl = $state(false);
@@ -200,7 +200,7 @@
     isRemote = remote === 'true';
 
     const fresher = urlParams.get('fresher');
-    isFresher = fresher === 'true';
+    isGraduate = fresher === 'true';
 
     // Done syncing
     isSyncingFromUrl = false;
@@ -262,7 +262,7 @@
 
       // Add boolean filters
       if (isRemote) params.set('is_remote', 'true');
-      if (isFresher) params.set('fresher', 'true');
+      if (isGraduate) params.set('fresher', 'true');
 
       // Add pagination
       if (currentPage > 1) params.set('page', currentPage.toString());
@@ -299,7 +299,7 @@
       experienceMin,
       experienceMax,
       isRemote,
-      isFresher,
+      isGraduate,
       currentPage,
     ];
 
@@ -322,7 +322,7 @@
         experienceMin > 0 ||
         experienceMax < 20 ||
         isRemote ||
-        isFresher
+        isGraduate
     )
   );
 
@@ -335,7 +335,7 @@
     (salaryMin !== null || salaryMax !== null ? 1 : 0) +
     (experienceMin > 0 || experienceMax < 20 ? 1 : 0) +
     (isRemote ? 1 : 0) +
-    (isFresher ? 1 : 0)
+    (isGraduate ? 1 : 0)
   );
 
   // Generate filter chips for active filters
@@ -386,9 +386,9 @@
       chips.push({ label: 'Remote Only', value: 'remote', type: 'remote' });
     }
 
-    // Fresher chip
-    if (isFresher) {
-      chips.push({ label: 'Fresher Jobs', value: 'fresher', type: 'fresher' });
+    // Graduate chip
+    if (isGraduate) {
+      chips.push({ label: 'Graduate Jobs', value: 'fresher', type: 'fresher' });
     }
 
     return chips;
@@ -411,7 +411,7 @@
     experienceMin = 0;
     experienceMax = 20;
     isRemote = false;
-    isFresher = false;
+    isGraduate = false;
     currentPage = 1;
     showFiltersMobile = false;
   }
@@ -445,7 +445,7 @@
         isRemote = false;
         break;
       case 'fresher':
-        isFresher = false;
+        isGraduate = false;
         break;
     }
   }
@@ -514,8 +514,8 @@
 </script>
 
 <svelte:head>
-  <title>Find Jobs - PeelJobs</title>
-  <meta name="description" content="Discover your dream job with PeelJobs. Browse thousands of job opportunities with advanced filters for location, skills, salary, and more." />
+  <title>Find Jobs - GradBridge</title>
+  <meta name="description" content="Discover your dream job with GradBridge. Browse job opportunities in Singapore and Australia with filters for location, skills, salary, and more." />
 </svelte:head>
 
 <div class="min-h-screen bg-surface-50">

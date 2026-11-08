@@ -48,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>Finish signing up - PeelJobs Recruiter</title>
+	<title>Finish signing up - GradBridge Recruiter</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

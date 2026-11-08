@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-	<title>My shortlist - Candidates - PeelJobs Recruiter</title>
+	<title>My shortlist - Candidates - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="max-w-5xl space-y-6">

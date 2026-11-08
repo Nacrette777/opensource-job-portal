@@ -151,13 +151,13 @@ class JobListSerializer(serializers.ModelSerializer):
     def get_experience_display(self, obj) -> str:
         """Format experience requirement as readable string"""
         if obj.fresher:
-            return "Fresher"
+            return "Graduate"
 
         min_exp = obj.min_year
         max_exp = obj.max_year
 
         if min_exp == 0 and max_exp == 0:
-            return "Fresher"
+            return "Graduate"
         elif min_exp == max_exp:
             return f"{min_exp} year{'s' if min_exp != 1 else ''}"
         else:

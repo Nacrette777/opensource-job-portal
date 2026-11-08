@@ -332,14 +332,14 @@ function extractJobDataFromForm(formData: FormData): JobCreateData {
 		hiring_timeline: getString('hiring_timeline') as any,
 		hiring_priority: (getString('hiring_priority') || 'Normal') as any,
 
-		// Walk-in fields
+		// Open Day fields
 		walkin_contactinfo: getString('walkin_contactinfo'),
 		walkin_show_contact_info: getBoolean('walkin_show_contact_info'),
 		walkin_from_date: getString('walkin_from_date'),
 		walkin_to_date: getString('walkin_to_date'),
 		walkin_time: getString('walkin_time'),
 
-		// Government job fields
+		// Public Sector job fields
 		govt_job_type: getString('govt_job_type'),
 		application_fee: getString('application_fee'),
 		selection_process: getString('selection_process'),

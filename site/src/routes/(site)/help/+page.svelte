@@ -45,14 +45,14 @@
 		{
 			id: 1,
 			category: 'getting_started',
-			question: 'How do I create an account on PeelJobs?',
+			question: 'How do I create an account on GradBridge?',
 			answer: "To create an account, click on \"Register\" in the top right corner of the homepage. You can sign up using your email address or use Google/Facebook OAuth for quick registration. Fill in your basic details, verify your email, and you're ready to start your job search!"
 		},
 		{
 			id: 2,
 			category: 'getting_started',
-			question: 'Is PeelJobs free to use for job seekers?',
-			answer: 'Yes! PeelJobs is completely free for job seekers. You can create an account, search for jobs, apply to unlimited positions, and use all our features without any charges.'
+			question: 'Is GradBridge free to use for job seekers?',
+			answer: 'Yes! GradBridge is completely free for job seekers. You can create an account, search for jobs, apply to unlimited positions, and use all our features without any charges.'
 		},
 		{
 			id: 3,
@@ -109,8 +109,8 @@
 		{
 			id: 11,
 			category: 'job_search',
-			question: 'How does the job matching algorithm work?',
-			answer: 'Our AI-powered matching system analyzes your profile, skills, experience, and preferences to recommend jobs that best fit your qualifications. The more complete your profile, the better the matches!'
+			question: 'How do I find jobs that fit me?',
+			answer: 'Use the filters on Find Jobs: location, job type, skills, industry, salary and experience. A complete profile also helps employers find you once you publish a resume.'
 		},
 
 		// Applications
@@ -170,7 +170,7 @@
 			id: 20,
 			category: 'technical',
 			question: "I'm not receiving email notifications. How do I fix this?",
-			answer: 'Check your spam/junk folder for emails from PeelJobs. Add support@peeljobs.com to your contacts. Also verify that email notifications are enabled in Settings > Notifications. If issues persist, contact support.'
+			answer: 'Check your spam/junk folder for emails from GradBridge. Also verify that email notifications are enabled in Settings > Notifications. If issues persist, contact support.'
 		},
 		{
 			id: 21,
@@ -223,8 +223,8 @@
 </script>
 
 <svelte:head>
-	<title>Help Center - PeelJobs | Find Answers to Your Questions</title>
-	<meta name="description" content="Find answers to common questions about using PeelJobs. Learn how to search for jobs, create your profile, apply to positions, and more." />
+	<title>Help Center - GradBridge | Find Answers to Your Questions</title>
+	<meta name="description" content="Find answers to common questions about using GradBridge. Learn how to search for jobs, create your profile, apply to positions, and more." />
 	<link rel="canonical" href={`${SITE_URL}/help/`} />
 </svelte:head>
 
@@ -394,17 +394,11 @@
 				<MessageCircle size={32} class="text-primary" />
 			</div>
 			<h2 class="text-2xl lg:text-3xl font-semibold tracking-tight mb-4">Still Need Help?</h2>
-			<p class="text-lg text-gray-300 mb-8">Can't find what you're looking for? Our support team is here to help.</p>
+			<p class="text-lg text-gray-300 mb-8">Can't find what you're looking for? Send us a message.</p>
 			<div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
 				<a href="/contact/" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-medium rounded-full hover:bg-gray-100 transition-colors shadow-sm">
 					Contact Support
 					<ArrowRight size={18} />
-				</a>
-				<a
-					href="mailto:support@peeljobs.com"
-					class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-medium rounded-full hover:bg-white/20 transition-colors border border-white/20"
-				>
-					Email Us
 				</a>
 			</div>
 

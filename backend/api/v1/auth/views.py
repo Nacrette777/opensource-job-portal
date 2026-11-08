@@ -74,7 +74,7 @@ def send_verification_email(user, request):
 
     # Send email via Celery task
     send_email.delay(
-        mto=[user.email], msubject="Verify your PeelJobs account", mbody=html_content
+        mto=[user.email], msubject="Verify your GradBridge account", mbody=html_content
     )
 
 
@@ -102,7 +102,7 @@ def send_password_reset_email(user, request):
 
     # Send email via Celery task
     send_email.delay(
-        mto=[user.email], msubject="Reset your PeelJobs password", mbody=html_content
+        mto=[user.email], msubject="Reset your GradBridge password", mbody=html_content
     )
 
 
@@ -976,7 +976,7 @@ def send_email_change_verification(user, request):
 
     send_email.delay(
         mto=[user.pending_email],
-        msubject="Confirm your new PeelJobs email address",
+        msubject="Confirm your new GradBridge email address",
         mbody=html_content,
     )
 

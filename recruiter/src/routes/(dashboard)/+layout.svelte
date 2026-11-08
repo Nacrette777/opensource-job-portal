@@ -99,7 +99,7 @@
 		<div class="h-full flex flex-col">
 			<!-- Logo -->
 			<div class="h-16 flex items-center px-6 border-b border-border">
-				<a href="/dashboard/" class="text-xl font-bold text-primary">PeelJobs</a>
+				<a href="/dashboard/" class="text-xl font-bold text-primary">GradBridge</a>
 			</div>
 
 			<!-- Navigation -->

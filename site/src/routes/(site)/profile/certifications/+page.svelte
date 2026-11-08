@@ -64,7 +64,7 @@
 </script>
 
 <svelte:head>
-	<title>Certifications - Profile - PeelJobs</title>
+	<title>Certifications - Profile - GradBridge</title>
 	<meta name="description" content="Manage your professional certifications" />
 </svelte:head>
 

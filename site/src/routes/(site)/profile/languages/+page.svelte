@@ -99,7 +99,7 @@
 </script>
 
 <svelte:head>
-	<title>Languages | PeelJobs</title>
+	<title>Languages | GradBridge</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

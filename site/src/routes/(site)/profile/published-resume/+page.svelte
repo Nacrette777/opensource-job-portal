@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-	<title>Published resume - Profile - PeelJobs</title>
+	<title>Published resume - Profile - GradBridge</title>
 	<meta name="description" content="Choose which resume recruiters can see" />
 </svelte:head>
 

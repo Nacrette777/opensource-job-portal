@@ -1073,9 +1073,10 @@ class InterviewLocation(models.Model):
         return json.dumps(coordinates)
 
 
+# Display names for Singapore/Australia; the stored values stay "Central"/"State".
 GOV_JOB_TYPE = (
-    ("Central", "Central"),
-    ("State", "State"),
+    ("Central", "Federal / National"),
+    ("State", "State / Local"),
 )
 
 JOB_TYPE = (
@@ -1085,9 +1086,9 @@ JOB_TYPE = (
     ("internship", "Internship"),
     ("part-time", "Part Time"),
     ("freelance", "Freelance"),
-    ("walk-in", "Walk-in"),
-    ("government", "Government"),
-    ("fresher", "Fresher"),
+    ("walk-in", "Open Day"),
+    ("government", "Public Sector"),
+    ("fresher", "Graduate"),
 )
 
 WORK_MODE = (

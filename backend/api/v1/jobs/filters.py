@@ -107,7 +107,7 @@ class JobFilter(filters.FilterSet):
     )
 
     # Fresher filter
-    fresher = filters.BooleanFilter(field_name="fresher", label="Fresher Jobs Only")
+    fresher = filters.BooleanFilter(field_name="fresher", label="Graduate (entry-level) jobs only")
 
     # Remote filter (checks if any location name contains "Remote")
     is_remote = filters.BooleanFilter(method="filter_remote", label="Remote Jobs Only")

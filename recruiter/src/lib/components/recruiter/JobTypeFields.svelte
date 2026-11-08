@@ -63,7 +63,7 @@
 {:else if jobType === 'walk-in'}
 	<div class="space-y-4">
 		<div>
-			<h3 class="font-semibold text-black">Walk-in Details</h3>
+			<h3 class="font-semibold text-black">Open Day Details</h3>
 			<p class="text-sm text-muted">When and where candidates should turn up.</p>
 		</div>
 
@@ -130,14 +130,14 @@
 {:else if jobType === 'government'}
 	<div class="space-y-4">
 		<div>
-			<h3 class="font-semibold text-black">Government Job Details</h3>
+			<h3 class="font-semibold text-black">Public Sector Job Details</h3>
 			<p class="text-sm text-muted">Notification dates, fees and the selection process.</p>
 		</div>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<div>
 				<label for="{idPrefix}-govt-type" class="block text-sm font-medium text-muted mb-2">
-					Government Level
+					Public Sector Level
 				</label>
 				<!--
 					No blank option: govt_job_type is a choice field with no blank=True,

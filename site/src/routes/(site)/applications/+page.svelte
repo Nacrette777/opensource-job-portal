@@ -88,7 +88,7 @@
 </script>
 
 <svelte:head>
-	<title>My Applications - PeelJobs</title>
+	<title>My Applications - GradBridge</title>
 	<meta name="description" content="Track all your job applications in one place" />
 </svelte:head>
 

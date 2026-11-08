@@ -90,7 +90,7 @@
 	// Derive experience level from job data
 	$effect(() => {
 		if (data.job.fresher) {
-			formData.experienceLevel = 'Fresher';
+			formData.experienceLevel = 'Graduate';
 		} else if (data.job.min_year !== undefined && data.job.max_year !== undefined) {
 			if (data.job.max_year <= 3) {
 				formData.experienceLevel = '1-3 years';
@@ -141,11 +141,11 @@
 
 	const employmentTypes = EMPLOYMENT_TYPES;
 
-	// Walk-in / government extras, seeded from what is stored so editing a
+	// Open Day / government extras, seeded from what is stored so editing a
 	// walk-in post shows its dates instead of blanks.
 	let typeFields = $state(untrack(() => jobTypeFieldsFrom(data.job)));
 	const experienceLevels = [
-		'Fresher',
+		'Graduate',
 		'1-3 years',
 		'3-5 years',
 		'5-10 years',
@@ -203,7 +203,7 @@
 </script>
 
 <svelte:head>
-	<title>Edit Job - {data.job.title} - PeelJobs Recruiter</title>
+	<title>Edit Job - {data.job.title} - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="max-w-5xl mx-auto space-y-6">
@@ -345,7 +345,7 @@
 			<input type="hidden" name="application_url" bind:value={formData.applicationUrl} />
 		{/if}
 
-		<!-- Walk-in / government extras; emits nothing for the other types -->
+		<!-- Open Day / government extras; emits nothing for the other types -->
 		<JobTypeFields jobType={formData.employmentType} bind:values={typeFields} hidden />
 
 		<!-- Additional fields -->
@@ -819,7 +819,7 @@
 						bind:value={formData.applicationMethod}
 						class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
 					>
-						<option value="portal">Apply on PeelJobs Portal</option>
+						<option value="portal">Apply on GradBridge Portal</option>
 						<option value="external">External URL</option>
 						<option value="email">Email</option>
 					</select>

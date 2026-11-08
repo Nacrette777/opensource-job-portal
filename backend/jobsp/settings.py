@@ -545,12 +545,12 @@ REST_USE_JWT = True
 
 # drf-spectacular Configuration
 SPECTACULAR_SETTINGS = {
-    "TITLE": "PeelJobs API",
-    "DESCRIPTION": "REST API for PeelJobs Job Seeker Platform - Google OAuth Authentication and Job Management",
+    "TITLE": "GradBridge API",
+    "DESCRIPTION": "REST API for the GradBridge platform (PeelJobs-based) - Google OAuth Authentication and Job Management",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "CONTACT": {
-        "name": "PeelJobs Support",
+        "name": "GradBridge",
         "email": "support@peeljobs.com",
     },
     "LICENSE": {

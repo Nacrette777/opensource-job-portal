@@ -33,22 +33,22 @@
 </script>
 
 <svelte:head>
-	<title>Terms & Conditions - PeelJobs | User Agreement and Acceptable Use Policy</title>
+	<title>Terms & Conditions - GradBridge | User Agreement and Acceptable Use Policy</title>
 	<meta
 		name="description"
-		content="Read PeelJobs' Terms of Service, user agreement, and acceptable use policy. Understand your rights and responsibilities when using our free job portal platform for job seekers and employers."
+		content="Read GradBridge' Terms of Service, user agreement, and acceptable use policy. Understand your rights and responsibilities when using our free job portal platform for job seekers and employers."
 	/>
 	<link rel="canonical" href={`${SITE_URL}/terms/`} />
 
 	<!-- Open Graph -->
-	<meta property="og:title" content="Terms & Conditions - PeelJobs" />
-	<meta property="og:description" content="User agreement and terms of service for using PeelJobs platform." />
+	<meta property="og:title" content="Terms & Conditions - GradBridge" />
+	<meta property="og:description" content="User agreement and terms of service for using GradBridge platform." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={`${SITE_URL}/terms/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="Terms & Conditions - PeelJobs" />
+	<meta name="twitter:title" content="Terms & Conditions - GradBridge" />
 	<meta name="twitter:description" content="Our terms of service and user agreement." />
 </svelte:head>
 
@@ -167,11 +167,11 @@
 							<div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
 								<Building2 size={24} class="text-primary" />
 							</div>
-							<h2 class="text-2xl font-semibold text-black">Eligible Subscribers of PeelJobs</h2>
+							<h2 class="text-2xl font-semibold text-black">Eligible Subscribers of GradBridge</h2>
 						</div>
 						<p class="text-muted leading-relaxed">
-							PeelJobs reserves the right to determine, in its sole discretion, whether a firm
-							meets the eligibility requirements for subscriptions. PeelJobs asks for company's
+							GradBridge reserves the right to determine, in its sole discretion, whether a firm
+							meets the eligibility requirements for subscriptions. GradBridge asks for company's
 							social pages information to display your job posting on your social pages which we
 							think is amazing as it maximizes the reach of your jobs post.
 						</p>
@@ -208,7 +208,7 @@
 						<div class="space-y-4 text-muted leading-relaxed">
 							<p>
 								Employer agrees that all the information accessed by Employer will be used only to
-								allow the Employer to use the services offered by PeelJobs. Employers seeking to
+								allow the Employer to use the services offered by GradBridge. Employers seeking to
 								fill open, verifiable job positions on behalf of their client or vendor companies may
 								use the System only for lawful purposes.
 							</p>
@@ -224,7 +224,7 @@
 								uploaded to the System by Employer for use in connection with the System will not
 								violate any laws or regulations or third-party proprietary rights, including, without
 								limitation, copyright, trademark, obscenity, rights of publicity or privacy, and
-								defamation laws. Employer hereby grants PeelJobs a non-exclusive, worldwide,
+								defamation laws. Employer hereby grants GradBridge a non-exclusive, worldwide,
 								royalty-free license to use these materials and to hyperlink to Employer's website.
 							</p>
 						</div>
@@ -263,8 +263,8 @@
 								<p class="text-sm text-muted leading-relaxed">
 									The reselling of any part of the System or the services or benefits provided by the
 									System is expressly forbidden. All usage of the System must be contracted directly
-									via PeelJobs or one of our authorized affiliates. Reselling of the PeelJobs
-									System or any of its components without prior, written permission from PeelJobs will
+									via GradBridge or one of our authorized affiliates. Reselling of the GradBridge
+									System or any of its components without prior, written permission from GradBridge will
 									result in an immediate cancellation, without refund, of any remaining portion of the
 									subscription amount.
 								</p>
@@ -315,11 +315,11 @@
 							<h2 class="text-2xl font-semibold text-black">User Conduct</h2>
 						</div>
 						<p class="text-muted leading-relaxed">
-							You must be 18 years of age or older to visit or use PeelJobs in any manner. By
-							visiting PeelJobs or accepting these Terms of Use, You represent and warrant to the
+							You must be 18 years of age or older to visit or use GradBridge in any manner. By
+							visiting GradBridge or accepting these Terms of Use, You represent and warrant to the
 							Company that You are 18 years of age or older, and that You have the right, authority
 							and capacity to use the Web Site and agree to and abide by these Terms of Use. You also
-							represent and warrant to the Company that You will use PeelJobs in a manner
+							represent and warrant to the Company that You will use GradBridge in a manner
 							consistent with any and all applicable laws and regulations.
 						</p>
 					</article>
@@ -338,9 +338,9 @@
 							registrations and passwords, whether or not authorized by You. You are not authorized to
 							share your password or other account access information with any other party, temporarily
 							or permanently, and breach of this obligation may tantamount to disabling the
-							PeelJobs account and PeelJobs Services. You agree to immediately notify the Company
+							GradBridge account and GradBridge Services. You agree to immediately notify the Company
 							of any unauthorized use of your Account, and passwords. You will receive job posting
-							mail and other promotional mails to your inbox when you register with PeelJobs.
+							mail and other promotional mails to your inbox when you register with GradBridge.
 						</p>
 					</article>
 
@@ -359,25 +359,25 @@
 							</p>
 							<p>
 								You acknowledge and agree that You are solely responsible for the form, content and
-								accuracy of any resume or material contained therein placed by You on PeelJobs.
+								accuracy of any resume or material contained therein placed by You on GradBridge.
 							</p>
 							<p>
-								PeelJobs reserves the right to offer third party services and products to You
+								GradBridge reserves the right to offer third party services and products to You
 								based on the preferences that You identify in Your registration and at any time
-								thereafter or you have agreed to receive, such offers may be made by PeelJobs or
+								thereafter or you have agreed to receive, such offers may be made by GradBridge or
 								by third parties.
 							</p>
 							<p>
 								You understand and acknowledge that You have no ownership rights in Your account and
-								that if You cancel/terminate Your PeelJobs account, all Your account information from
-								PeelJobs, including resumes, Profiles, cover letters, saved jobs, questionnaires
+								that if You cancel/terminate Your GradBridge account, all Your account information from
+								GradBridge, including resumes, Profiles, cover letters, saved jobs, questionnaires
 								will be marked as deleted in and may be deleted from our databases. Information may
 								continue to be available for some period of time because of delays in propagating such
-								deletion through PeelJobs's web servers. In addition, third parties may retain saved
+								deletion through GradBridge's web servers. In addition, third parties may retain saved
 								copies of Your Information.
 							</p>
 							<p>
-								PeelJobs reserves the right to delete Your account and all of Your Information
+								GradBridge reserves the right to delete Your account and all of Your Information
 								after a significant duration of inactivity.
 							</p>
 						</div>
@@ -404,7 +404,7 @@
 								</li>
 								<li class="flex items-start gap-3">
 									<div class="w-2 h-2 bg-error rounded-full mt-2 flex-shrink-0"></div>
-									<span>Post or submit to PeelJobs any incomplete, false or inaccurate biographical
+									<span>Post or submit to GradBridge any incomplete, false or inaccurate biographical
 									information or information which is not your own</span>
 								</li>
 								<li class="flex items-start gap-3">
@@ -414,11 +414,11 @@
 								<li class="flex items-start gap-3">
 									<div class="w-2 h-2 bg-error rounded-full mt-2 flex-shrink-0"></div>
 									<span>Take any action that imposes an unreasonable or disproportionately large load on
-									PeelJobs's infrastructure</span>
+									GradBridge's infrastructure</span>
 								</li>
 								<li class="flex items-start gap-3">
 									<div class="w-2 h-2 bg-error rounded-full mt-2 flex-shrink-0"></div>
-									<span>Use PeelJobs Services for any unlawful purpose or any illegal activity, or post
+									<span>Use GradBridge Services for any unlawful purpose or any illegal activity, or post
 									or submit any content, resume that is defamatory, libelous, implicitly or explicitly
 									offensive, vulgar, obscene, threatening, abusive, hateful, racist, discriminatory, of
 									a menacing character or likely to cause annoyance, inconvenience, embarrassment,
@@ -451,8 +451,8 @@
 							<h2 class="text-2xl font-semibold text-black">Revisions</h2>
 						</div>
 						<p class="text-muted leading-relaxed">
-							PeelJobs may revise these Terms at any time by posting an updated version to
-							https://www.peeljobs.com. You should visit this page periodically to review the most
+							GradBridge may revise these Terms at any time by posting an updated version on
+							this website. You should visit this page periodically to review the most
 							current Agreement because it is binding on Users.
 						</p>
 					</article>
@@ -466,7 +466,7 @@
 							<div>
 								<h3 class="text-lg font-semibold text-black mb-2">Questions?</h3>
 								<p class="text-muted mb-4">
-									For any questions, or legal concerns, please email Support at PeelJobs.
+									For any questions, or legal concerns, please email Support at GradBridge.
 								</p>
 								<a
 									href="/contact/"

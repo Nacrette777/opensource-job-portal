@@ -38,8 +38,8 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			...jobs,
 			canonical: `${SITE_URL}/recruiters/${params.username}/`,
 			seo: {
-				title: `${heading} — Job Openings${suffix} | PeelJobs`,
-				description: `${count} live ${jobs.totalJobs === 1 ? 'opening' : 'openings'} posted by ${heading} on PeelJobs. Apply online.`,
+				title: `${heading} — Job Openings${suffix} | GradBridge`,
+				description: `${count} live ${jobs.totalJobs === 1 ? 'opening' : 'openings'} posted by ${heading} on GradBridge. Apply online.`,
 				heading
 			}
 		};

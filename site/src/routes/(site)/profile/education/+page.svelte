@@ -64,7 +64,7 @@
 </script>
 
 <svelte:head>
-	<title>Education - Profile - PeelJobs</title>
+	<title>Education - Profile - GradBridge</title>
 	<meta name="description" content="Manage your educational qualifications" />
 </svelte:head>
 

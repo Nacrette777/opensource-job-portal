@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard - PeelJobs Recruiter</title>
+	<title>Dashboard - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="space-y-6">

@@ -39,7 +39,7 @@ export interface Company {
   company_type: string;
 }
 
-export type JobType = 'full-time' | 'internship' | 'walk-in' | 'government' | 'Fresher';
+export type JobType = 'full-time' | 'internship' | 'walk-in' | 'government' | 'Graduate';
 
 export type SalaryType = 'Month' | 'Year';
 export type SalaryCurrency = 'AUD' | 'SGD';
@@ -90,13 +90,13 @@ export interface JobDetail extends Job {
   company_links: string;
   company_emails: string | null;
   edu_qualification: Qualification[];
-  // Walk-in specific fields
+  // Open Day specific fields
   walkin_contactinfo: string;
   walkin_show_contact_info: boolean;
   walkin_from_date: string | null;
   walkin_to_date: string | null;
   walkin_time: string | null;
-  // Government job specific fields
+  // Public Sector job specific fields
   govt_job_type: string;
   application_fee: number;
   selection_process: string;

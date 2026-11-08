@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Signing you in - PeelJobs</title>
+	<title>Signing you in - GradBridge</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

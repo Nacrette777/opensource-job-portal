@@ -53,7 +53,7 @@ class ApplicantSummarySerializer(serializers.Serializer):
     email = serializers.EmailField()
     mobile = serializers.CharField(allow_null=True)
     profile_pic = serializers.CharField(allow_null=True)
-    experience = serializers.CharField(help_text="e.g. '3y 2m', or 'Fresher'")
+    experience = serializers.CharField(help_text="e.g. '3y 2m', or 'Graduate'")
     current_location = serializers.CharField(allow_null=True)
     resume_url = serializers.CharField(allow_null=True)
 
@@ -73,7 +73,7 @@ class ApplicantExperienceSerializer(serializers.Serializer):
     years = serializers.IntegerField()
     months = serializers.IntegerField()
     total_months = serializers.IntegerField()
-    display = serializers.CharField(help_text="e.g. '3y 2m', or 'Fresher'")
+    display = serializers.CharField(help_text="e.g. '3y 2m', or 'Graduate'")
 
 
 class ApplicantLocationSerializer(serializers.Serializer):
@@ -661,7 +661,7 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         if months > 0:
             experience_str += f" {months}m" if experience_str else f"{months}m"
         if not experience_str:
-            experience_str = "Fresher"
+            experience_str = "Graduate"
 
         return {
             "id": user.id,
@@ -761,7 +761,7 @@ class ApplicantDetailSerializer(serializers.ModelSerializer):
             "total_months": years * 12 + months,
             "display": f"{years}y {months}m"
             if years > 0
-            else (f"{months}m" if months > 0 else "Fresher"),
+            else (f"{months}m" if months > 0 else "Graduate"),
         }
 
     @extend_schema_field(ApplicantLocationSerializer)

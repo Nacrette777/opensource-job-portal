@@ -72,7 +72,7 @@ def send_team_invitation_email(invitation, message=None):
     # Send email via Celery task
     send_email.delay(
         mto=[invitation.email],
-        msubject=f"Invitation to join {invitation.company.name} on PeelJobs",
+        msubject=f"Invitation to join {invitation.company.name} on GradBridge",
         mbody=html_content,
     )
 

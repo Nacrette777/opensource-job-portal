@@ -15,12 +15,12 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 	return {
 		...data,
 		seo: buildSeo({
-			heading: 'Government Jobs',
-			subject: 'government job openings across Singapore and Australia',
+			heading: 'Public Sector Jobs',
+			subject: 'public sector job openings across Singapore and Australia',
 			totalJobs: data.totalJobs,
 			page
 		}),
 		canonical: `${SITE_URL}/government-jobs/`,
-		breadcrumb: { label: 'Government', href: '/government-jobs/' }
+		breadcrumb: { label: 'Public Sector', href: '/government-jobs/' }
 	};
 };

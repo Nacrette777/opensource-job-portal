@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-	<title>{c.name} - Candidates - PeelJobs Recruiter</title>
+	<title>{c.name} - Candidates - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="max-w-5xl space-y-6">

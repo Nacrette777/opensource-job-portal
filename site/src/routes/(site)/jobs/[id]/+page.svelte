@@ -150,7 +150,7 @@
 </script>
 
 <svelte:head>
-  <title>{job.title} at {job.company_name} | PeelJobs</title>
+  <title>{job.title} at {job.company_name} | GradBridge</title>
   <meta
     name="description"
     content="{job.title} at {job.company_name} in {job.location_display}. {job.salary_display}, {job.experience_display}. {job.vacancies > 0 ? `${job.vacancies} openings.` : ''} Apply now!"
@@ -476,12 +476,12 @@
           </div>
         {/if}
 
-        <!-- Walk-in Details -->
+        <!-- Open Day Details -->
         {#if job.job_type === 'walk-in' && (job.walkin_from_date || job.walkin_time)}
           <div class="bg-warning-light/50 border border-warning-500/20 rounded-lg p-5">
             <h2 class="text-base font-semibold text-black mb-4 flex items-center gap-2">
               <CalendarDays size={18} class="text-warning-600" />
-              Walk-in Interview Details
+              Open Day Details
             </h2>
             <div class="space-y-3">
               {#if job.walkin_from_date || job.walkin_to_date}
@@ -531,12 +531,12 @@
           </div>
         {/if}
 
-        <!-- Government Job Details -->
+        <!-- Public Sector Job Details -->
         {#if job.job_type === 'government'}
           <div class="bg-primary-50/50 border border-primary-200 rounded-lg p-5">
             <h2 class="text-base font-semibold text-black mb-4 flex items-center gap-2">
               <Award size={18} class="text-primary-600" />
-              Government Job Details
+              Public Sector Job Details
             </h2>
             <div class="space-y-3">
               {#if job.govt_job_type}
@@ -544,7 +544,7 @@
                   <Briefcase size={18} class="text-muted" />
                   <div>
                     <p class="text-xs text-muted">Job Type</p>
-                    <p class="text-black font-medium">{job.govt_job_type} Government</p>
+                    <p class="text-black font-medium">{job.govt_job_type} Public Sector</p>
                   </div>
                 </div>
               {/if}

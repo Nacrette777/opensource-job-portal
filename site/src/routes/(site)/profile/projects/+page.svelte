@@ -64,7 +64,7 @@
 </script>
 
 <svelte:head>
-	<title>Projects - Profile - PeelJobs</title>
+	<title>Projects - Profile - GradBridge</title>
 	<meta name="description" content="Showcase your portfolio and accomplishments" />
 </svelte:head>
 

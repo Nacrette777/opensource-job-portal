@@ -23,8 +23,8 @@
 </script>
 
 <svelte:head>
-	<title>Forgot Password - PeelJobs Recruiter</title>
-	<meta name="description" content="Reset your PeelJobs employer account password." />
+	<title>Forgot Password - GradBridge Recruiter</title>
+	<meta name="description" content="Reset your GradBridge employer account password." />
 </svelte:head>
 
 <Card padding="lg" class="shadow-lg">

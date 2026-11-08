@@ -58,8 +58,8 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 		letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
 		canonical: `${SITE_URL}/recruiters/`,
 		seo: {
-			title: `Recruiters${scope}${suffix} | PeelJobs`,
-			description: `Browse ${total.toLocaleString('en-AU')} recruiters${scope} hiring on PeelJobs. See their live job openings and apply online.`
+			title: `Recruiters${scope}${suffix} | GradBridge`,
+			description: `Browse ${total.toLocaleString('en-AU')} recruiters${scope} hiring on GradBridge. See their live job openings and apply online.`
 		}
 	};
 };

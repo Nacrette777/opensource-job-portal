@@ -32,11 +32,11 @@ Creates one user of each role with predictable credentials, defined in
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Superuser | `ashwin@micropyramid.com` | auto-generated, printed once |
-| Company Admin | `ashwin.company@micropyramid.com` | `123456` |
-| Recruiter | `ashwin.recruiter@micropyramid.com` | `123456` |
-| Individual recruiter | `ashwin.individual@micropyramid.com` | `123456` |
-| Job seeker | `ashwin.jobseeker@micropyramid.com` | `123456` |
+| Superuser | `admin@example.test` | auto-generated, printed once |
+| Company Admin | `company.admin@example.test` | `123456` |
+| Recruiter | `recruiter@example.test` | `123456` |
+| Individual recruiter | `individual.recruiter@example.test` | `123456` |
+| Job seeker | `jobseeker@example.test` | `123456` |
 
 Each recruiter-type user gets five sample job posts, which is enough to
 exercise the dashboard.

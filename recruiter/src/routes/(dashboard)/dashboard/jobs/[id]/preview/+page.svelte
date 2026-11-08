@@ -25,7 +25,7 @@
 	}
 
 	function formatExperience(minYear: number, maxYear: number, minMonth: number, maxMonth: number, fresher: boolean): string {
-		if (fresher) return 'Fresher';
+		if (fresher) return 'Graduate';
 		if (!minYear && !maxYear) return 'Not specified';
 
 		let exp = '';
@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-	<title>Preview: {job.title} - PeelJobs</title>
+	<title>Preview: {job.title} - GradBridge</title>
 </svelte:head>
 
 <div class="min-h-screen bg-surface">

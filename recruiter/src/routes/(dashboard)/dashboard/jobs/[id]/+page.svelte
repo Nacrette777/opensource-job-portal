@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.job.title} - Job Details - PeelJobs</title>
+	<title>{data.job.title} - Job Details - GradBridge</title>
 </svelte:head>
 
 <div class="space-y-6">
@@ -288,7 +288,7 @@
 						<div class="text-sm font-medium text-muted mb-1">Experience</div>
 						<div class="text-black">
 							{#if data.job.fresher}
-								Fresher
+								Graduate
 							{:else}
 								{data.job.min_year}-{data.job.max_year} years
 							{/if}

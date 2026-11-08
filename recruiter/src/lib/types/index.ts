@@ -275,13 +275,13 @@ export interface JobDetail extends JobListItem {
 	travel_percentage?: string;
 	hiring_timeline?: HiringTimeline;
 	hiring_priority: HiringPriority;
-	// Walk-in fields
+	// Open Day fields
 	walkin_contactinfo?: string;
 	walkin_show_contact_info?: boolean;
 	walkin_from_date?: string;
 	walkin_to_date?: string;
 	walkin_time?: string;
-	// Government job fields
+	// Public Sector job fields
 	govt_job_type?: string;
 	application_fee?: string;
 	selection_process?: string;
@@ -353,13 +353,13 @@ export interface JobCreateData {
 	travel_percentage?: string;
 	hiring_timeline?: HiringTimeline;
 	hiring_priority?: HiringPriority;
-	// Walk-in fields
+	// Open Day fields
 	walkin_contactinfo?: string;
 	walkin_show_contact_info?: boolean;
 	walkin_from_date?: string;
 	walkin_to_date?: string;
 	walkin_time?: string;
-	// Government job fields
+	// Public Sector job fields
 	govt_job_type?: string;
 	application_fee?: string;
 	selection_process?: string;
