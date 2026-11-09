@@ -21,7 +21,10 @@
 	let error = $derived(form?.error || '');
 
 	let step = $state(untrack(() => invitationToken ? 1 : 0));
-	let userType = $state<'recruiter' | 'company' | null>(untrack(() => invitationToken ? 'company' : null));
+	// An invited member joins an existing company: no account type, so the steps are
+	// "Your Information" then "Set Your Password" (a preset 'company' showed the company
+	// form instead and submitted without a password).
+	let userType = $state<'recruiter' | 'company' | null>(null);
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
 	let loading = $state(false);
@@ -73,7 +76,7 @@
 	function prevStep() {
 		if (step > 1) {
 			step--;
-		} else {
+		} else if (!isInvitationFlow) {
 			step = 0;
 			userType = null;
 		}
@@ -578,9 +581,13 @@
 					{#if step > 0}
 						<!-- Navigation Buttons -->
 						<div class="flex items-center justify-between mt-6 pt-6 border-t border-border">
-							<Button type="button" variant="secondary" onclick={prevStep}>
-								Back
-							</Button>
+							{#if isInvitationFlow && step === 1}
+								<span></span>
+							{:else}
+								<Button type="button" variant="secondary" onclick={prevStep}>
+									Back
+								</Button>
+							{/if}
 
 							{#if (userType === 'company' && step < 3) || (userType === 'recruiter' && step < 2) || (isInvitationFlow && step < 2)}
 								<Button type="submit">

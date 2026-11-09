@@ -54,8 +54,9 @@
 			baseNavItems[1], // Jobs
 			companyNavItem,  // Company (only if user has a company)
 			teamNavItem,     // Team (only if user has a company)
-			baseNavItems[2], // Analytics
-			baseNavItems[3]  // Account
+			baseNavItems[2], // Candidates
+			baseNavItems[3], // Analytics
+			baseNavItems[4]  // Account
 		] : baseNavItems
 	);
 
@@ -151,7 +152,9 @@
 								<User class="w-4 h-4" />
 								Account Settings
 							</a>
-							<form method="POST" action="/logout/" use:enhance onsubmit={closeUserMenu}>
+							<!-- Close the menu only after the action returns: closing it in onsubmit
+							     removed this form mid-submit, so the browser cancelled the logout. -->
+							<form method="POST" action="/logout/" use:enhance={() => async ({ update }) => { closeUserMenu(); await update(); }}>
 								<button
 									type="submit"
 									class="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error-light transition-colors"
