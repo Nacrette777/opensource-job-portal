@@ -69,8 +69,10 @@ MEDIA_ROOT = os.getenv("MEDIA_ROOT", "/data/media")
 # Rate limits for the anonymous auth and contact endpoints (api/v1/throttles.py
 # explains the keys). Counts live in a database cache so that every gunicorn
 # worker shares them; peeldb migration 0089 creates its table. A login limit
-# per email also means someone can lock an account out of password login for
-# up to an hour by failing on purpose; Google sign-in still works then.
+# per email also means someone can lock an account out of password login by
+# failing on purpose; Google sign-in still works then. Relaxed on 2026-11-09
+# (PM decision on risk R11): the login window is one minute, so such a lockout
+# lasts at most a minute, while guessing stays capped at 10 tries a minute.
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "throttle": {
@@ -82,9 +84,9 @@ GRADBRIDGE_THROTTLE_CACHE = "throttle"
 REST_FRAMEWORK = {
     **REST_FRAMEWORK,
     "DEFAULT_THROTTLE_RATES": {
-        "login_email": "20/hour",
-        "password_reset_email": "5/hour",
-        "verification_email": "5/hour",
+        "login_email": "10/min",
+        "password_reset_email": "10/hour",
+        "verification_email": "10/hour",
         "register_global": "100/hour",
         "contact_global": "30/hour",
     },
