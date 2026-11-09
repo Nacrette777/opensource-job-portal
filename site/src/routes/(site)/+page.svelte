@@ -8,7 +8,7 @@
     Clock,
     ChevronRight,
     Building2,
-    IndianRupee,
+    Banknote,
     GraduationCap,
     ArrowRight,
     Home,
@@ -52,7 +52,7 @@
     { id: "full-time", label: "Full Time", icon: Briefcase },
     { id: "internship", label: "Internship", icon: GraduationCap },
     { id: "remote", label: "Remote", icon: Home },
-    { id: "fresher", label: "Fresher", icon: Rocket },
+    { id: "fresher", label: "Graduate", icon: Rocket },
   ];
 
   onMount(() => {
@@ -147,20 +147,20 @@
     selectedJobType = typeId;
   }
 
-  // Stats for social proof
+  // What GradBridge offers (facts about the product, not usage figures)
   const stats = [
-    { value: "50K+", label: "Active Jobs", icon: Briefcase },
-    { value: "10K+", label: "Companies", icon: Building2 },
-    { value: "1M+", label: "Job Seekers", icon: Users },
-    { value: "95%", label: "Success Rate", icon: TrendingUp },
+    { value: "SG + AU", label: "Markets covered", icon: Briefcase },
+    { value: "Free", label: "For students", icon: Users },
+    { value: "1 click", label: "Resume draft", icon: TrendingUp },
+    { value: "You", label: "Decide who sees it", icon: Building2 },
   ];
 </script>
 
 <svelte:head>
-  <title>PeelJobs - Find Your Dream Job | India's Smart Job Platform</title>
+  <title>GradBridge - Find Your Dream Job | Jobs in Singapore and Australia</title>
   <meta
     name="description"
-    content="Discover thousands of job opportunities across India. PeelJobs connects talented professionals with top companies using intelligent job matching."
+    content="Discover job opportunities across Singapore and Australia. GradBridge connects graduates with employers through resumes the graduates publish and control."
   />
 </svelte:head>
 
@@ -183,7 +183,7 @@
               class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"
             ></span>
           </span>
-          <span>50,000+ Jobs Available</span>
+          <span>For graduates in Singapore and Australia</span>
         </div>
 
         <!-- Headline -->
@@ -207,9 +207,8 @@
           class="text-lg text-muted leading-relaxed mb-8 hero-fade-in"
           style="--delay: 200ms;"
         >
-          Join over <span class="font-semibold text-black"
-            >1 million professionals</span
-          > who use PeelJobs to discover verified opportunities at India's top companies.
+          Build your resume from your profile, publish it when you are ready, and let
+          employers in Singapore and Australia find you.
         </p>
 
         <!-- Trust Badges -->
@@ -297,7 +296,7 @@
               >
               <Autocomplete
                 id="location-search"
-                placeholder="e.g. Bangalore, Mumbai, Remote"
+                placeholder="e.g. Sydney, Singapore, Remote"
                 bind:value={location}
                 icon={MapPin}
                 suggestions={locationSuggestions}
@@ -348,7 +347,7 @@
           <div class="mt-5 pt-5 border-t border-border">
             <p class="text-xs text-muted mb-2">Popular:</p>
             <div class="flex flex-wrap gap-2">
-              {#each ["Python Developer", "React", "Bangalore", "Remote", "Fresher"] as term}
+              {#each ["Python Developer", "React", "Singapore", "Sydney", "Remote"] as term}
                 <a
                   href="/jobs/?search={encodeURIComponent(term)}"
                   class="px-3 py-1 bg-surface text-muted hover:text-primary-600 hover:bg-primary-50 rounded-full text-xs font-medium transition-colors"
@@ -442,12 +441,12 @@
   </div>
 </section>
 
-<!-- Why Choose PeelJobs -->
+<!-- Why Choose GradBridge -->
 <section class="py-16 bg-[#1D2226]">
   <div class="max-w-7xl mx-auto px-4 lg:px-8">
     <div class="text-center mb-12">
       <h2 class="text-2xl lg:text-3xl font-semibold text-white mb-3">
-        Why choose PeelJobs?
+        Why choose GradBridge?
       </h2>
       <p class="text-gray-400 max-w-xl mx-auto">
         Built for job seekers who want results, not hassles.
@@ -572,7 +571,7 @@
               </div>
               {#if job.salary_display}
                 <div class="flex items-center gap-2 text-sm text-muted">
-                  <IndianRupee size={14} class="flex-shrink-0" />
+                  <Banknote size={14} class="flex-shrink-0" />
                   <span class="truncate">{job.salary_display}</span>
                 </div>
               {/if}
@@ -620,7 +619,7 @@
       class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-white/90 text-sm font-medium mb-6"
     >
       <Star size={14} />
-      <span>Join 1M+ professionals</span>
+      <span>Free for students and graduates</span>
     </div>
 
     <h2 class="text-2xl lg:text-3xl font-semibold text-white mb-4">

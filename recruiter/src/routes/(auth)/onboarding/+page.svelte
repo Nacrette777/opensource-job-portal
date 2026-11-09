@@ -99,13 +99,13 @@
 
 <svelte:head>
 	<title>Welcome - Setup Your Account</title>
-	<meta name="description" content="Complete your PeelJobs employer profile setup." />
+	<meta name="description" content="Complete your GradBridge employer profile setup." />
 </svelte:head>
 
 <Card padding="lg" class="shadow-lg max-w-2xl mx-auto">
 	<!-- Header -->
 	<div class="text-center mb-8">
-		<h1 class="text-2xl font-semibold text-black">Welcome to PeelJobs!</h1>
+		<h1 class="text-2xl font-semibold text-black">Welcome to GradBridge!</h1>
 		<p class="text-muted mt-2">Let's set up your employer account in just a few steps</p>
 	</div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { GraduationCap, Plus, BookOpen } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -39,7 +40,7 @@
 	}
 
 	async function handleDeleteEducation(id: number) {
-		if (!confirm('Are you sure you want to delete this education entry?')) {
+		if (!(await confirmAction('Delete this education entry?', { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 
@@ -64,7 +65,7 @@
 </script>
 
 <svelte:head>
-	<title>Education - Profile - PeelJobs</title>
+	<title>Education - Profile - GradBridge</title>
 	<meta name="description" content="Manage your educational qualifications" />
 </svelte:head>
 
@@ -86,7 +87,7 @@
 			class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition-colors elevation-1 text-sm"
 		>
 			<Plus size={18} />
-			<span class="hidden sm:inline">Add Education</span>
+			<span class="sr-only sm:not-sr-only">Add Education</span>
 		</button>
 	</div>
 </div>

@@ -93,7 +93,7 @@
 </script>
 
 <svelte:head>
-	<title>Analytics - PeelJobs Recruiter</title>
+	<title>Analytics - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="space-y-6">

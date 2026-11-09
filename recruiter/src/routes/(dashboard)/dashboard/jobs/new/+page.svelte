@@ -20,6 +20,7 @@
 	import type { PageData, ActionData } from './$types';
 	import type { LanguageRequirement, SeniorityLevel, ApplicationMethod, LanguageProficiency, HiringTimeline, HiringPriority } from '$lib/types';
 	import JobTypeFields from '$lib/components/recruiter/JobTypeFields.svelte';
+	import { SALARY_CURRENCIES } from '$lib/utils/salary';
 	import { EMPLOYMENT_TYPES, emptyJobTypeFields, hasTypeSpecificFields, jobTypeFieldsFrom } from '$lib/constants/jobs';
 
 	// Receive data from server-side load function (Svelte 5 runes mode)
@@ -63,6 +64,7 @@
 		salaryMin: '',
 		salaryMax: '',
 		salaryType: 'Year' as string,
+		salaryCurrency: '' as string,
 		showSalary: true,
 		benefits: [] as string[],
 
@@ -85,7 +87,7 @@
 		fresher: false
 	});
 
-	// Walk-in / government extras, kept apart from the shared fields above
+	// Open Day / government extras, kept apart from the shared fields above
 	// because they are the only ones whose relevance depends on the job type.
 	let typeFields = $state(emptyJobTypeFields());
 
@@ -120,6 +122,7 @@
 			formData.salaryMin = job.min_salary?.toString() || '';
 			formData.salaryMax = job.max_salary?.toString() || '';
 			formData.salaryType = job.salary_type || 'Year';
+			formData.salaryCurrency = job.salary_currency || '';
 			formData.showSalary = job.show_salary ?? true;
 			formData.benefits = job.benefits || [];
 
@@ -145,7 +148,7 @@
 
 			// Compute experience level string
 			if (job.fresher) {
-				formData.experienceLevel = 'Fresher';
+				formData.experienceLevel = 'Graduate';
 			} else if (job.max_year >= 10) {
 				formData.experienceLevel = '10+ years';
 			} else if (job.max_year >= 5) {
@@ -180,7 +183,7 @@
 	];
 
 	const experienceLevels = [
-		'Fresher',
+		'Graduate',
 		'1-3 years',
 		'3-5 years',
 		'5-10 years',
@@ -193,13 +196,14 @@
 		{ value: 'hybrid', label: 'Hybrid' }
 	];
 
+	// Optional perks only: superannuation (AU) and CPF (SG) are compulsory, so not listed.
 	const benefitOptions = [
-		'PF',
-		'ESI',
 		'Health Insurance',
 		'Annual Bonus',
-		'Food',
-		'Cab',
+		'Extra Leave',
+		'Learning Budget',
+		'Meals',
+		'Transport Allowance',
 		'Work From Home',
 		'Flexible Hours'
 	];
@@ -270,7 +274,7 @@
 
 	// Map experience level to min/max years
 	$effect(() => {
-		if (formData.experienceLevel === 'Fresher') {
+		if (formData.experienceLevel === 'Graduate') {
 			formData.minYear = 0;
 			formData.maxYear = 0;
 			formData.minMonth = 0;
@@ -340,7 +344,7 @@
 </script>
 
 <svelte:head>
-	<title>Post New Job - PeelJobs Recruiter</title>
+	<title>Post New Job - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="max-w-5xl mx-auto space-y-6">
@@ -589,7 +593,7 @@
 									id="job-locations-search"
 									type="text"
 									bind:value={formData.searchCity}
-									placeholder="Search city... (e.g., Bangalore, Mumbai)"
+									placeholder="Search city... (e.g., Sydney, Singapore)"
 									class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
 									disabled={formData.selectedLocationIds.length >= 3}
 								/>
@@ -879,30 +883,46 @@
 					</h2>
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="md:col-span-2">
+							<label for="salary-currency" class="block text-sm font-medium text-muted mb-2">
+								Currency
+							</label>
+							<select
+								id="salary-currency"
+								bind:value={formData.salaryCurrency}
+								class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+							>
+								<option value="">Automatic (SGD for Singapore jobs, otherwise AUD)</option>
+								{#each SALARY_CURRENCIES as currency}
+									<option value={currency.value}>{currency.label}</option>
+								{/each}
+							</select>
+						</div>
+
 						<div>
 							<label for="minimum-salary" class="block text-sm font-medium text-muted mb-2">
-								Minimum Salary (INR)
+								Minimum Salary (per year)
 							</label>
 							<input
 								id="minimum-salary"
 								type="number"
 								name="min_salary"
 								bind:value={formData.salaryMin}
-								placeholder="e.g., 500000"
+								placeholder="e.g., 70000"
 								class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
 							/>
 						</div>
 
 						<div>
 							<label for="maximum-salary" class="block text-sm font-medium text-muted mb-2">
-								Maximum Salary (INR)
+								Maximum Salary (per year)
 							</label>
 							<input
 								id="maximum-salary"
 								type="number"
 								name="max_salary"
 								bind:value={formData.salaryMax}
-								placeholder="e.g., 800000"
+								placeholder="e.g., 90000"
 								class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
 							/>
 						</div>
@@ -968,7 +988,7 @@
 										class="w-4 h-4 text-primary"
 									/>
 									<div>
-										<div class="text-sm font-medium text-black">Apply on PeelJobs Portal</div>
+										<div class="text-sm font-medium text-black">Apply on GradBridge Portal</div>
 										<div class="text-xs text-muted">Candidates apply through our platform</div>
 									</div>
 								</label>
@@ -1169,7 +1189,7 @@
 							<div>
 								<h3 class="font-semibold text-black mb-3">Compensation</h3>
 								<p class="text-sm text-muted">
-									INR {formData.salaryMin || '0'} - {formData.salaryMax || '0'} per year
+									{formData.salaryCurrency || 'AUD/SGD (set from the job location)'} {formData.salaryMin || '0'} - {formData.salaryMax || '0'} per year
 									{#if !formData.showSalary}<span class="text-muted">(Hidden from candidates)</span>{/if}
 								</p>
 								{#if formData.benefits.length > 0}
@@ -1262,13 +1282,14 @@
 		<input type="hidden" name="min_salary" value={formData.salaryMin} />
 		<input type="hidden" name="max_salary" value={formData.salaryMax} />
 		<input type="hidden" name="salary_type" value={formData.salaryType} />
+		<input type="hidden" name="salary_currency" value={formData.salaryCurrency} />
 		<input type="hidden" name="show_salary" value={formData.showSalary} />
 
 		<!-- Step 5: Application -->
 		<input type="hidden" name="application_method" value={formData.applicationMethod} />
 		<input type="hidden" name="application_url" value={formData.applicationUrl} />
 
-		<!-- Walk-in / government extras; emits nothing for the other types -->
+		<!-- Open Day / government extras; emits nothing for the other types -->
 		<JobTypeFields jobType={formData.employmentType} bind:values={typeFields} hidden />
 
 		<!-- Step 6: Settings -->

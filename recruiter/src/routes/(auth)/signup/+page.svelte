@@ -95,8 +95,8 @@
 </script>
 
 <svelte:head>
-	<title>Sign Up - PeelJobs Recruiter</title>
-	<meta name="description" content="Create your PeelJobs employer account and start hiring top talent today." />
+	<title>Sign Up - GradBridge Recruiter</title>
+	<meta name="description" content="Create your GradBridge employer account and start hiring top talent today." />
 </svelte:head>
 
 <div class="w-full">
@@ -105,30 +105,30 @@
 		<div class="space-y-8 lg:sticky lg:top-8 hidden lg:block">
 			<div>
 				<h1 class="text-3xl xl:text-4xl font-semibold text-black mb-4 leading-tight">
-					Join 10,000+ Companies Hiring with PeelJobs
+					Hire Graduates with GradBridge
 				</h1>
 				<p class="text-base xl:text-lg text-muted leading-relaxed">
-					Access India's largest talent pool with 100k+ active job seekers. Post unlimited jobs for free and find the perfect candidates faster.
+					Reach students and graduates across Singapore and Australia. Post unlimited jobs for free and find the perfect candidates faster.
 				</p>
 			</div>
 
-			<!-- Key Statistics -->
+			<!-- What recruiters get -->
 			<div class="grid grid-cols-2 gap-4">
 				<div class="bg-primary/5 border border-primary/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-primary mb-1">100k+</div>
-					<p class="text-sm text-muted font-medium">Active Job Seekers</p>
+					<div class="text-2xl font-semibold text-primary mb-1">SG + AU</div>
+					<p class="text-sm text-muted font-medium">Graduates in both markets</p>
 				</div>
 				<div class="bg-success-light border border-success/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-success mb-1">1000+</div>
-					<p class="text-sm text-muted font-medium">Daily Applications</p>
+					<div class="text-2xl font-semibold text-success mb-1">Free</div>
+					<p class="text-sm text-muted font-medium">No posting fees</p>
 				</div>
 				<div class="bg-primary/5 border border-primary/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-primary mb-1">500+</div>
-					<p class="text-sm text-muted font-medium">Companies Trust Us</p>
+					<div class="text-2xl font-semibold text-primary mb-1">Published</div>
+					<p class="text-sm text-muted font-medium">Resumes students chose to share</p>
 				</div>
 				<div class="bg-warning-light border border-warning/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-warning mb-1">24/7</div>
-					<p class="text-sm text-muted font-medium">Expert Support</p>
+					<div class="text-2xl font-semibold text-warning mb-1">Private</div>
+					<p class="text-sm text-muted font-medium">Your shortlist and notes</p>
 				</div>
 			</div>
 
@@ -136,7 +136,7 @@
 			<Card padding="lg" class="shadow-md">
 				<h3 class="text-xl font-semibold text-black mb-6 flex items-center gap-2">
 					<Target class="w-5 h-5 text-warning" />
-					Why Recruiters Choose PeelJobs
+					Why Recruiters Choose GradBridge
 				</h3>
 				<div class="space-y-5">
 					<div class="flex items-start gap-4">
@@ -153,8 +153,8 @@
 							<CheckCircle class="w-5 h-5 text-success" />
 						</div>
 						<div>
-							<h4 class="font-medium text-black text-sm mb-0.5">Smart Matching</h4>
-							<p class="text-sm text-muted leading-relaxed">AI-powered system matches you with the most qualified candidates</p>
+							<h4 class="font-medium text-black text-sm mb-0.5">Focused Search</h4>
+							<p class="text-sm text-muted leading-relaxed">Filter graduates by skills, degree and graduation year</p>
 						</div>
 					</div>
 					<div class="flex items-start gap-4">
@@ -163,7 +163,7 @@
 						</div>
 						<div>
 							<h4 class="font-medium text-black text-sm mb-0.5">Quality Candidates</h4>
-							<p class="text-sm text-muted leading-relaxed">Access to verified profiles with detailed skills and experience</p>
+							<p class="text-sm text-muted leading-relaxed">Structured profiles with skills, education and experience</p>
 						</div>
 					</div>
 					<div class="flex items-start gap-4">
@@ -171,8 +171,8 @@
 							<Headphones class="w-5 h-5 text-warning" />
 						</div>
 						<div>
-							<h4 class="font-medium text-black text-sm mb-0.5">Dedicated Support</h4>
-							<p class="text-sm text-muted leading-relaxed">24/7 customer support to help optimize your hiring process</p>
+							<h4 class="font-medium text-black text-sm mb-0.5">Private Notes</h4>
+							<p class="text-sm text-muted leading-relaxed">Keep a private shortlist and notes on each candidate</p>
 						</div>
 					</div>
 				</div>
@@ -615,11 +615,11 @@
 					</div>
 					<div class="flex items-center gap-1.5">
 						<CheckCircle class="w-3.5 h-3.5" />
-						<span>GDPR Compliant</span>
+						<span>Private shortlists</span>
 					</div>
 					<div class="flex items-center gap-1.5">
 						<Clock class="w-3.5 h-3.5" />
-						<span>24/7 Support</span>
+						<span>No posting fees</span>
 					</div>
 				</div>
 			</div>

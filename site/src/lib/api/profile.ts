@@ -124,7 +124,7 @@ export interface UserProfile {
 
 	// Contact Info
 	mobile?: string;
-	alternate_mobile?: number;
+	alternate_mobile?: string;
 	show_email: boolean;
 
 	// Personal Info
@@ -136,7 +136,7 @@ export interface UserProfile {
 	// Location Info
 	address?: string;
 	permanent_address?: string;
-	pincode?: number;
+	pincode?: string;
 	city?: City;
 	state?: State;
 	country?: Country;
@@ -192,7 +192,7 @@ export interface ProfileUpdateRequest {
 	nationality?: string;
 	address?: string;
 	permanent_address?: string;
-	pincode?: number;
+	pincode?: string;
 	city_id?: number;
 	state_id?: number;
 	country_id?: number;

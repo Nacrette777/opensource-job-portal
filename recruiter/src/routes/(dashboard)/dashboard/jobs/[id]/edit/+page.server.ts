@@ -302,6 +302,8 @@ function extractJobDataFromForm(formData: FormData): JobUpdateData {
 		max_salary: getNumber('max_salary'),
 		salary_type: (getString('salary_type') || 'Year') as any,
 		show_salary: getBoolean('show_salary'),
+		// Empty means "let the API choose from the job's cities" (SGD for Singapore).
+		...(getString('salary_currency') ? { salary_currency: getString('salary_currency') as any } : {}),
 
 		// Experience
 		min_year: getNumber('min_year'),
@@ -335,14 +337,14 @@ function extractJobDataFromForm(formData: FormData): JobUpdateData {
 		// Likewise: unrendered here, so the fallback demoted every Urgent job
 		hiring_priority: getString('hiring_priority') as any,
 
-		// Walk-in fields
+		// Open Day fields
 		walkin_contactinfo: getString('walkin_contactinfo'),
 		walkin_show_contact_info: getBoolean('walkin_show_contact_info'),
 		walkin_from_date: getString('walkin_from_date'),
 		walkin_to_date: getString('walkin_to_date'),
 		walkin_time: getString('walkin_time'),
 
-		// Government job fields
+		// Public Sector job fields
 		govt_job_type: getString('govt_job_type'),
 		application_fee: getString('application_fee'),
 		selection_process: getString('selection_process'),

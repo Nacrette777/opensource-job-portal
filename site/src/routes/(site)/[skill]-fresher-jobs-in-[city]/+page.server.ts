@@ -22,12 +22,12 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	return {
 		...data,
 		seo: buildSeo({
-			heading: `${skillName} Fresher Jobs in ${cityName}`,
+			heading: `${skillName} Graduate Jobs in ${cityName}`,
 			subject: `fresher and entry-level ${skillName} jobs in ${cityName}`,
 			totalJobs: data.totalJobs,
 			page
 		}),
 		canonical: `${SITE_URL}/${params.skill}-fresher-jobs-in-${params.city}/`,
-		breadcrumb: { label: `${skillName} Fresher Jobs in ${cityName}`, href: `/${params.skill}-fresher-jobs-in-${params.city}/` }
+		breadcrumb: { label: `${skillName} Graduate Jobs in ${cityName}`, href: `/${params.skill}-fresher-jobs-in-${params.city}/` }
 	};
 };

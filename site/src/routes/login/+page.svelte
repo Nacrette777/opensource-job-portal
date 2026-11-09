@@ -54,15 +54,15 @@
   }
 
   const features = [
-    { icon: Briefcase, title: 'Find Your Dream Job', description: 'Access thousands of opportunities' },
+    { icon: Briefcase, title: 'Find Your Dream Job', description: 'Jobs across Singapore and Australia' },
     { icon: Shield, title: 'Secure & Private', description: 'Your data is always protected' },
     { icon: Zap, title: 'Fast & Easy', description: 'One-click application process' }
   ];
 </script>
 
 <svelte:head>
-  <title>Sign in - PeelJobs</title>
-  <meta name="description" content="Sign in to PeelJobs - Your gateway to career opportunities" />
+  <title>Sign in - GradBridge</title>
+  <meta name="description" content="Sign in to GradBridge - Your gateway to career opportunities" />
 </svelte:head>
 
 <div class="min-h-screen bg-white flex">
@@ -78,8 +78,8 @@
       <!-- Logo -->
       <div class="mb-10 animate-fade-in-up" style="opacity: 0; animation-fill-mode: forwards;">
         <a href="/" class="inline-flex items-center gap-2">
-          <img src="/logo.png" alt="PeelJobs" class="h-10 w-auto" />
-          <span class="text-2xl font-semibold text-white">PeelJobs</span>
+          <img src="/logo.png" alt="GradBridge" class="h-10 w-auto" />
+          <span class="text-2xl font-semibold text-white">GradBridge</span>
         </a>
       </div>
 
@@ -119,8 +119,8 @@
       <!-- Mobile Logo -->
       <div class="lg:hidden text-center mb-8 animate-fade-in-down" style="opacity: 0; animation-fill-mode: forwards;">
         <a href="/" class="inline-flex items-center gap-2">
-          <img src="/logo.png" alt="PeelJobs" class="h-10 w-auto" />
-          <span class="text-2xl font-semibold text-black">PeelJobs</span>
+          <img src="/logo.png" alt="GradBridge" class="h-10 w-auto" />
+          <span class="text-2xl font-semibold text-black">GradBridge</span>
         </a>
       </div>
 
@@ -267,7 +267,7 @@
         </p>
 
         <p class="text-sm text-muted">
-          New to PeelJobs?
+          New to GradBridge?
           <a href="/register/" class="text-primary-600 hover:text-primary-700 font-semibold hover:underline">Join now</a>
         </p>
       </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { Shield, ChevronRight, Lock, Database, UserCheck, AlertTriangle, Eye, Cookie, Globe, Users, Bell, MessageCircle, ArrowRight } from '@lucide/svelte';
 
 	const lastUpdated = 'October 19, 2025';
@@ -33,22 +34,22 @@
 </script>
 
 <svelte:head>
-	<title>Privacy Policy - PeelJobs | How We Protect Your Data</title>
+	<title>Privacy Policy - GradBridge | How We Protect Your Data</title>
 	<meta
 		name="description"
-		content="PeelJobs privacy policy explains how we collect, use, and protect your personal information. Learn about our commitment to data security, cookies, third-party services, and your privacy rights."
+		content="GradBridge privacy policy explains how we collect, use, and protect your personal information. Learn about our commitment to data security, cookies, third-party services, and your privacy rights."
 	/>
-	<link rel="canonical" href="https://peeljobs.com/privacy/" />
+	<link rel="canonical" href={`${SITE_URL}/privacy/`} />
 
 	<!-- Open Graph -->
-	<meta property="og:title" content="Privacy Policy - PeelJobs" />
-	<meta property="og:description" content="Learn how PeelJobs protects your privacy and personal information." />
+	<meta property="og:title" content="Privacy Policy - GradBridge" />
+	<meta property="og:description" content="Learn how GradBridge protects your privacy and personal information." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/privacy/" />
+	<meta property="og:url" content={`${SITE_URL}/privacy/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="Privacy Policy - PeelJobs" />
+	<meta name="twitter:title" content="Privacy Policy - GradBridge" />
 	<meta name="twitter:description" content="Our commitment to protecting your privacy and data." />
 </svelte:head>
 
@@ -160,7 +161,7 @@
 						</div>
 						<div class="space-y-4 text-muted leading-relaxed">
 							<p>
-								At PeelJobs, we are committed to respecting your online privacy and recognize your need
+								At GradBridge, we are committed to respecting your online privacy and recognize your need
 								for appropriate protection and management of any personally identifiable information
 								("Personal Information") you share with us.
 							</p>
@@ -168,7 +169,7 @@
 								"Personal Information" means any information that may be used to identify an individual,
 								including, but not limited to, a first and last name, a home or other physical address
 								and an email address or other contact information, whether at work or at home. In
-								general, you can visit PeelJobs without telling us who you are or revealing any Personal
+								general, you can visit GradBridge without telling us who you are or revealing any Personal
 								Information about yourself.
 							</p>
 						</div>
@@ -218,7 +219,7 @@
 						</div>
 						<div class="space-y-4 text-muted leading-relaxed">
 							<p>
-								Third parties provide certain services available on PeelJobs. We may provide
+								Third parties provide certain services available on GradBridge. We may provide
 								information, including Personal Information, that we collect to third-party service
 								providers to help us deliver programs, products, information, and services. Service
 								providers are also an important means by which we maintain our website and mailing
@@ -298,7 +299,7 @@
 							<h2 class="text-2xl font-semibold text-black">7. Children</h2>
 						</div>
 						<p class="text-muted leading-relaxed">
-							PeelJobs will not contact children under age 13 about special offers or for marketing
+							GradBridge will not contact children under age 13 about special offers or for marketing
 							purposes without a parent's permission.
 						</p>
 					</article>
@@ -313,7 +314,7 @@
 						</div>
 						<div class="bg-surface rounded-lg p-6 border border-border mb-6">
 							<p class="font-semibold text-black mb-4">
-								PeelJobs does not rent, sell, or share personal information about you with other
+								GradBridge does not rent, sell, or share personal information about you with other
 								people (save with your consent) or non-affiliated companies except to provide products
 								or services you've requested, when we have your permission, or under the following
 								circumstances:
@@ -321,7 +322,7 @@
 							<ol class="space-y-3 text-muted list-decimal list-inside">
 								<li>
 									We provide the information to trusted partners who work on behalf of or with
-									PeelJobs under confidentiality agreements.
+									GradBridge under confidentiality agreements.
 								</li>
 								<li>
 									We respond to subpoenas, court orders, or legal process, or to establish or
@@ -333,7 +334,7 @@
 									of use.
 								</li>
 								<li>
-									We transfer information about you if PeelJobs is acquired by or merged with another
+									We transfer information about you if GradBridge is acquired by or merged with another
 									company.
 								</li>
 							</ol>
@@ -341,7 +342,7 @@
 						<ul class="space-y-3 text-muted">
 							<li class="flex items-start gap-3">
 								<div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-								<span>PeelJobs does not provide any personal information to advertisers when you interact
+								<span>GradBridge does not provide any personal information to advertisers when you interact
 								with or view a targeted ad.</span>
 							</li>
 							<li class="flex items-start gap-3">
@@ -367,7 +368,7 @@
 							</li>
 							<li class="flex items-start gap-3">
 								<div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-								<span>We have physical, electronic, and procedural safeguards that comply with Indian laws to
+								<span>We have physical, electronic, and procedural safeguards that comply with the privacy laws of Singapore (PDPA) and Australia (Privacy Act 1988) to
 								protect personal information about you.</span>
 							</li>
 						</ul>
@@ -383,7 +384,7 @@
 						</div>
 						<div class="bg-warning-light rounded-lg p-6 border border-warning/20">
 							<p class="text-muted leading-relaxed">
-								PeelJobs reserves the right to update, change or modify this policy at any time. The
+								GradBridge reserves the right to update, change or modify this policy at any time. The
 								policy shall come into effect from the date of such update, change or modification.
 							</p>
 						</div>
@@ -400,12 +401,12 @@
 						<div class="bg-error-light rounded-lg p-6 border border-error/20">
 							<div class="space-y-4 text-muted leading-relaxed">
 								<p>
-									PeelJobs does not store or keep credit card data in a location that is accessible via
+									GradBridge does not store or keep credit card data in a location that is accessible via
 									the Internet. Once a credit card transaction has been completed, all credit card data
 									is moved offline to ensure maximum security.
 								</p>
 								<p class="font-semibold text-black">
-									PeelJobs shall not be liable for any loss or damage sustained by reason of any
+									GradBridge shall not be liable for any loss or damage sustained by reason of any
 									disclosure of any information concerning the user's account and/or information
 									relating to online transactions using credit cards/debit cards.
 								</p>
@@ -423,7 +424,7 @@
 						</div>
 						<div class="bg-surface rounded-lg p-6 border border-border">
 							<p class="text-muted leading-relaxed mb-4">
-								PeelJobs welcomes your comments regarding this privacy statement. Should there be any
+								GradBridge welcomes your comments regarding this privacy statement. Should there be any
 								concerns about contravention of this Privacy Policy, we will employ all commercially
 								reasonable efforts to address the same.
 							</p>
@@ -435,8 +436,8 @@
 								<ArrowRight size={16} />
 							</a>
 							<p class="text-sm text-muted mt-4">
-								<strong>Note:</strong> The terms in this agreement may be changed by PeelJobs at any time.
-								PeelJobs is free to offer its services to any client/prospective client without restriction.
+								<strong>Note:</strong> The terms in this agreement may be changed by GradBridge at any time.
+								GradBridge is free to offer its services to any client/prospective client without restriction.
 							</p>
 						</div>
 					</article>
@@ -445,7 +446,7 @@
 					<div class="bg-primary/10 rounded-lg p-6 mt-10 border border-primary/20">
 						<h3 class="font-semibold text-primary mb-2">Your Consent</h3>
 						<p class="text-primary/80">
-							By using PeelJobs, you acknowledge that you have read and understood this Privacy Policy
+							By using GradBridge, you acknowledge that you have read and understood this Privacy Policy
 							and consent to the collection, use, and disclosure of your information as described
 							herein.
 						</p>

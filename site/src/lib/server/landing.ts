@@ -243,7 +243,7 @@ export async function fetchFacetDirectory(
 /**
  * Title/description/H1 for a landing page.
  *
- * `heading` is the H1 ("Walk-in Jobs in Hyderabad"); `subject` is the same
+ * `heading` is the H1 ("Open Days in Hyderabad"); `subject` is the same
  * thing as a noun phrase for prose ("walk-in jobs in Hyderabad"). Each route
  * composes its own wording — the families phrase too differently to derive it
  * from an enum.
@@ -256,13 +256,13 @@ export function buildSeo(params: {
 }) {
 	const { heading, subject, totalJobs, page } = params;
 	const suffix = page > 1 ? ` - Page ${page}` : '';
-	const count = totalJobs.toLocaleString('en-IN');
+	const count = totalJobs.toLocaleString('en-AU');
 
 	return {
-		title: `${heading}${suffix} | PeelJobs`,
+		title: `${heading}${suffix} | GradBridge`,
 		description: totalJobs
-			? `Browse ${count} latest ${subject}. Apply online to vacancies across India on PeelJobs.`
-			: `Latest ${subject} on PeelJobs. Browse job openings across India.`,
+			? `Browse ${count} latest ${subject}. Apply online to vacancies across Singapore and Australia on GradBridge.`
+			: `Latest ${subject} on GradBridge. Browse job openings across Singapore and Australia.`,
 		heading,
 		intro: totalJobs
 			? `${count} ${totalJobs === 1 ? 'opening' : 'openings'} — ${subject}, updated daily.`

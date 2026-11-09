@@ -167,7 +167,7 @@
 </script>
 
 <svelte:head>
-	<title>Applicants - {data.job.title} - PeelJobs</title>
+	<title>Applicants - {data.job.title} - GradBridge</title>
 </svelte:head>
 
 <div class="space-y-6">

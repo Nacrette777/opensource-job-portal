@@ -53,7 +53,7 @@ class ApplicantSummarySerializer(serializers.Serializer):
     email = serializers.EmailField()
     mobile = serializers.CharField(allow_null=True)
     profile_pic = serializers.CharField(allow_null=True)
-    experience = serializers.CharField(help_text="e.g. '3y 2m', or 'Fresher'")
+    experience = serializers.CharField(help_text="e.g. '3y 2m', or 'Graduate'")
     current_location = serializers.CharField(allow_null=True)
     resume_url = serializers.CharField(allow_null=True)
 
@@ -73,7 +73,7 @@ class ApplicantExperienceSerializer(serializers.Serializer):
     years = serializers.IntegerField()
     months = serializers.IntegerField()
     total_months = serializers.IntegerField()
-    display = serializers.CharField(help_text="e.g. '3y 2m', or 'Fresher'")
+    display = serializers.CharField(help_text="e.g. '3y 2m', or 'Graduate'")
 
 
 class ApplicantLocationSerializer(serializers.Serializer):
@@ -277,6 +277,7 @@ class RecruiterJobDetailSerializer(RecruiterJobListSerializer):
             "min_salary",
             "max_salary",
             "salary_type",
+            "salary_currency",
             "min_year",
             "max_year",
             "min_month",
@@ -369,6 +370,16 @@ class RecruiterJobDetailSerializer(RecruiterJobListSerializer):
         ]
 
 
+def default_salary_currency(cities):
+    """SGD when every chosen city is in Singapore, otherwise AUD."""
+    countries = (
+        set(cities.values_list("state__country__slug", flat=True))
+        if cities is not None
+        else set()
+    )
+    return "SGD" if countries == {"singapore"} else "AUD"
+
+
 class RecruiterJobCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new jobs"""
 
@@ -442,6 +453,7 @@ class RecruiterJobCreateSerializer(serializers.ModelSerializer):
             "min_salary",
             "max_salary",
             "salary_type",
+            "salary_currency",
             "min_year",
             "max_year",
             "min_month",
@@ -550,12 +562,20 @@ class RecruiterJobCreateSerializer(serializers.ModelSerializer):
             desc = validated_data.get("description", "")
             validated_data["meta_description"] = desc[:160] if desc else ""
 
+        cities = City.objects.filter(id__in=location_ids) if location_ids else None
+        if "salary_currency" not in validated_data:
+            validated_data["salary_currency"] = default_salary_currency(cities)
+
         # Create job
         job = JobPost.objects.create(**validated_data)
+        # The public URL needs the id, which exists only now; a bare
+        # slugify(title) is not unique, and the job page could not find it.
+        job.slug = job.public_slug()
+        job.save(update_fields=["slug"])
 
         # Set many-to-many relationships
         if location_ids:
-            job.location.set(City.objects.filter(id__in=location_ids))
+            job.location.set(cities)
         if skill_ids:
             job.skills.set(Skill.objects.filter(id__in=skill_ids))
         if industry_ids:
@@ -590,9 +610,9 @@ class RecruiterJobUpdateSerializer(RecruiterJobCreateSerializer):
         for field, value in validated_data.items():
             setattr(instance, field, value)
 
-        # Update slug if title changed
-        if "title" in validated_data:
-            instance.slug = slugify(validated_data["title"])
+        # The slug is built from the title, experience range and job type.
+        if {"title", "min_year", "max_year", "job_type"} & validated_data.keys():
+            instance.slug = instance.public_slug()
 
         instance.save()
 
@@ -645,7 +665,7 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         if months > 0:
             experience_str += f" {months}m" if experience_str else f"{months}m"
         if not experience_str:
-            experience_str = "Fresher"
+            experience_str = "Graduate"
 
         return {
             "id": user.id,
@@ -745,7 +765,7 @@ class ApplicantDetailSerializer(serializers.ModelSerializer):
             "total_months": years * 12 + months,
             "display": f"{years}y {months}m"
             if years > 0
-            else (f"{months}m" if months > 0 else "Fresher"),
+            else (f"{months}m" if months > 0 else "Graduate"),
         }
 
     @extend_schema_field(ApplicantLocationSerializer)

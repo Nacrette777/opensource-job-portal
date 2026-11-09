@@ -9,7 +9,7 @@ from django.utils.crypto import get_random_string
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
@@ -22,6 +22,12 @@ from ..common.responses import (
     ErrorResponseSerializer,
     MessageResponseSerializer,
     SuccessMessageResponseSerializer,
+)
+from ..throttles import (
+    LoginEmailThrottle,
+    PasswordResetEmailThrottle,
+    RegisterGlobalThrottle,
+    VerificationEmailThrottle,
 )
 from .serializers import (
     ChangeEmailResponseSerializer,
@@ -74,7 +80,7 @@ def send_verification_email(user, request):
 
     # Send email via Celery task
     send_email.delay(
-        mto=[user.email], msubject="Verify your PeelJobs account", mbody=html_content
+        mto=[user.email], msubject="Verify your GradBridge account", mbody=html_content
     )
 
 
@@ -102,7 +108,7 @@ def send_password_reset_email(user, request):
 
     # Send email via Celery task
     send_email.delay(
-        mto=[user.email], msubject="Reset your PeelJobs password", mbody=html_content
+        mto=[user.email], msubject="Reset your GradBridge password", mbody=html_content
     )
 
 
@@ -118,6 +124,7 @@ def send_password_reset_email(user, request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([RegisterGlobalThrottle])
 def register(request):
     """
     Register new job seeker account
@@ -170,6 +177,7 @@ def register(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([LoginEmailThrottle])
 def login(request):
     """
     Log a job seeker in with email and password
@@ -254,6 +262,7 @@ def verify_email(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([VerificationEmailThrottle])
 def resend_verification(request):
     """
     Resend verification email
@@ -303,6 +312,7 @@ def resend_verification(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetEmailThrottle])
 def forgot_password(request):
     """
     Request password reset
@@ -976,7 +986,7 @@ def send_email_change_verification(user, request):
 
     send_email.delay(
         mto=[user.pending_email],
-        msubject="Confirm your new PeelJobs email address",
+        msubject="Confirm your new GradBridge email address",
         mbody=html_content,
     )
 

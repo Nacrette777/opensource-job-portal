@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Count, F, JSONField, Q
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 # from microurl import google_mini
@@ -549,7 +550,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     permanent_address = models.TextField(max_length=1000, blank=True, null=True)
     nationality = models.TextField(max_length=50, blank=True, null=True)
     mobile = models.CharField(max_length=20, blank=True, null=True)
-    alternate_mobile = models.BigIntegerField(blank=True, null=True)
+    # Text, not a number: a number drops the leading 0 and the + of a phone number.
+    alternate_mobile = models.CharField(max_length=20, blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
     email_verified = models.BooleanField(default=False)
     city = models.ForeignKey(
@@ -561,7 +563,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         Country, null=True, blank=True, on_delete=models.SET_NULL
     )
 
-    pincode = models.IntegerField(null=True, blank=True)
+    # Postcode; text for the same reason (e.g. Darwin is 0800).
+    pincode = models.CharField(max_length=10, null=True, blank=True)
     last_password_reset_on = models.DateTimeField(auto_now_add=True)
     photo = models.CharField(max_length=500)
     marital_status = models.CharField(
@@ -1071,9 +1074,10 @@ class InterviewLocation(models.Model):
         return json.dumps(coordinates)
 
 
+# Display names for Singapore/Australia; the stored values stay "Central"/"State".
 GOV_JOB_TYPE = (
-    ("Central", "Central"),
-    ("State", "State"),
+    ("Central", "Federal / National"),
+    ("State", "State / Local"),
 )
 
 JOB_TYPE = (
@@ -1083,9 +1087,9 @@ JOB_TYPE = (
     ("internship", "Internship"),
     ("part-time", "Part Time"),
     ("freelance", "Freelance"),
-    ("walk-in", "Walk-in"),
-    ("government", "Government"),
-    ("fresher", "Fresher"),
+    ("walk-in", "Open Day"),
+    ("government", "Public Sector"),
+    ("fresher", "Graduate"),
 )
 
 WORK_MODE = (
@@ -1217,6 +1221,13 @@ class JobPost(models.Model):
         ("Month", "Month"),
         ("Year", "Year"),
     )
+    # GradBridge serves Australia and Singapore. Salary and application fee are
+    # in this currency; it defaults from the job's city (see
+    # api.v1.recruiter.job_serializers.default_salary_currency).
+    SALARY_CURRENCY = (
+        ("AUD", "AUD"),
+        ("SGD", "SGD"),
+    )
     user = models.ForeignKey(User, related_name="jobposts", on_delete=models.CASCADE)
     code = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
@@ -1295,6 +1306,9 @@ class JobPost(models.Model):
     )
     min_salary = models.IntegerField(default=0)
     max_salary = models.IntegerField(default=0)
+    salary_currency = models.CharField(
+        choices=SALARY_CURRENCY, max_length=3, default="AUD"
+    )
     published_on = models.DateTimeField(null=True, blank=True)
     created_on = models.DateField(auto_now_add=True)
     status = models.CharField(choices=POST_STATUS, max_length=50)
@@ -1467,6 +1481,19 @@ class JobPost(models.Model):
                 + "/"
             )
         return qs
+
+    def public_slug(self):
+        """Slug for the public job page: readable, URL-safe and unique (ends in the id).
+
+        get_absolute_url keeps characters such as "#" or "?" from the title
+        ("C# Developer"), which break the link; this slugifies instead. The job
+        must be saved first.
+        """
+        if str(self.job_type) == "internship":
+            middle = self.company.slug if self.company else "company"
+        else:
+            middle = f"{self.min_year}-to-{self.max_year}-years"
+        return f"/{slugify(f'{self.title} {middle}')}-{self.id}/"
 
     def get_total_views_count(self):
         # TODO: Implement proper analytics tracking system
@@ -1983,3 +2010,183 @@ class TeamInvitation(models.Model):
         if self.role_title:
             user.job_title = self.role_title
         user.save()
+
+
+class ResumeAccountLink(models.Model):
+    """GradBridge: a job seeker's link to their own Reactive Resume account.
+
+    Ownership comes from the `sub` RR returns at the end of the OAuth flow,
+    never from matching email addresses, and one RR account can link to at
+    most one job seeker (`rr_user_id` is unique). Only the refresh token is
+    kept, encrypted; access tokens are minted per use and never stored, because
+    RR's JWT access tokens cannot be revoked before they expire.
+    """
+
+    STATUS_PENDING = "pending"
+    STATUS_CONNECTED = "connected"
+    STATUS_REVOKED = "revoked"
+    STATUS_ERROR = "error"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending authorization"),
+        (STATUS_CONNECTED, "Connected"),
+        (STATUS_REVOKED, "Disconnected"),
+        (STATUS_ERROR, "Needs reconnecting"),
+    )
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="resume_account_link"
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
+    rr_user_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    rr_email = models.CharField(max_length=255, blank=True, default="")
+    rr_name = models.CharField(max_length=255, blank=True, default="")
+    refresh_token_encrypted = models.TextField(blank=True, default="")
+    scopes = models.CharField(max_length=255, blank=True, default="")
+
+    # In-flight authorization; cleared when the callback is handled.
+    oauth_state = models.CharField(max_length=128, blank=True, default="")
+    oauth_code_verifier_encrypted = models.TextField(blank=True, default="")
+    oauth_started_at = models.DateTimeField(null=True, blank=True)
+
+    linked_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=500, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user_id} -> RR {self.rr_user_id or '-'} ({self.status})"
+
+
+class ResumeIntegrationRequest(models.Model):
+    """GradBridge: one request to create a Reactive Resume draft from a profile.
+
+    `id` doubles as the requestId sent to RR, whose import is idempotent on it:
+    retrying the same request returns the resume the first attempt created,
+    even if that attempt's response never reached us.
+    """
+
+    KIND_CREATE_DRAFT = "create_draft"
+    KIND_CHOICES = ((KIND_CREATE_DRAFT, "Create draft"),)
+
+    STATUS_PENDING = "pending"
+    STATUS_SUCCEEDED = "succeeded"
+    STATUS_FAILED = "failed"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending"),
+        (STATUS_SUCCEEDED, "Succeeded"),
+        (STATUS_FAILED, "Failed"),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="resume_integration_requests"
+    )
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, default=KIND_CREATE_DRAFT)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    # RR account the request is bound to (set on its first attempt); a retry
+    # after the job seeker links a different RR account is refused.
+    rr_user_id = models.CharField(max_length=64, blank=True, default="")
+    external_resume_id = models.CharField(max_length=64, blank=True, default="")
+    # The JSON Resume exported on the first attempt. Every retry sends this
+    # same document, so the draft RR ends up with is the one requested, and
+    # source_sha256 (its SHA-256) describes what was actually sent.
+    source_payload = JSONField(default=dict, blank=True)
+    source_sha256 = models.CharField(max_length=64, blank=True, default="")
+    warnings = JSONField(default=list, blank=True)
+    error_code = models.CharField(max_length=64, blank=True, default="")
+    error = models.CharField(max_length=500, blank=True, default="")
+    attempts = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.kind} {self.id} ({self.status})"
+
+
+class ResumeVersion(models.Model):
+    """GradBridge: an immutable snapshot of one RR resume, published by its owner.
+
+    The JSON and the PDF are the same content: the PDF was rendered by RR from
+    the stored resume while its updatedAt matched the JSON's (checked before
+    and after). Both live in private storage; the keys are not URLs.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="resume_versions")
+    rr_user_id = models.CharField(max_length=64)
+    external_resume_id = models.CharField(max_length=64)
+    title = models.CharField(max_length=255, blank=True, default="")
+    # RR's updatedAt for the snapshotted content, kept verbatim (ISO 8601).
+    rr_updated_at = models.CharField(max_length=40)
+    data_key = models.CharField(max_length=500)
+    data_sha256 = models.CharField(max_length=64)
+    pdf_key = models.CharField(max_length=500)
+    pdf_sha256 = models.CharField(max_length=64)
+    pdf_size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.user_id} v{self.id} ({self.external_resume_id})"
+
+
+class ResumePublication(models.Model):
+    """GradBridge: which version (if any) a job seeker currently publishes.
+
+    This pointer is the only thing recruiter access follows. It moves only
+    after a new version's files and row are saved, so a failed publish keeps
+    the previous version; withdrawing clears it.
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="resume_publication")
+    version = models.ForeignKey(
+        ResumeVersion, null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
+    published_at = models.DateTimeField(null=True, blank=True)
+    withdrawn_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user_id} -> {self.version_id or 'unpublished'}"
+
+
+class CandidateShortlist(models.Model):
+    """GradBridge: a recruiter's private shortlist of published candidates.
+
+    Per recruiter, not per company: another recruiter in the same company
+    does not see it.
+    """
+
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="candidate_shortlist")
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shortlisted_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["recruiter", "candidate"], name="unique_candidate_shortlist")
+        ]
+
+
+class CandidateNote(models.Model):
+    """GradBridge: a recruiter's private note about a candidate (author-only)."""
+
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="candidate_notes")
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes_about")
+    body = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["recruiter", "candidate"])]

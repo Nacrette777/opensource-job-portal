@@ -22,8 +22,8 @@ export const EMPLOYMENT_TYPES = [
 	{ value: 'part-time', label: 'Part-time' },
 	{ value: 'internship', label: 'Internship' },
 	{ value: 'freelance', label: 'Freelance' },
-	{ value: 'walk-in', label: 'Walk-in' },
-	{ value: 'government', label: 'Government' }
+	{ value: 'walk-in', label: 'Open Day' },
+	{ value: 'government', label: 'Public Sector' }
 ] as const;
 
 /** `peeldb.models.GOV_JOB_TYPE`. */

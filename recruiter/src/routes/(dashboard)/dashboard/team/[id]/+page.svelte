@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>{member.first_name} {member.last_name} - Team Member - PeelJobs</title>
+	<title>{member.first_name} {member.last_name} - Team Member - GradBridge</title>
 </svelte:head>
 
 <div class="space-y-6">

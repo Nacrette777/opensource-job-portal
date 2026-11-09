@@ -150,7 +150,7 @@
 </script>
 
 <svelte:head>
-  <title>{job.title} at {job.company_name} | PeelJobs</title>
+  <title>{job.title} at {job.company_name} | GradBridge</title>
   <meta
     name="description"
     content="{job.title} at {job.company_name} in {job.location_display}. {job.salary_display}, {job.experience_display}. {job.vacancies > 0 ? `${job.vacancies} openings.` : ''} Apply now!"
@@ -213,13 +213,13 @@
         '@type': 'PostalAddress',
         addressLocality: loc.name,
         addressRegion: loc.state,
-        addressCountry: 'IN',
+        addressCountry: loc.country === 'Singapore' ? 'SG' : 'AU',
       },
     })),
     baseSalary: job.min_salary > 0 || job.max_salary > 0
       ? {
           '@type': 'MonetaryAmount',
-          currency: 'INR',
+          currency: job.salary_currency || 'AUD',
           value: {
             '@type': 'QuantitativeValue',
             minValue: job.min_salary || undefined,
@@ -476,12 +476,12 @@
           </div>
         {/if}
 
-        <!-- Walk-in Details -->
+        <!-- Open Day Details -->
         {#if job.job_type === 'walk-in' && (job.walkin_from_date || job.walkin_time)}
           <div class="bg-warning-light/50 border border-warning-500/20 rounded-lg p-5">
             <h2 class="text-base font-semibold text-black mb-4 flex items-center gap-2">
               <CalendarDays size={18} class="text-warning-600" />
-              Walk-in Interview Details
+              Open Day Details
             </h2>
             <div class="space-y-3">
               {#if job.walkin_from_date || job.walkin_to_date}
@@ -491,10 +491,10 @@
                     <p class="text-xs text-muted">Date</p>
                     <p class="text-black font-medium">
                       {#if job.walkin_from_date}
-                        {new Date(job.walkin_from_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        {new Date(job.walkin_from_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                       {#if job.walkin_to_date}
-                        - {new Date(job.walkin_to_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        - {new Date(job.walkin_to_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                     </p>
                   </div>
@@ -531,12 +531,12 @@
           </div>
         {/if}
 
-        <!-- Government Job Details -->
+        <!-- Public Sector Job Details -->
         {#if job.job_type === 'government'}
           <div class="bg-primary-50/50 border border-primary-200 rounded-lg p-5">
             <h2 class="text-base font-semibold text-black mb-4 flex items-center gap-2">
               <Award size={18} class="text-primary-600" />
-              Government Job Details
+              Public Sector Job Details
             </h2>
             <div class="space-y-3">
               {#if job.govt_job_type}
@@ -544,7 +544,7 @@
                   <Briefcase size={18} class="text-muted" />
                   <div>
                     <p class="text-xs text-muted">Job Type</p>
-                    <p class="text-black font-medium">{job.govt_job_type} Government</p>
+                    <p class="text-black font-medium">{job.govt_job_type} Public Sector</p>
                   </div>
                 </div>
               {/if}
@@ -553,7 +553,7 @@
                   <Banknote size={18} class="text-muted" />
                   <div>
                     <p class="text-xs text-muted">Application Fee</p>
-                    <p class="text-black font-medium">₹{job.application_fee}</p>
+                    <p class="text-black font-medium">{job.salary_currency === 'SGD' ? 'S$' : 'A$'}{job.application_fee}</p>
                   </div>
                 </div>
               {/if}
@@ -564,10 +564,10 @@
                     <p class="text-xs text-muted">Application Period</p>
                     <p class="text-black font-medium">
                       {#if job.govt_from_date}
-                        {new Date(job.govt_from_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        {new Date(job.govt_from_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                       {#if job.govt_to_date}
-                        - {new Date(job.govt_to_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        - {new Date(job.govt_to_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                       {/if}
                     </p>
                   </div>
@@ -579,7 +579,7 @@
                   <div>
                     <p class="text-xs text-muted">Exam Date</p>
                     <p class="text-black font-medium">
-                      {new Date(job.govt_exam_date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                      {new Date(job.govt_exam_date).toLocaleDateString('en-AU', { dateStyle: 'medium' })}
                     </p>
                   </div>
                 </div>

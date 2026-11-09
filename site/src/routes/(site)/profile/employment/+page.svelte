@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Employment History - Profile - PeelJobs</title>
+	<title>Employment History - Profile - GradBridge</title>
 	<meta name="description" content="Track your professional work experience" />
 </svelte:head>
 

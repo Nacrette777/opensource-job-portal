@@ -9,10 +9,10 @@
 </script>
 
 <svelte:head>
-	<title>Job Alerts — get new jobs by email | PeelJobs</title>
+	<title>Job Alerts — get new jobs by email | GradBridge</title>
 	<meta
 		name="description"
-		content="Get an email when jobs matching your skills and preferred cities are posted on PeelJobs. Free, and unsubscribe any time."
+		content="Get an email when jobs matching your skills and preferred cities are posted on GradBridge. Free, and unsubscribe any time."
 	/>
 	<link rel="canonical" href={data.canonical} />
 </svelte:head>
@@ -85,7 +85,7 @@
 						name="name"
 						type="text"
 						required
-						placeholder="e.g. Java jobs in Hyderabad"
+						placeholder="e.g. Java jobs in Sydney"
 						value={form?.values?.name ?? ''}
 						class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
 					/>

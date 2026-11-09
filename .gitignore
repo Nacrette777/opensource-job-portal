@@ -39,3 +39,6 @@ CLAUDE.md
 .svelte-kit
 build
 .venv/
+
+# GradBridge: published resume files (private, served only through authorised API views)
+backend/private_media/

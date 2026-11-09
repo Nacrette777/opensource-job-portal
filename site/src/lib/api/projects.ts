@@ -29,15 +29,17 @@ export interface Project {
 	size?: number;
 }
 
+// Optional fields take null to clear a saved value: updates are a PUT, and a
+// field left out of the JSON body keeps whatever was stored before.
 export interface ProjectCreateUpdate {
 	name: string;
-	from_date?: string;
-	to_date?: string;
+	from_date?: string | null;
+	to_date?: string | null;
 	skill_ids: number[];
 	description: string;
-	location_id?: number;
-	role?: string;
-	size?: number;
+	location_id?: number | null;
+	role?: string | null;
+	size?: number | null;
 }
 
 /**

@@ -135,7 +135,7 @@
 							{certification ? 'Edit Certification' : 'Add Certification'}
 						</h3>
 					</div>
-					<button type="button" onclick={handleClose} class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+					<button aria-label="Close" type="button" onclick={handleClose} class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
 						<X size={20} />
 					</button>
 				</div>

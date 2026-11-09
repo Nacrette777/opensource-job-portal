@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { untrack } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -84,7 +85,7 @@
 	}
 
 	async function handleDelete(jobId: number, jobTitle: string) {
-		if (!confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
+		if (!(await confirmAction(`Delete "${jobTitle}"?`, { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 
@@ -117,7 +118,7 @@
 </script>
 
 <svelte:head>
-	<title>Jobs - PeelJobs Recruiter</title>
+	<title>Jobs - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="space-y-6">

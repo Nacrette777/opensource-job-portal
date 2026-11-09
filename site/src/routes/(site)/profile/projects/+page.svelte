@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { FolderOpen, Plus, Rocket } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
@@ -39,7 +40,7 @@
 	}
 
 	async function handleDeleteProject(id: number) {
-		if (!confirm('Are you sure you want to delete this project?')) {
+		if (!(await confirmAction('Delete this project?', { confirmLabel: 'Delete', danger: true }))) {
 			return;
 		}
 
@@ -64,7 +65,7 @@
 </script>
 
 <svelte:head>
-	<title>Projects - Profile - PeelJobs</title>
+	<title>Projects - Profile - GradBridge</title>
 	<meta name="description" content="Showcase your portfolio and accomplishments" />
 </svelte:head>
 
@@ -86,7 +87,7 @@
 			class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition-colors elevation-1 text-sm"
 		>
 			<Plus size={18} />
-			<span class="hidden sm:inline">Add Project</span>
+			<span class="sr-only sm:not-sr-only">Add Project</span>
 		</button>
 	</div>
 </div>

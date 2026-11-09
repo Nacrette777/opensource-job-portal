@@ -9,8 +9,13 @@ cd backend
 uv run manage.py load_initial_data
 ```
 
-Loads eight fixtures in dependency order: countries, states, cities, skills,
-industries, qualifications, functional areas, languages.
+Loads GradBridge's locations (`load_gradbridge_locations`: Australia's states
+and major cities, and Singapore), the skills and industries fixtures, GradBridge's
+qualifications and languages (`load_gradbridge_reference_data`: Australian and
+Singaporean qualifications such as Certificate IV, Polytechnic Diploma and
+Bachelor's Degree; languages spoken in both countries), and the functional areas
+fixture. The upstream India-centric `countries/states/cities.json`,
+`qualification.json` and `languages.json` fixtures are not loaded.
 
 This is reference data, not sample content — location and skill pickers are
 empty without it, and job posting will not work properly. Run it once after
@@ -27,11 +32,11 @@ Creates one user of each role with predictable credentials, defined in
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Superuser | `ashwin@micropyramid.com` | auto-generated, printed once |
-| Company Admin | `ashwin.company@micropyramid.com` | `123456` |
-| Recruiter | `ashwin.recruiter@micropyramid.com` | `123456` |
-| Individual recruiter | `ashwin.individual@micropyramid.com` | `123456` |
-| Job seeker | `ashwin.jobseeker@micropyramid.com` | `123456` |
+| Superuser | `admin@example.test` | auto-generated, printed once |
+| Company Admin | `company.admin@example.test` | `123456` |
+| Recruiter | `recruiter@example.test` | `123456` |
+| Individual recruiter | `individual.recruiter@example.test` | `123456` |
+| Job seeker | `jobseeker@example.test` | `123456` |
 
 Each recruiter-type user gets five sample job posts, which is enough to
 exercise the dashboard.
@@ -58,7 +63,10 @@ uv run manage.py create_test_data
 ```
 
 Generates data at a volume where pagination, search ranking and dashboard
-queries behave like production.
+queries behave like production. Everything is set in Singapore or Australia:
+names, universities, polytechnics and TAFEs, company names (`Pty Ltd` /
+`Pte. Ltd.`), street addresses, +61/+65 phone numbers, and yearly salaries in
+AUD or SGD by the job's city (each job's cities are in one country).
 
 | Flag | Default |
 | --- | --- |

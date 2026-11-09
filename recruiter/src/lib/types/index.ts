@@ -179,6 +179,7 @@ export type JobStatus = 'Draft' | 'Live' | 'Disabled' | 'Expired' | 'Pending' | 
 export type JobType = 'full-time' | 'permanent' | 'contract' | 'internship' | 'part-time' | 'freelance' | 'walk-in' | 'government' | 'fresher';
 export type WorkMode = 'in-office' | 'remote' | 'hybrid';
 export type SalaryType = 'Month' | 'Year';
+export type SalaryCurrency = 'AUD' | 'SGD';
 export type SeniorityLevel = 'intern' | 'junior' | 'mid' | 'senior' | 'lead' | 'manager';
 export type ApplicationMethod = 'portal' | 'external' | 'email';
 export type LanguageProficiency = 'basic' | 'conversational' | 'fluent';
@@ -251,6 +252,7 @@ export interface JobDetail extends JobListItem {
 	min_salary: number;
 	max_salary: number;
 	salary_type: SalaryType;
+	salary_currency: SalaryCurrency;
 	min_year: number;
 	max_year: number;
 	min_month: number;
@@ -273,13 +275,13 @@ export interface JobDetail extends JobListItem {
 	travel_percentage?: string;
 	hiring_timeline?: HiringTimeline;
 	hiring_priority: HiringPriority;
-	// Walk-in fields
+	// Open Day fields
 	walkin_contactinfo?: string;
 	walkin_show_contact_info?: boolean;
 	walkin_from_date?: string;
 	walkin_to_date?: string;
 	walkin_time?: string;
-	// Government job fields
+	// Public Sector job fields
 	govt_job_type?: string;
 	application_fee?: string;
 	selection_process?: string;
@@ -327,6 +329,7 @@ export interface JobCreateData {
 	min_salary?: number;
 	max_salary?: number;
 	salary_type?: SalaryType;
+	salary_currency?: SalaryCurrency;
 	min_year?: number;
 	max_year?: number;
 	min_month?: number;
@@ -350,13 +353,13 @@ export interface JobCreateData {
 	travel_percentage?: string;
 	hiring_timeline?: HiringTimeline;
 	hiring_priority?: HiringPriority;
-	// Walk-in fields
+	// Open Day fields
 	walkin_contactinfo?: string;
 	walkin_show_contact_info?: boolean;
 	walkin_from_date?: string;
 	walkin_to_date?: string;
 	walkin_time?: string;
-	// Government job fields
+	// Public Sector job fields
 	govt_job_type?: string;
 	application_fee?: string;
 	selection_process?: string;

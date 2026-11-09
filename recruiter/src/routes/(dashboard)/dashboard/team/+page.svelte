@@ -135,7 +135,7 @@
 </script>
 
 <svelte:head>
-	<title>Team Management - PeelJobs Recruiter</title>
+	<title>Team Management - GradBridge Recruiter</title>
 </svelte:head>
 
 <div class="max-w-7xl space-y-6">

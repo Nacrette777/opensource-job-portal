@@ -7,12 +7,13 @@ from django.conf import settings
 from django.template import loader
 from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from dashboard.tasks import send_email
 
+from ..throttles import ContactGlobalThrottle
 from .serializers import ContactResponseSerializer, ContactSerializer
 
 
@@ -47,7 +48,7 @@ from .serializers import ContactResponseSerializer, ContactSerializer
                 "phone": 9876543210,
                 "category": "general",
                 "subject": "Question about job postings",
-                "comment": "I would like to know more about posting jobs on PeelJobs.",
+                "comment": "I would like to know more about posting jobs on GradBridge.",
             },
             request_only=True,
         ),
@@ -66,6 +67,7 @@ from .serializers import ContactResponseSerializer, ContactSerializer
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([ContactGlobalThrottle])
 def submit_contact_form(request):
     """
     Submit a contact inquiry form
@@ -124,7 +126,7 @@ def submit_contact_form(request):
     # Send email notification to support team
     try:
         subject = (
-            f"New Contact Inquiry: {contact.get_enquery_type_display()} | PeelJobs"
+            f"New Contact Inquiry: {contact.get_enquery_type_display()} | GradBridge"
         )
         support_emails = getattr(
             settings, "SUPPORT_EMAILS", ["peeljobs@micropyramid.com"]
@@ -136,7 +138,7 @@ def submit_contact_form(request):
         send_email.delay(support_emails, subject, rendered, reply_to=contact.email)
 
         # Confirmation email to user (no reply-to needed as it goes to the user)
-        user_subject = "Thank you for contacting PeelJobs"
+        user_subject = "Thank you for contacting GradBridge"
         user_template = loader.get_template("email/user_contactus.html")
         user_rendered = user_template.render(email_context)
         send_email.delay([contact.email], user_subject, user_rendered)

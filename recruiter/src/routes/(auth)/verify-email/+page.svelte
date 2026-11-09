@@ -25,8 +25,8 @@
 </script>
 
 <svelte:head>
-	<title>Verify Email - PeelJobs Recruiter</title>
-	<meta name="description" content="Verify your PeelJobs employer account email address." />
+	<title>Verify Email - GradBridge Recruiter</title>
+	<meta name="description" content="Verify your GradBridge employer account email address." />
 </svelte:head>
 
 <Card padding="lg" class="shadow-lg">

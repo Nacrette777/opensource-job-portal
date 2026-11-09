@@ -95,6 +95,8 @@ export async function apiGetOr<T>(fetchFn: Fetch, path: string, fallback: T): Pr
 	}
 }
 
+const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+
 /**
  * Forward a browser request to Django, one explicit route at a time.
  *
@@ -130,6 +132,14 @@ export async function forward(
 	}
 
 	const response = await event.fetch(`${API_BASE_URL}${path}${search}`, init);
+
+	// A null-body status (e.g. Django's 204 after DELETE) must be passed on
+	// with a null body: `new Response('', { status: 204 })` throws, which
+	// turned every successful delete into a 500.
+	if (NULL_BODY_STATUSES.has(response.status)) {
+		return new Response(null, { status: response.status });
+	}
+
 	const body = await response.text();
 
 	return new Response(body, {

@@ -69,28 +69,41 @@ NOTICE_PERIODS = ["Immediate", "15 Days", "1 Month", "2 Months", "3 Months"]
 # Degree types
 DEGREE_TYPES = ["Permanent", "PartTime"]
 
-# Common qualifications (match with fixtures)
+# Common qualifications (match load_gradbridge_reference_data)
 COMMON_QUALIFICATIONS = [
-    "BE/B.Tech",
-    "ME/M.Tech",
-    "MCA",
-    "BCA",
-    "MBA",
-    "BSc",
-    "MSc",
+    "Bachelor's Degree",
+    "Bachelor's Degree (Honours)",
+    "Master's Degree",
     "Diploma",
+    "Polytechnic Diploma",
+    "Advanced Diploma",
+    "Graduate Certificate",
+    "MBA",
 ]
 
-# Salary ranges by experience (in INR per annum)
+# Yearly salary ranges by years of experience, in each market's currency.
+# A job or job seeker in Singapore uses SGD, everywhere else AUD.
 SALARY_RANGES = {
-    0: (200000, 400000),  # Fresher
-    1: (300000, 600000),  # 1 year
-    2: (400000, 800000),  # 2 years
-    3: (500000, 1000000),  # 3 years
-    5: (800000, 1500000),  # 5 years
-    7: (1000000, 2000000),  # 7 years
-    10: (1500000, 3000000),  # 10 years
-    15: (2000000, 5000000),  # 15+ years
+    "AUD": {
+        0: (65000, 80000),  # Graduate
+        1: (70000, 90000),  # 1 year
+        2: (80000, 100000),  # 2 years
+        3: (90000, 115000),  # 3 years
+        5: (110000, 140000),  # 5 years
+        7: (130000, 165000),  # 7 years
+        10: (150000, 190000),  # 10 years
+        15: (170000, 230000),  # 15+ years
+    },
+    "SGD": {
+        0: (48000, 66000),  # Graduate
+        1: (55000, 75000),  # 1 year
+        2: (62000, 85000),  # 2 years
+        3: (70000, 100000),  # 3 years
+        5: (90000, 130000),  # 5 years
+        7: (110000, 160000),  # 7 years
+        10: (140000, 200000),  # 10 years
+        15: (170000, 260000),  # 15+ years
+    },
 }
 
 # Experience levels (years)

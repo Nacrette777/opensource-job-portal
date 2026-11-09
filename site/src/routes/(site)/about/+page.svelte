@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import {
 		Zap,
 		Users,
@@ -54,12 +55,12 @@
 		{
 			icon: Zap,
 			title: 'Fast & Efficient',
-			description: 'Streamlined recruitment process with intuitive tools, intelligent search, and automated workflows that save hours of work.'
+			description: 'Post jobs in minutes and review applicants and published resumes in one place.'
 		},
 		{
 			icon: Target,
-			title: 'Smart Matching',
-			description: 'Advanced filters and AI-powered recommendations help you find the perfect match faster.'
+			title: 'Focused Search',
+			description: 'Filter graduates by skills, degree and graduation year to find the right match faster.'
 		}
 	];
 
@@ -90,22 +91,22 @@
 </script>
 
 <svelte:head>
-	<title>About Us - PeelJobs | Free Job Portal Democratizing Hiring</title>
+	<title>About Us - GradBridge | Free Job Portal Democratizing Hiring</title>
 	<meta
 		name="description"
-		content="PeelJobs is a free job portal connecting talent with opportunity. Learn about our mission to democratize hiring, making exceptional recruitment accessible to businesses of all sizes without financial barriers."
+		content="GradBridge is a free job portal connecting talent with opportunity. Learn about our mission to democratize hiring, making exceptional recruitment accessible to businesses of all sizes without financial barriers."
 	/>
-	<link rel="canonical" href="https://peeljobs.com/about/" />
+	<link rel="canonical" href={`${SITE_URL}/about/`} />
 
 	<!-- Open Graph -->
-	<meta property="og:title" content="About PeelJobs - Democratizing Hiring, One Connection at a Time" />
-	<meta property="og:description" content="Discover how PeelJobs is transforming recruitment with our free, accessible platform that empowers companies and job seekers alike." />
+	<meta property="og:title" content="About GradBridge - Democratizing Hiring, One Connection at a Time" />
+	<meta property="og:description" content="Discover how GradBridge is transforming recruitment with our free, accessible platform that empowers companies and job seekers alike." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/about/" />
+	<meta property="og:url" content={`${SITE_URL}/about/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="About PeelJobs - Free Job Portal" />
+	<meta name="twitter:title" content="About GradBridge - Free Job Portal" />
 	<meta name="twitter:description" content="Learn about our mission to democratize hiring for all." />
 </svelte:head>
 
@@ -231,7 +232,7 @@
 		<div class="text-center mb-10 lg:mb-12">
 			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Our Core Values</h2>
 			<p class="text-base lg:text-lg text-muted max-w-3xl mx-auto">
-				These fundamental principles guide everything we do at PeelJobs
+				These fundamental principles guide everything we do at GradBridge
 			</p>
 		</div>
 
@@ -256,7 +257,7 @@
 <section class="py-16 lg:py-24 bg-white">
 	<div class="max-w-7xl mx-auto px-4 lg:px-8">
 		<div class="text-center mb-10 lg:mb-12">
-			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Why Choose PeelJobs?</h2>
+			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Why Choose GradBridge?</h2>
 			<p class="text-base lg:text-lg text-muted max-w-3xl mx-auto">
 				We're more than just a job board—we're your partner in building successful careers and teams
 			</p>
@@ -358,10 +359,10 @@
 	<div class="max-w-7xl mx-auto px-4 lg:px-8 text-center">
 		<div class="max-w-3xl mx-auto">
 			<h2 class="text-2xl lg:text-3xl font-semibold tracking-tight mb-4">
-				Ready to Experience the PeelJobs Difference?
+				Ready to Experience the GradBridge Difference?
 			</h2>
 			<p class="text-base lg:text-lg text-gray-300 mb-8 lg:mb-10">
-				Join thousands of job seekers and companies who have discovered a better way to connect.
+				Join students and employers in Singapore and Australia who want a simpler way to connect.
 				It's completely free, always will be.
 			</p>
 			<div class="flex flex-col sm:flex-row gap-4 justify-center">

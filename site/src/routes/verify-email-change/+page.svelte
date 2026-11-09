@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Confirm email change | PeelJobs</title>
+	<title>Confirm email change | GradBridge</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

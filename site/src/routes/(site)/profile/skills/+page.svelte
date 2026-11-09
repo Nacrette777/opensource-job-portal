@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Technical Skills - Profile - PeelJobs</title>
+	<title>Technical Skills - Profile - GradBridge</title>
 	<meta name="description" content="Manage your technical skills and expertise" />
 </svelte:head>
 

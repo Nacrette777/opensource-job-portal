@@ -15,7 +15,7 @@
 		getDegrees,
 		searchInstitutes
 	} from '$lib/api/education';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	interface Props {
 		isOpen: boolean;
@@ -125,29 +125,54 @@
 		formData.degree_id = 0;
 	}
 
+	// Degree id whose qualification still has to be preselected once the
+	// degree list has loaded (it can arrive after the modal opens).
+	let pendingQualificationForDegree = $state<number | null>(null);
+
 	/**
 	 * Initialize form with education data (for editing)
+	 *
+	 * Runs only when the modal opens or the edited entry changes. The body is
+	 * untracked: if it depended on `degrees`, picking a qualification (which
+	 * reloads `degrees`) would re-run it and wipe whatever the user had typed.
 	 */
 	$effect(() => {
-		if (isOpen && education) {
+		const open = isOpen;
+		const editing = education;
+		untrack(() => initForm(open, editing));
+	});
+
+	$effect(() => {
+		const degreeId = pendingQualificationForDegree;
+		if (degreeId === null || degrees.length === 0) return;
+		const degree = untrack(() => degrees.find((d) => d.id === degreeId));
+		if (degree) {
+			selectedQualificationId = degree.qualification.id;
+		}
+		pendingQualificationForDegree = null;
+	});
+
+	function initForm(open: boolean, editing: EducationDetails | null) {
+		pendingQualificationForDegree = null;
+		if (open && editing) {
 			// Editing mode
 			formData = {
-				institute_id: education.institute_id || 0,
-				degree_id: education.degree_id || 0,
-				from_date: education.from_date,
-				to_date: education.to_date || '',
-				score: education.score,
-				current_education: education.current_education,
+				institute_id: editing.institute_id || 0,
+				degree_id: editing.degree_id || 0,
+				from_date: editing.from_date,
+				to_date: editing.to_date || '',
+				score: editing.score,
+				current_education: editing.current_education,
 				custom_institute_name: ''
 			};
 			isOtherInstitute = false;
+			selectedQualificationId = 0;
 
-			// Find qualification ID from degree
-			const degree = degrees.find((d) => d.id === education.degree_id);
-			if (degree) {
-				selectedQualificationId = degree.qualification.id;
+			// Qualification comes from the degree; resolved by the effect above
+			if (editing.degree_id) {
+				pendingQualificationForDegree = editing.degree_id;
 			}
-		} else if (isOpen) {
+		} else if (open) {
 			// Adding mode - reset form
 			formData = {
 				institute_id: 0,
@@ -161,7 +186,7 @@
 			selectedQualificationId = 0;
 			isOtherInstitute = false;
 		}
-	});
+	}
 
 	/**
 	 * Handle current education checkbox
@@ -301,7 +326,7 @@
 							{education ? 'Edit Education' : 'Add Education'}
 						</h3>
 					</div>
-					<button
+					<button aria-label="Close"
 						type="button"
 						onclick={handleClose}
 						class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
@@ -370,6 +395,7 @@
 								<input
 									type="text"
 									placeholder="Search institute..."
+						aria-label="Search institute"
 									bind:value={instituteSearchQuery}
 									oninput={handleInstituteSearch}
 									class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
@@ -468,7 +494,7 @@
 							type="text"
 							id="score"
 							bind:value={formData.score}
-							placeholder="e.g., 8.5 GPA, 85%, First Class"
+							placeholder="e.g., WAM 78, GPA 3.6/4, Distinction"
 							class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
 						/>
 					</div>

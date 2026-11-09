@@ -23,12 +23,12 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	return {
 		...data,
 		seo: buildSeo({
-			heading: `Walk-in Jobs in ${cityName}`,
-			subject: `walk-in interviews and drives in ${cityName}`,
+			heading: `Open Days in ${cityName}`,
+			subject: `open days and on-the-spot interviews in ${cityName}`,
 			totalJobs: data.totalJobs,
 			page
 		}),
 		canonical: `${SITE_URL}/walkins-in-${params.city}/`,
-		breadcrumb: { label: `Walk-ins in ${cityName}`, href: `/walkins-in-${params.city}/` }
+		breadcrumb: { label: `Open Days in ${cityName}`, href: `/walkins-in-${params.city}/` }
 	};
 };

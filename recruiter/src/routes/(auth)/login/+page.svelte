@@ -4,6 +4,7 @@
 	import { getContext } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { Button, Input, Card, FormField } from '$lib/components/ui';
+	import { JOBSEEKER_URL } from '$lib/config/env';
 
 	type AuthLayoutContext = {
 		containerClass: string;
@@ -28,8 +29,8 @@
 </script>
 
 <svelte:head>
-	<title>Login - PeelJobs Recruiter</title>
-	<meta name="description" content="Sign in to your PeelJobs employer account to manage job postings and connect with top talent." />
+	<title>Login - GradBridge Recruiter</title>
+	<meta name="description" content="Sign in to your GradBridge employer account to manage job postings and connect with top talent." />
 </svelte:head>
 
 <div class="w-full">
@@ -39,30 +40,30 @@
 			<!-- Hero Section -->
 			<div>
 				<h1 class="text-3xl xl:text-4xl font-semibold text-black mb-4 leading-tight">
-					Welcome Back to PeelJobs
+					Welcome Back to GradBridge
 				</h1>
 				<p class="text-base xl:text-lg text-muted leading-relaxed">
-					Continue managing your job postings and connecting with top talent across India.
+					Continue managing your job postings and connecting with top talent across Singapore and Australia.
 				</p>
 			</div>
 
-			<!-- Key Statistics -->
+			<!-- What recruiters get -->
 			<div class="grid grid-cols-2 gap-4">
 				<div class="bg-primary/5 border border-primary/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-primary mb-1">100k+</div>
-					<p class="text-sm text-muted font-medium">Active Job Seekers</p>
+					<div class="text-2xl font-semibold text-primary mb-1">SG + AU</div>
+					<p class="text-sm text-muted font-medium">Graduates in both markets</p>
 				</div>
 				<div class="bg-success-light border border-success/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-success mb-1">1000+</div>
-					<p class="text-sm text-muted font-medium">Daily Applications</p>
+					<div class="text-2xl font-semibold text-success mb-1">Free</div>
+					<p class="text-sm text-muted font-medium">No posting fees</p>
 				</div>
 				<div class="bg-primary/5 border border-primary/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-primary mb-1">500+</div>
-					<p class="text-sm text-muted font-medium">Companies Trust Us</p>
+					<div class="text-2xl font-semibold text-primary mb-1">Published</div>
+					<p class="text-sm text-muted font-medium">Resumes students chose to share</p>
 				</div>
 				<div class="bg-warning-light border border-warning/20 rounded-lg p-5 text-center">
-					<div class="text-2xl font-semibold text-warning mb-1">24/7</div>
-					<p class="text-sm text-muted font-medium">Expert Support</p>
+					<div class="text-2xl font-semibold text-warning mb-1">Private</div>
+					<p class="text-sm text-muted font-medium">Your shortlist and notes</p>
 				</div>
 			</div>
 
@@ -265,7 +266,7 @@
 			<div class="mt-5 pt-5 border-t border-border">
 				<p class="text-center text-sm text-muted">
 					Looking for a job?
-					<a href="https://peeljobs.com/login/" class="font-medium text-primary hover:text-primary-hover transition-colors">
+					<a href={`${JOBSEEKER_URL}/login/`} class="font-medium text-primary hover:text-primary-hover transition-colors">
 						Job Seeker Login
 					</a>
 				</p>
@@ -280,11 +281,11 @@
 					</div>
 					<div class="flex items-center gap-1.5">
 						<CheckCircle class="w-3.5 h-3.5" />
-						<span>GDPR Compliant</span>
+						<span>Private shortlists</span>
 					</div>
 					<div class="flex items-center gap-1.5">
 						<Clock class="w-3.5 h-3.5" />
-						<span>24/7 Support</span>
+						<span>No posting fees</span>
 					</div>
 				</div>
 			</div>

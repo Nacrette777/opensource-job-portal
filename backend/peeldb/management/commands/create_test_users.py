@@ -201,7 +201,7 @@ class Command(BaseCommand):
 
     def _create_company_admin(self, data):
         """Create or update the company admin account (creates/owns the company)."""
-        city = self._get_city(data.get("city", "Hyderabad"))
+        city = self._get_city(data.get("city", "Sydney"))
 
         user = User.objects.filter(email=data["email"]).first()
         created = False
@@ -277,7 +277,7 @@ class Command(BaseCommand):
 
     def _create_recruiter(self, data):
         """Create or update the company recruiter account (non-admin, uses existing company)."""
-        city = self._get_city(data.get("city", "Hyderabad"))
+        city = self._get_city(data.get("city", "Sydney"))
 
         user = User.objects.filter(email=data["email"]).first()
         created = False
@@ -346,7 +346,7 @@ class Command(BaseCommand):
 
     def _create_individual(self, data):
         """Create or update the individual/consultant recruiter account (no company)."""
-        city = self._get_city(data.get("city", "Bangalore"))
+        city = self._get_city(data.get("city", "Singapore"))
 
         user = User.objects.filter(email=data["email"]).first()
         created = False
@@ -406,7 +406,7 @@ class Command(BaseCommand):
 
         created_posts = []
         for i, job_data in enumerate(job_posts_data):
-            city = self._get_city(job_data.get("city", "Hyderabad"))
+            city = self._get_city(job_data.get("city", "Sydney"))
             title = job_data.get("title", "Software Developer")
             slug = slugify(f"{title}-{user.username}-{i}")
 
@@ -431,12 +431,17 @@ class Command(BaseCommand):
                 min_salary=job_data.get("min_salary", 0),
                 max_salary=job_data.get("max_salary", 0),
                 salary_type="Year",
+                salary_currency=(
+                    "SGD"
+                    if city and city.state.country.slug == "singapore"
+                    else "AUD"
+                ),
                 job_type=job_data.get("job_type", "full-time"),
                 work_mode=job_data.get("work_mode", "in-office"),
                 status="Live",
                 published_on=timezone.now(),
                 fresher=(job_data.get("min_year", 0) == 0),
-                country=self.country,
+                country=city.state.country if city else self.country,
                 meta_title=f"{title} Jobs",
                 meta_description=f"Apply for {title} position.",
                 company_name=user.company.name if user.company else "",
@@ -466,7 +471,7 @@ class Command(BaseCommand):
 
     def _create_jobseeker(self, data):
         """Create or update the jobseeker account with full profile."""
-        city = self._get_city(data.get("city", "Hyderabad"))
+        city = self._get_city(data.get("city", "Sydney"))
 
         user = User.objects.filter(email=data["email"]).first()
         created = False
@@ -636,7 +641,7 @@ class Command(BaseCommand):
         )
 
         # Get qualification
-        qual_name = education_data.get("qualification", "B.Tech")
+        qual_name = education_data.get("qualification", "Bachelor's Degree")
         qualification = Qualification.objects.filter(name__icontains=qual_name).first()
         if not qualification:
             qualification = self.qualifications[0] if self.qualifications else None

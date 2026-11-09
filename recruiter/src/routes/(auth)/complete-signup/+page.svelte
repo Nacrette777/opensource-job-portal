@@ -48,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>Finish signing up - PeelJobs Recruiter</title>
+	<title>Finish signing up - GradBridge Recruiter</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
@@ -224,7 +224,7 @@
 					id="phone"
 					name="phone"
 					value={values.phone ?? ''}
-					placeholder="+91 98765 43210"
+					placeholder="+61 412 345 678 or +65 8123 4567"
 					class={inputClass}
 				/>
 			</div>

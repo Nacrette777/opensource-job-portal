@@ -7,7 +7,18 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from peeldb.models import Language, User, UserLanguage
+from peeldb.models import (
+    City,
+    Country,
+    Degree,
+    EducationInstitue,
+    Language,
+    Qualification,
+    Skill,
+    State,
+    User,
+    UserLanguage,
+)
 
 
 class UserLanguageAPITests(TestCase):
@@ -128,3 +139,298 @@ class UserLanguageAPITests(TestCase):
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ProfilePatchTests(TestCase):
+    """PATCH /profile/ must persist every field the profile page sends."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("api:v1:profile:profile")
+
+        self.country = Country.objects.create(name="Testland", slug="testland")
+        self.state = State.objects.create(
+            country=self.country, name="Test State", slug="test-state"
+        )
+        self.city = City.objects.create(
+            state=self.state, name="Test City", slug="test-city"
+        )
+
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+
+        self.client.force_authenticate(user=self.user)
+
+    def test_location_and_alternate_mobile_are_saved(self):
+        response = self.client.patch(
+            self.url,
+            {
+                "alternate_mobile": "0400 000 022",
+                "state_id": self.state.id,
+                "country_id": self.country.id,
+                "preferred_city_ids": [self.city.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.alternate_mobile, "0400000022")
+        self.assertEqual(self.user.state, self.state)
+        self.assertEqual(self.user.country, self.country)
+        self.assertEqual(list(self.user.preferred_city.all()), [self.city])
+
+    def test_main_mobile_is_stored_like_the_alternate(self):
+        # Found on Azure: "+61 491 570 006" was kept with spaces while the alternate
+        # number was compacted.
+        response = self.client.patch(self.url, {"mobile": "+61 491 570 006"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.mobile, "+61491570006")
+
+        response = self.client.patch(self.url, {"mobile": "call me"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_unknown_location_ids_are_rejected_not_ignored(self):
+        response = self.client.patch(
+            self.url, {"state_id": 999999, "country_id": 999999}, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("state_id", response.data)
+        self.assertIn("country_id", response.data)
+
+    def test_fields_can_be_cleared(self):
+        self.user.nationality = "Testlandic"
+        self.user.mobile = "+61 400000001"
+        self.user.alternate_mobile = "0400000022"
+        self.user.pincode = "2308"
+        self.user.job_role = "Analyst"
+        self.user.profile_description = "Summary"
+        self.user.month = "6"
+        self.user.save()
+        self.user.preferred_city.add(self.city)
+
+        response = self.client.patch(
+            self.url,
+            {
+                "nationality": "",
+                "mobile": "",
+                "alternate_mobile": None,
+                "pincode": None,
+                "dob": None,
+                "job_role": "",
+                "profile_description": "",
+                "month": "",
+                "preferred_city_ids": [],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.nationality, "")
+        self.assertEqual(self.user.mobile, "")
+        self.assertIsNone(self.user.alternate_mobile)
+        self.assertIsNone(self.user.pincode)
+        self.assertEqual(self.user.job_role, "")
+        self.assertEqual(self.user.profile_description, "")
+        self.assertEqual(self.user.month, "")
+        self.assertEqual(self.user.preferred_city.count(), 0)
+
+
+class ContactFieldFormatTests(TestCase):
+    """S3-04: phone numbers and postcodes are text, so 0 and + survive."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("api:v1:profile:profile")
+        self.user = User.objects.create_user(
+            username="contact@example.com", email="contact@example.com", password="Str0ng!Passw0rd"
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+    def patch(self, **fields):
+        return self.client.patch(self.url, fields, format="json")
+
+    def test_leading_zero_and_plus_are_kept_and_separators_dropped(self):
+        for typed, stored in (
+            ("0412 000 123", "0412000123"),
+            ("+61 (412) 000-123", "+61412000123"),
+            ("+44 20.7946.0958", "+442079460958"),
+        ):
+            with self.subTest(typed=typed):
+                response = self.patch(alternate_mobile=typed)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.alternate_mobile, stored)
+
+    def test_invalid_phone_numbers_are_rejected(self):
+        for typed in ("12345", "04120001234567890", "0412 abc 123", "++61412000123"):
+            with self.subTest(typed=typed):
+                response = self.patch(alternate_mobile=typed)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("alternate_mobile", response.data)
+
+    def test_postcodes_keep_their_leading_zero_and_letters(self):
+        for typed, stored in (("0800", "0800"), (" 2300 ", "2300"), ("SW1A 1AA", "SW1A 1AA"), ("560001", "560001")):
+            with self.subTest(typed=typed):
+                response = self.patch(pincode=typed)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.pincode, stored)
+
+    def test_invalid_postcodes_are_rejected(self):
+        for typed in ("08-00!", "-2300", "12345678901"):
+            with self.subTest(typed=typed):
+                response = self.patch(pincode=typed)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("pincode", response.data)
+
+    def test_empty_input_clears_both_fields(self):
+        self.user.alternate_mobile = "0412000123"
+        self.user.pincode = "0800"
+        self.user.save()
+
+        response = self.patch(alternate_mobile="", pincode="  ")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.user.refresh_from_db()
+        self.assertIsNone(self.user.alternate_mobile)
+        self.assertIsNone(self.user.pincode)
+
+    def test_profile_read_returns_the_text_as_saved(self):
+        self.patch(alternate_mobile="0412 000 123", pincode="0800")
+
+        data = self.client.get(self.url).data
+
+        self.assertEqual(data["alternate_mobile"], "0412000123")
+        self.assertEqual(data["pincode"], "0800")
+
+
+class EducationReadTests(TestCase):
+    """The edit form preselects its dropdowns from the ids on the list."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+        qualification = Qualification.objects.create(
+            name="Bachelor", status="Active", slug="bachelor"
+        )
+        self.degree = Degree.objects.create(
+            degree_name=qualification,
+            degree_type="Permanent",
+            specialization="Computer Science",
+        )
+        self.institute = EducationInstitue.objects.create(name="Test University")
+
+    def test_list_returns_institute_and_degree_ids(self):
+        created = self.client.post(
+            reverse("api:v1:profile:education-list"),
+            {
+                "institute_id": self.institute.id,
+                "degree_id": self.degree.id,
+                "from_date": "2021-02-01",
+                "to_date": "2024-11-30",
+                "score": "Distinction",
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED, created.data)
+
+        listing = self.client.get(reverse("api:v1:profile:education-list"))
+
+        self.assertEqual(listing.status_code, status.HTTP_200_OK)
+        self.assertEqual(listing.data[0]["institute_id"], self.institute.id)
+        self.assertEqual(listing.data[0]["degree_id"], self.degree.id)
+
+
+class ProjectWriteTests(TestCase):
+    """Project create/update: date order is enforced and optional fields clear."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="seeker@example.com",
+            email="seeker@example.com",
+            password="Str0ng!Passw0rd",
+        )
+        self.user.user_type = "JS"
+        self.user.is_active = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.skill = Skill.objects.create(name="Python", status="Active", slug="python")
+        self.list_url = reverse("api:v1:profile:project-list")
+
+    def _create(self, **overrides):
+        payload = {
+            "name": "Dashboard",
+            "description": "A project",
+            "skill_ids": [self.skill.id],
+            "from_date": "2024-01-01",
+            "to_date": "2024-06-30",
+            "role": "Analyst",
+            "size": 3,
+            **overrides,
+        }
+        return self.client.post(self.list_url, payload, format="json")
+
+    def test_end_date_before_start_date_is_rejected(self):
+        response = self._create(from_date="2025-06-01", to_date="2024-01-01")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("to_date", response.data)
+        self.assertEqual(self.user.project.count(), 0)
+
+    def test_partial_update_cannot_move_end_date_before_saved_start(self):
+        project_id = self._create().data["id"]
+
+        response = self.client.patch(
+            reverse("api:v1:profile:project-detail", args=[project_id]),
+            {"to_date": "2023-01-01"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_with_null_clears_optional_fields(self):
+        project_id = self._create().data["id"]
+
+        response = self.client.put(
+            reverse("api:v1:profile:project-detail", args=[project_id]),
+            {
+                "name": "Dashboard",
+                "description": "A project",
+                "skill_ids": [self.skill.id],
+                "from_date": None,
+                "to_date": None,
+                "role": None,
+                "size": None,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        project = self.user.project.get(id=project_id)
+        self.assertIsNone(project.role)
+        self.assertIsNone(project.size)
+        self.assertIsNone(project.from_date)

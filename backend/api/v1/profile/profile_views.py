@@ -86,7 +86,7 @@ class ProfileView(APIView):
                 value={
                     "first_name": "John",
                     "last_name": "Doe",
-                    "mobile": "+919876543210",
+                    "mobile": "+61412345678",
                     "gender": "M",
                     "dob": "1995-05-15",
                     "marital_status": "Single",
@@ -159,7 +159,7 @@ class ProfileView(APIView):
                 name="Partial update example",
                 value={
                     "first_name": "John",
-                    "mobile": "+919876543210",
+                    "mobile": "+61412345678",
                     "is_looking_for_job": True,
                 },
                 request_only=True,

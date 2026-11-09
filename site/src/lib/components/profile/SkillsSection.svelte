@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { confirmAction } from '$lib/confirm.svelte';
 	import { onMount } from 'svelte';
 	import { Code, Plus, X, Pencil, Trash2, Save, Loader, Search, Star } from '@lucide/svelte';
 	import { toast } from '$lib/stores/toast';
+	import { portal } from '$lib/actions/portal';
 	import {
 		searchSkills,
 		getMySkills,
@@ -181,7 +183,7 @@
 	}
 
 	async function handleDeleteSkill(skillId: number, skillName: string) {
-		if (!confirm(`Are you sure you want to remove "${skillName}" from your profile?`)) {
+		if (!(await confirmAction(`Remove "${skillName}" from your profile?`, { confirmLabel: 'Remove', danger: true }))) {
 			return;
 		}
 
@@ -234,7 +236,7 @@
 			class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition-colors elevation-1 text-sm"
 		>
 			<Plus size={18} />
-			<span class="hidden sm:inline">Add Skill</span>
+			<span class="sr-only sm:not-sr-only">Add Skill</span>
 		</button>
 	</div>
 
@@ -347,6 +349,7 @@
 	<!-- Add/Edit Form Modal -->
 	{#if showAddForm}
 		<div
+			use:portal
 			class="fixed inset-0 z-50 overflow-y-auto"
 			aria-labelledby="modal-title"
 			role="dialog"
@@ -377,7 +380,7 @@
 								{editingSkillId ? 'Edit Skill' : 'Add Skill'}
 							</h3>
 						</div>
-						<button
+						<button aria-label="Close"
 							type="button"
 							onclick={closeForm}
 							class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"

@@ -53,7 +53,7 @@ def send_alert_verification(alert):
 
     send_email.delay(
         mto=[alert.email],
-        msubject="Confirm your PeelJobs job alert",
+        msubject="Confirm your GradBridge job alert",
         mbody=html_content,
     )
 

@@ -79,7 +79,7 @@
 	});
 
 	function formatDate(dateString: string): string {
-		return new Date(dateString).toLocaleDateString('en-IN', {
+		return new Date(dateString).toLocaleDateString('en-AU', {
 			month: 'short',
 			day: 'numeric',
 			year: 'numeric'
@@ -88,7 +88,7 @@
 </script>
 
 <svelte:head>
-	<title>My Applications - PeelJobs</title>
+	<title>My Applications - GradBridge</title>
 	<meta name="description" content="Track all your job applications in one place" />
 </svelte:head>
 

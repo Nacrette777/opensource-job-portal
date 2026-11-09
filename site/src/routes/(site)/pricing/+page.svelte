@@ -4,43 +4,31 @@
 	// Features included in the free plan
 	const includedFeatures = [
 		{ name: 'Unlimited Job Postings', icon: Zap },
-		{ name: 'Access to Entire Candidate Database', icon: Users },
-		{ name: 'Advanced Search & Filters', icon: Target },
-		{ name: 'Application Tracking System', icon: TrendingUp },
-		{ name: 'Email Notifications', icon: Clock },
-		{ name: 'Company Profile Page', icon: BadgeCheck },
-		{ name: 'Resume Database Access', icon: Users },
-		{ name: 'Candidate Messaging', icon: Heart },
-		{ name: 'Priority Customer Support', icon: Shield },
-		{ name: 'Analytics & Insights', icon: Award }
-	];
-
-	// What competitors charge for
-	const competitorFeatures = [
-		{ name: 'Job Posting Fees', free: true, competitors: false },
-		{ name: 'Resume Database Access', free: true, competitors: false },
-		{ name: 'Featured Listings', free: true, competitors: false },
-		{ name: 'Unlimited Applications', free: true, competitors: false },
-		{ name: 'Advanced Analytics', free: true, competitors: false }
+		{ name: 'Search Published Graduate Resumes', icon: Users },
+		{ name: 'Skill, Degree and Graduation-Year Filters', icon: Target },
+		{ name: 'Application Tracking', icon: TrendingUp },
+		{ name: 'Private Shortlist and Notes', icon: Heart },
+		{ name: 'PDF Resume Downloads', icon: Clock },
+		{ name: 'Company Profile Page', icon: BadgeCheck }
 	];
 
 	// FAQs
 	const faqs = [
 		{
-			question: 'Is PeelJobs really 100% free?',
-			answer: "Yes! We never charge for job postings, candidate access, or any recruiting features. Our mission is to connect employers with the best talent in India at zero cost."
+			question: 'Is GradBridge really 100% free?',
+			answer: "Yes! We never charge for job postings, candidate access, or any recruiting features. Our mission is to connect employers with the best talent in Singapore and Australia at zero cost."
 		},
 		{
 			question: 'Are there any hidden fees or premium plans?',
 			answer: "No hidden fees whatsoever. We don't have premium plans because we believe all employers deserve equal access to top talent, regardless of their budget."
 		},
 		{
-			question: 'How do you make money if everything is free?',
-			answer: "We're supported by strategic partnerships and display advertising. We never compromise the quality of our platform or charge employers for core recruiting features."
+			question: 'How is GradBridge funded?',
+			answer: "GradBridge is a student project. It has no paid plans and shows no advertising."
 		},
 		{
 			question: 'Will you start charging in the future?',
-			answer: "No. We're committed to keeping PeelJobs free forever. Our goal is to make quality hiring accessible to every employer in India, from startups to enterprises."
+			answer: "There are no plans to charge. GradBridge is built to connect graduates and employers in Singapore and Australia."
 		},
 		{
 			question: 'How many jobs can I post?',
@@ -48,7 +36,7 @@
 		},
 		{
 			question: 'Can I access the resume database for free?',
-			answer: 'Absolutely! You get full access to our database of over 1 million job seekers, including advanced search filters, without paying a single rupee.'
+			answer: 'Yes. Recruiters can search every graduate who has chosen to publish a resume, filter by skills, degree and graduation year, and download the published PDF. Students decide what to publish and can withdraw it at any time.'
 		},
 		{
 			question: 'How quickly can I start posting jobs?',
@@ -56,7 +44,7 @@
 		},
 		{
 			question: 'What kind of support do I get?',
-			answer: "All employers get access to our dedicated support team via email and chat. We're here to help you succeed in finding the right talent."
+			answer: "Send us a message through the contact form. GradBridge does not have a dedicated support team or live chat."
 		}
 	];
 
@@ -68,13 +56,13 @@
 </script>
 
 <svelte:head>
-	<title>Pricing - 100% Free Forever | PeelJobs - India's Free Job Posting Platform</title>
-	<meta name="description" content="Post unlimited jobs for FREE. No hidden costs, no premium plans. Access 1M+ candidates, advanced hiring tools, and unlimited job postings at zero cost. Join 50K+ employers hiring on PeelJobs." />
-	<meta property="og:title" content="100% Free Job Posting Platform - PeelJobs Pricing" />
-	<meta property="og:description" content="Never pay for job postings again. Unlimited free access to India's largest talent pool. Post jobs, search resumes, and hire the best candidates - all for free." />
+	<title>Pricing - 100% Free Forever | GradBridge - Free Job Posting in Singapore and Australia</title>
+	<meta name="description" content="Post unlimited jobs for FREE. No hidden costs, no premium plans. Search published graduate resumes and post unlimited jobs at no cost. employers hiring on GradBridge." />
+	<meta property="og:title" content="100% Free Job Posting Platform - GradBridge Pricing" />
+	<meta property="og:description" content="Never pay for job postings again. Unlimited free access to talent across Singapore and Australia. Post jobs, search resumes, and hire the best candidates - all for free." />
 	<meta property="og:type" content="website" />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="100% Free Job Posting Platform - PeelJobs Pricing" />
+	<meta name="twitter:title" content="100% Free Job Posting Platform - GradBridge Pricing" />
 	<meta name="twitter:description" content="Unlimited job postings, resume database access, and hiring tools - all FREE forever." />
 </svelte:head>
 
@@ -108,12 +96,12 @@
 			</div>
 
 			<h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-6 animate-fade-in-up" style="opacity: 0; animation-delay: 100ms;">
-				Hire the Best Talent in India
-				<span class="block text-success mt-2">Without Spending a Rupee</span>
+				Hire the Best Talent in Singapore and Australia
+				<span class="block text-success mt-2">Without Spending a Cent</span>
 			</h1>
 
 			<p class="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-3xl mx-auto animate-fade-in-up" style="opacity: 0; animation-delay: 200ms;">
-				Join 50,000+ employers who trust PeelJobs for their hiring needs. Post unlimited jobs, access 1 million+ candidates, and build your dream team - all for <strong class="text-white">FREE</strong>.
+				Post unlimited jobs and search graduates who have published their resumes - all for <strong class="text-white">FREE</strong>.
 			</p>
 
 			<!-- CTA Buttons -->
@@ -169,7 +157,7 @@
 					<div class="text-center mb-8">
 						<h3 class="text-2xl lg:text-3xl font-semibold text-black mb-4">Free Forever Plan</h3>
 						<div class="mb-4">
-							<span class="text-6xl lg:text-7xl font-semibold text-primary">₹0</span>
+							<span class="text-6xl lg:text-7xl font-semibold text-primary">$0</span>
 							<span class="text-2xl text-muted ml-2">forever</span>
 						</div>
 						<p class="text-muted text-lg">Everything you need to build your team. No catch.</p>
@@ -202,72 +190,13 @@
 	</div>
 </section>
 
-<!-- Comparison Section -->
-<section class="py-16 lg:py-24 bg-white">
-	<div class="max-w-7xl mx-auto px-4 lg:px-8">
-		<div class="text-center mb-12">
-			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">How We Compare</h2>
-			<p class="text-base lg:text-lg text-muted max-w-3xl mx-auto">
-				See what other platforms charge thousands for - and what we give you for free.
-			</p>
-		</div>
-
-		<div class="max-w-4xl mx-auto">
-			<div class="bg-white rounded-lg shadow-sm overflow-hidden border border-border">
-				<!-- Header Row -->
-				<div class="grid grid-cols-3 bg-surface border-b border-border">
-					<div class="p-4 lg:p-6"></div>
-					<div class="p-4 lg:p-6 text-center border-l border-border">
-						<div class="font-semibold text-primary text-lg lg:text-xl">PeelJobs</div>
-						<div class="text-xs lg:text-sm text-muted mt-1">Free Forever</div>
-					</div>
-					<div class="p-4 lg:p-6 text-center border-l border-border">
-						<div class="font-semibold text-black text-lg lg:text-xl">Competitors</div>
-						<div class="text-xs lg:text-sm text-muted mt-1">₹10K-50K/month</div>
-					</div>
-				</div>
-
-				<!-- Feature Rows -->
-				{#each competitorFeatures as feature}
-					<div class="grid grid-cols-3 border-b border-border last:border-b-0 hover:bg-surface transition-colors">
-						<div class="p-4 lg:p-6 font-medium text-muted text-sm lg:text-base">{feature.name}</div>
-						<div class="p-4 lg:p-6 text-center border-l border-border">
-							{#if feature.free}
-								<div class="inline-flex items-center justify-center w-8 h-8 bg-success-light rounded-full">
-									<Check size={16} class="text-success" />
-								</div>
-							{:else}
-								<div class="inline-flex items-center justify-center w-8 h-8 bg-error-light rounded-full">
-									<X size={16} class="text-error" />
-								</div>
-							{/if}
-						</div>
-						<div class="p-4 lg:p-6 text-center border-l border-border">
-							{#if feature.competitors}
-								<div class="inline-flex items-center justify-center w-8 h-8 bg-success-light rounded-full">
-									<Check size={16} class="text-success" />
-								</div>
-							{:else}
-								<div class="inline-flex items-center justify-center w-8 h-8 bg-error-light rounded-full">
-									<X size={16} class="text-error" />
-								</div>
-								<div class="text-xs text-muted mt-1 hidden lg:block">Extra Cost</div>
-							{/if}
-						</div>
-					</div>
-				{/each}
-			</div>
-		</div>
-	</div>
-</section>
-
 <!-- Why Free Section -->
 <section class="py-16 lg:py-24 bg-surface">
 	<div class="max-w-7xl mx-auto px-4 lg:px-8">
 		<div class="text-center mb-12">
-			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Why Is PeelJobs Free?</h2>
+			<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Why Is GradBridge Free?</h2>
 			<p class="text-base lg:text-lg text-muted max-w-3xl mx-auto">
-				Our mission is simple: connect employers with the best talent in India without financial barriers.
+				Our mission is simple: connect employers with the best talent in Singapore and Australia without financial barriers.
 			</p>
 		</div>
 
@@ -341,7 +270,7 @@
 		<div class="max-w-3xl mx-auto">
 			<h2 class="text-2xl lg:text-3xl font-semibold tracking-tight mb-6">Ready to Start Hiring?</h2>
 			<p class="text-lg text-gray-300 mb-10 leading-relaxed">
-				Join thousands of employers who are building amazing teams without spending a rupee. Create your free account in minutes and post your first job today.
+				Find graduates in Singapore and Australia at no cost. Create your free account in minutes and post your first job today.
 			</p>
 
 			<div class="flex flex-col sm:flex-row gap-4 justify-center mb-10">

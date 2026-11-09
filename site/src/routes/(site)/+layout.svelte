@@ -23,7 +23,9 @@
     Home,
   } from "@lucide/svelte";
   import Toast from "$lib/components/Toast.svelte";
+  import { RECRUITER_URL } from "$lib/config/env";
   import { enhance } from "$app/forms";
+  import type { SubmitFunction } from "@sveltejs/kit";
 
   // Receive children snippet and the server-resolved session
   let { children, data }: { children: any; data: any } = $props();
@@ -50,9 +52,27 @@
     userMenuDropdownOpen = !userMenuDropdownOpen;
   }
 
-  function closeUserMenu() {
+  function closeMenus() {
     userMenuDropdownOpen = false;
+    if (mobileMenuOpen) {
+      mobileMenuOpen = false;
+      document.body.style.overflow = "";
+    }
   }
+
+  // Close the menus only after the logout request has finished. Closing them
+  // in an onsubmit handler unmounts the {#if}-wrapped form mid-submit, which
+  // removes enhance's listener and aborts the native submission, so no POST
+  // is ever sent.
+  const enhanceLogout: SubmitFunction = () => {
+    return async ({ update }) => {
+      try {
+        await update();
+      } finally {
+        closeMenus();
+      }
+    };
+  };
 
   // Close dropdowns when clicking outside
   function handleClickOutside(event: MouseEvent) {
@@ -115,50 +135,50 @@
     { name: "Construction", slug: "construction" },
     { name: "Automobile", slug: "automobile" },
     { name: "Aviation", slug: "aviation" },
-    { name: "Freshers", slug: "freshers" },
+    { name: "Graduates", slug: "freshers" },
     { name: "IT-Hardware", slug: "it-hardware" },
     { name: "Recruitment", slug: "recruitment" },
     { name: "Digital Marketing", slug: "digital-marketing" },
   ];
 
   const locations = [
-    { name: "Chennai", slug: "chennai" },
-    { name: "Bangalore", slug: "bangalore" },
-    { name: "Mumbai", slug: "mumbai" },
-    { name: "Kolkata", slug: "kolkata" },
-    { name: "Delhi", slug: "delhi" },
-    { name: "Hyderabad", slug: "hyderabad" },
-    { name: "Noida", slug: "noida" },
-    { name: "Gurgaon", slug: "gurgaon" },
-    { name: "Pune", slug: "pune" },
-    { name: "Ahmedabad", slug: "ahmedabad" },
-    { name: "Odisha", slug: "odisha" },
-    { name: "Coimbatore", slug: "coimbatore" },
-    { name: "Jaipur", slug: "jaipur" },
-    { name: "Indore", slug: "indore" },
-    { name: "Thane", slug: "thane" },
-    { name: "Gujarat", slug: "gujarat" },
-    { name: "Kochi", slug: "kochi" },
+    { name: "Sydney", slug: "sydney" },
+    { name: "Melbourne", slug: "melbourne" },
+    { name: "Singapore", slug: "singapore" },
+    { name: "Brisbane", slug: "brisbane" },
+    { name: "Perth", slug: "perth" },
+    { name: "Adelaide", slug: "adelaide" },
+    { name: "Canberra", slug: "canberra" },
+    { name: "Gold Coast", slug: "gold-coast" },
+    { name: "Newcastle", slug: "newcastle" },
+    { name: "Hobart", slug: "hobart" },
+    { name: "Darwin", slug: "darwin" },
+    { name: "Geelong", slug: "geelong" },
+    { name: "Wollongong", slug: "wollongong" },
+    { name: "Sunshine Coast", slug: "sunshine-coast" },
+    { name: "Townsville", slug: "townsville" },
+    { name: "Cairns", slug: "cairns" },
+    { name: "Launceston", slug: "launceston" },
   ];
 
   const internshipCities = [
-    { name: "Hyderabad", slug: "hyderabad" },
-    { name: "Bangalore", slug: "bangalore" },
-    { name: "Chennai", slug: "chennai" },
-    { name: "Pune", slug: "pune" },
-    { name: "Delhi", slug: "delhi" },
-    { name: "Mumbai", slug: "mumbai" },
-    { name: "Coimbatore", slug: "coimbatore" },
-    { name: "Goa", slug: "goa" },
-    { name: "Kanchipuram", slug: "kanchipuram" },
-    { name: "Kerala", slug: "kerala" },
-    { name: "Kochi", slug: "kochi" },
-    { name: "Trivandrum", slug: "trivandrum" },
-    { name: "Gujarat", slug: "gujarat" },
-    { name: "Nasik", slug: "nasik" },
-    { name: "Noida", slug: "noida" },
-    { name: "Kolkata", slug: "kolkata" },
-    { name: "Gurgaon", slug: "gurgaon" },
+    { name: "Singapore", slug: "singapore" },
+    { name: "Sydney", slug: "sydney" },
+    { name: "Melbourne", slug: "melbourne" },
+    { name: "Brisbane", slug: "brisbane" },
+    { name: "Perth", slug: "perth" },
+    { name: "Adelaide", slug: "adelaide" },
+    { name: "Canberra", slug: "canberra" },
+    { name: "Gold Coast", slug: "gold-coast" },
+    { name: "Newcastle", slug: "newcastle" },
+    { name: "Hobart", slug: "hobart" },
+    { name: "Darwin", slug: "darwin" },
+    { name: "Geelong", slug: "geelong" },
+    { name: "Wollongong", slug: "wollongong" },
+    { name: "Sunshine Coast", slug: "sunshine-coast" },
+    { name: "Townsville", slug: "townsville" },
+    { name: "Cairns", slug: "cairns" },
+    { name: "Launceston", slug: "launceston" },
   ];
 </script>
 
@@ -175,8 +195,8 @@
       <div class="flex justify-between items-center h-14">
         <!-- Logo -->
         <a href="/" data-sveltekit-reload class="flex items-center gap-2 group">
-          <img src="/logo.png" alt="PeelJobs" class="h-8 w-auto" />
-          <span class="text-xl font-semibold text-black">PeelJobs</span>
+          <img src="/logo.png" alt="GradBridge" class="h-8 w-auto" />
+          <span class="text-xl font-semibold text-black">GradBridge</span>
         </a>
 
         <!-- Desktop Navigation -->
@@ -315,7 +335,7 @@
                       </ul>
                     </div>
 
-                    <!-- Fresher Column -->
+                    <!-- Graduate Column -->
                     <div class="w-48 flex-shrink-0">
                       <div class="flex items-center gap-2 mb-3">
                         <div
@@ -326,7 +346,7 @@
                         <a
                           href="/jobs/?fresher=true"
                           class="font-semibold text-black hover:text-primary-700 text-sm"
-                          >Fresher</a
+                          >Graduate</a
                         >
                       </div>
                       <ul class="space-y-0.5">
@@ -336,7 +356,7 @@
                               href="/jobs/?fresher=true&skills={skill.slug}"
                               class="block px-2 py-1.5 text-xs text-muted rounded hover:bg-primary-100 hover:text-primary-700 transition-colors"
                             >
-                              {skill.name} Fresher Jobs
+                              {skill.name} Graduate Jobs
                             </a>
                           </li>
                         {/each}
@@ -374,7 +394,7 @@
             href="/jobs/?fresher=true"
             class="px-4 py-2 text-sm font-medium text-muted rounded-full hover:bg-surface hover:text-black transition-colors"
           >
-            Fresher Jobs
+            Graduate Jobs
           </a>
           <a
             href="/jobs/?is_remote=true"
@@ -493,7 +513,7 @@
 
                   <!-- Logout -->
                   <div class="border-t border-border py-2">
-                    <form method="POST" action="/logout/" use:enhance onsubmit={closeUserMenu}>
+                    <form method="POST" action="/logout/" use:enhance={enhanceLogout}>
                       <button
                         type="submit"
                         class="flex items-center gap-3 px-4 py-2.5 text-error-600 hover:bg-error-light transition-colors w-full"
@@ -531,6 +551,8 @@
         <!-- Mobile Menu Button -->
         <button
           class="lg:hidden p-2 rounded-full text-muted hover:bg-surface transition-colors"
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
           onclick={toggleMobileMenu}
         >
           {#if mobileMenuOpen}
@@ -598,7 +620,7 @@
                 class="flex flex-col items-center gap-2 p-4 bg-success-light rounded-lg hover:bg-success-light/80 transition-colors"
               >
                 <GraduationCap size={20} class="text-success-600" />
-                <span class="text-xs font-medium text-success-600">Fresher</span
+                <span class="text-xs font-medium text-success-600">Graduate</span
                 >
               </a>
               <a
@@ -668,7 +690,7 @@
                 </a>
               </div>
 
-              <form method="POST" action="/logout/" use:enhance onsubmit={closeUserMenu}>
+              <form method="POST" action="/logout/" use:enhance={enhanceLogout}>
                 <button
                   type="submit"
                   class="flex items-center gap-3 px-4 py-3 mt-2 text-error-600 rounded-lg hover:bg-error-light transition-colors w-full"
@@ -720,42 +742,13 @@
         <!-- Brand Column -->
         <div class="lg:col-span-2">
           <a href="/" class="flex items-center gap-2 mb-5">
-            <img src="/logo.png" alt="PeelJobs" class="h-8 w-auto" />
-            <span class="text-xl font-semibold">PeelJobs</span>
+            <img src="/logo.png" alt="GradBridge" class="h-8 w-auto" />
+            <span class="text-xl font-semibold">GradBridge</span>
           </a>
           <p class="text-gray-400 text-sm leading-relaxed mb-5 max-w-sm">
-            India's trusted job platform connecting professionals with verified
-            opportunities at top companies.
+            Connecting students and graduates in Singapore and Australia with
+            verified opportunities at top companies.
           </p>
-          <div class="flex items-center gap-2">
-            <a
-              href="https://x.com/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on Twitter"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Twitter size={16} />
-            </a>
-            <a
-              href="https://linkedin.com/company/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on LinkedIn"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Linkedin size={16} />
-            </a>
-            <a
-              href="https://facebook.com/peeljobs"
-              class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
-              aria-label="Follow us on Facebook"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Facebook size={16} />
-            </a>
-          </div>
         </div>
 
         <!-- For Job Seekers -->
@@ -773,7 +766,7 @@
               <a
                 href="/jobs/?fresher=true"
                 class="text-gray-400 hover:text-white transition-colors text-sm"
-                >Fresher Jobs</a
+                >Graduate Jobs</a
               >
             </li>
             <li>
@@ -806,14 +799,14 @@
           <ul class="space-y-2.5">
             <li>
               <a
-                href="https://recruiter.peeljobs.com"
+                href={RECRUITER_URL}
                 class="text-gray-400 hover:text-white transition-colors text-sm"
                 >Post a Job</a
               >
             </li>
             <li>
               <a
-                href="https://recruiter.peeljobs.com/dashboard"
+                href={`${RECRUITER_URL}/dashboard/`}
                 class="text-gray-400 hover:text-white transition-colors text-sm"
                 >Employer Dashboard</a
               >
@@ -832,24 +825,13 @@
         <div>
           <h5 class="font-semibold text-white mb-4 text-sm">Get in Touch</h5>
           <div class="space-y-3">
-            <a
-              href="mailto:peeljobs@micropyramid.com"
-              class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
-            >
-              <div
-                class="w-8 h-8 rounded bg-white/10 flex items-center justify-center group-hover:bg-primary-600 transition-colors"
-              >
-                <Mail size={14} />
-              </div>
-              <span class="text-sm">peeljobs@micropyramid.com</span>
-            </a>
             <div class="flex items-center gap-3 text-gray-400">
               <div
                 class="w-8 h-8 rounded bg-white/10 flex items-center justify-center"
               >
                 <MapPin size={14} />
               </div>
-              <span class="text-sm">Hyderabad, Telangana, India</span>
+              <span class="text-sm">Singapore · Australia</span>
             </div>
           </div>
         </div>
@@ -863,7 +845,7 @@
           class="flex flex-col md:flex-row justify-between items-center gap-4"
         >
           <p class="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} PeelJobs. All rights reserved.
+            &copy; {new Date().getFullYear()} GradBridge. All rights reserved.
           </p>
           <div class="flex flex-wrap justify-center gap-6 text-sm">
             <a

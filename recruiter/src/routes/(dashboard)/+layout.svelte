@@ -9,7 +9,8 @@
 		Menu,
 		X,
 		LogOut,
-		ChevronDown
+		ChevronDown,
+		UserSearch
 	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
@@ -18,6 +19,15 @@
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
 	let sidebarOpen = $state(false);
+	// Below lg the sidebar is an off-screen drawer; while closed it must not take keyboard focus.
+	let wideScreen = $state(true);
+	$effect(() => {
+		const query = window.matchMedia('(min-width: 1024px)');
+		const sync = () => (wideScreen = query.matches);
+		sync();
+		query.addEventListener('change', sync);
+		return () => query.removeEventListener('change', sync);
+	});
 	let userMenuOpen = $state(false);
 
 	// Resolved server-side in +layout.server.ts from the HttpOnly cookie —
@@ -28,6 +38,7 @@
 	const baseNavItems = [
 		{ href: '/dashboard/', icon: LayoutDashboard, label: 'Dashboard' },
 		{ href: '/dashboard/jobs/', icon: Briefcase, label: 'Jobs' },
+		{ href: '/dashboard/candidates/', icon: UserSearch, label: 'Candidates' },
 		{ href: '/dashboard/analytics/', icon: BarChart3, label: 'Analytics' },
 		{ href: '/dashboard/account/', icon: User, label: 'Account' }
 	];
@@ -80,6 +91,7 @@
 
 	<!-- Sidebar -->
 	<aside
+		inert={!sidebarOpen && !wideScreen}
 		class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-border z-30 transform transition-transform duration-200 {sidebarOpen
 			? 'translate-x-0'
 			: '-translate-x-full lg:translate-x-0'}"
@@ -87,7 +99,7 @@
 		<div class="h-full flex flex-col">
 			<!-- Logo -->
 			<div class="h-16 flex items-center px-6 border-b border-border">
-				<a href="/dashboard/" class="text-xl font-bold text-primary">PeelJobs</a>
+				<a href="/dashboard/" class="text-xl font-bold text-primary">GradBridge</a>
 			</div>
 
 			<!-- Navigation -->

@@ -8,7 +8,7 @@ from django.core import signing
 from django.utils.crypto import get_random_string
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,6 +19,12 @@ from ..common.responses import (
     VALIDATION_ERROR_RESPONSE,
     ErrorResponseSerializer,
     SuccessMessageResponseSerializer,
+)
+from ..throttles import (
+    LoginEmailThrottle,
+    PasswordResetEmailThrottle,
+    RegisterGlobalThrottle,
+    VerificationEmailThrottle,
 )
 from .auth_serializers import (
     ChangePasswordSerializer,
@@ -94,14 +100,14 @@ def send_verification_email(user, request, company=None):
         # Synchronous email for development (no Celery needed)
         send_email(
             mto=[user.email],
-            msubject="Verify your PeelJobs Recruiter account",
+            msubject="Verify your GradBridge Recruiter account",
             mbody=html_content,
         )
     else:
         # Async email via Celery for production
         send_email.delay(
             mto=[user.email],
-            msubject="Verify your PeelJobs Recruiter account",
+            msubject="Verify your GradBridge Recruiter account",
             mbody=html_content,
         )
 
@@ -136,14 +142,14 @@ def send_password_reset_email(user, request):
         # Synchronous email for development (no Celery needed)
         send_email(
             mto=[user.email],
-            msubject="Reset your PeelJobs Recruiter password",
+            msubject="Reset your GradBridge Recruiter password",
             mbody=html_content,
         )
     else:
         # Async email via Celery for production
         send_email.delay(
             mto=[user.email],
-            msubject="Reset your PeelJobs Recruiter password",
+            msubject="Reset your GradBridge Recruiter password",
             mbody=html_content,
         )
 
@@ -160,6 +166,7 @@ def send_password_reset_email(user, request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([RegisterGlobalThrottle])
 def register(request):
     """
     Register new recruiter or company account
@@ -212,6 +219,7 @@ def register(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([LoginEmailThrottle])
 def login(request):
     """
     Login for recruiter/company users
@@ -325,6 +333,7 @@ def verify_email(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([VerificationEmailThrottle])
 def resend_verification(request):
     """Resend verification email"""
     serializer = ResendVerificationSerializer(data=request.data)
@@ -358,6 +367,7 @@ def resend_verification(request):
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetEmailThrottle])
 def forgot_password(request):
     """Request password reset"""
     serializer = ForgotPasswordSerializer(data=request.data)

@@ -105,7 +105,7 @@
 							{applicant.first_name} {applicant.last_name}
 						</h2>
 						<p class="text-primary/60 mt-1">
-							{applicant.experience?.display || 'Fresher'}
+							{applicant.experience?.display || 'Graduate'}
 						</p>
 					</div>
 				</div>

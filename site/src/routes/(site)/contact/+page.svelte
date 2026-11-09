@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/config/env';
 	import { Mail, MapPin, Send, Clock, MessageCircle, HelpCircle, CheckCircle, AlertCircle, ChevronRight, ArrowRight } from '@lucide/svelte';
 	import { submitContactForm, type ContactFormData } from '$lib/api/contact';
 	import { toast } from '$lib/stores/toast';
@@ -49,18 +50,11 @@
 
 	const contactInfo = [
 		{
-			icon: Mail,
-			title: 'Email Us',
-			details: 'peeljobs@micropyramid.com',
-			link: 'mailto:peeljobs@micropyramid.com',
-			description: 'Send us an email anytime'
-		},
-		{
 			icon: MapPin,
 			title: 'Office Location',
-			details: 'Hyderabad, Telangana, India',
+			details: 'Singapore · Australia',
 			link: null,
-			description: 'Head Office'
+			description: 'Where GradBridge operates'
 		}
 	];
 
@@ -70,8 +64,8 @@
 			answer: 'We typically respond to all inquiries within 24 hours during business days.'
 		},
 		{
-			question: 'Is PeelJobs really free?',
-			answer: 'Yes! PeelJobs is completely free for both job seekers and employers. No hidden fees, ever.'
+			question: 'Is GradBridge really free?',
+			answer: 'Yes! GradBridge is completely free for both job seekers and employers. No hidden fees, ever.'
 		},
 		{
 			question: 'Can I visit your office?',
@@ -162,7 +156,7 @@
 				errors.submit = 'Please fix the errors above and try again.';
 				toast.error('Please check the form for errors');
 			} else {
-				errors.submit = 'Failed to send message. Please try again or email us directly at peeljobs@micropyramid.com';
+				errors.submit = 'Failed to send message. Please try again in a few minutes.';
 				toast.error('Failed to send message. Please try again.');
 			}
 		} finally {
@@ -172,19 +166,19 @@
 </script>
 
 <svelte:head>
-	<title>Contact Us - PeelJobs | Get in Touch with Our Support Team</title>
-	<meta name="description" content="Have questions or need help? Contact the PeelJobs support team. We're here to assist job seekers and employers with our free job portal platform." />
-	<link rel="canonical" href="https://peeljobs.com/contact/" />
+	<title>Contact Us - GradBridge | Get in Touch with Our Support Team</title>
+	<meta name="description" content="Have questions or need help? Contact the GradBridge support team. We're here to assist job seekers and employers with our free job portal platform." />
+	<link rel="canonical" href={`${SITE_URL}/contact/`} />
 
 	<!-- Open Graph -->
-	<meta property="og:title" content="Contact PeelJobs Support - We're Here to Help" />
+	<meta property="og:title" content="Contact GradBridge Support - We're Here to Help" />
 	<meta property="og:description" content="Get in touch with our team for any questions about our free job portal." />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://peeljobs.com/contact/" />
+	<meta property="og:url" content={`${SITE_URL}/contact/`} />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="Contact PeelJobs" />
+	<meta name="twitter:title" content="Contact GradBridge" />
 	<meta name="twitter:description" content="Reach out to our support team for assistance." />
 </svelte:head>
 
@@ -467,7 +461,7 @@
 					<div class="mt-4 pt-4 border-t border-border">
 						<p class="text-xs text-muted flex items-center gap-2">
 							<Clock size={12} />
-							Indian Standard Time (IST)
+							Singapore (SGT) and Australian Eastern (AEST/AEDT) time
 						</p>
 					</div>
 				</div>
@@ -526,54 +520,3 @@
 	</div>
 </section>
 
-<!-- Alternative Contact Methods -->
-<section class="py-12 lg:py-20 bg-surface">
-	<div class="max-w-7xl mx-auto px-4 lg:px-8">
-		<div class="max-w-5xl mx-auto">
-			<div class="text-center mb-10 lg:mb-12">
-				<h2 class="text-2xl lg:text-3xl font-semibold text-black tracking-tight mb-4">Other Ways to Reach Us</h2>
-				<p class="text-base lg:text-lg text-muted">Choose the method that works best for you</p>
-			</div>
-
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div class="group bg-white rounded-lg p-6 lg:p-8 shadow-sm hover:shadow-lg transition-all border border-border">
-					<div class="flex items-center gap-3 mb-4">
-						<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
-							<Mail size={24} class="text-primary group-hover:text-white transition-colors" />
-						</div>
-						<h3 class="text-xl font-semibold text-black">For Job Seekers</h3>
-					</div>
-					<p class="text-muted mb-5 leading-relaxed">
-						Having trouble with your account, applications, or job search? Our support team is ready to assist you.
-					</p>
-					<a
-						href="mailto:peeljobs@micropyramid.com"
-						class="inline-flex items-center gap-2 text-primary hover:text-primary-hover font-medium group"
-					>
-						<Mail size={16} />
-						<span class="break-all">peeljobs@micropyramid.com</span>
-					</a>
-				</div>
-
-				<div class="group bg-white rounded-lg p-6 lg:p-8 shadow-sm hover:shadow-lg transition-all border border-border">
-					<div class="flex items-center gap-3 mb-4">
-						<div class="w-12 h-12 rounded-xl bg-success-light flex items-center justify-center group-hover:bg-success transition-colors">
-							<Mail size={24} class="text-success group-hover:text-white transition-colors" />
-						</div>
-						<h3 class="text-xl font-semibold text-black">For Employers</h3>
-					</div>
-					<p class="text-muted mb-5 leading-relaxed">
-						Questions about posting jobs or managing applicants? We're here to help you find the right talent!
-					</p>
-					<a
-						href="mailto:peeljobs@micropyramid.com"
-						class="inline-flex items-center gap-2 text-success hover:text-success font-medium group"
-					>
-						<Mail size={16} />
-						<span class="break-all">peeljobs@micropyramid.com</span>
-					</a>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
