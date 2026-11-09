@@ -1,4 +1,4 @@
-# GradBridge 最终交接（S3-10，2026-10-27；S4 更新于 2026-11-09）
+# GradBridge 最终交接（S3-10，2026-10-27；S4 收尾于 2026-11-09）
 
 本文让接手成员在不依赖旧聊天记录的情况下理解、运行、使用、验收和恢复 GradBridge。运维细节在 [部署手册](gradbridge-deployment.md)，资料转换在 [JSON Resume 导出说明](gradbridge-resume-export.md)，本文只给出总览和入口。本文不含任何密码、令牌或密钥。
 
@@ -6,13 +6,13 @@
 
 | 项目 | 值 |
 |---|---|
-| PeelJobs fork | `Nacrette777/opensource-job-portal`，分支 `feat/s4-10-handoff`（线性包含 S2、S3 与全部 S4 分支）|
-| RR fork | `Nacrette777/reactive-resume`，分支 `feat/s3-02-import-request`，`363c45a0d9107a04e62a3e27e0b6dd77886f0992` |
+| PeelJobs fork | `Nacrette777/opensource-job-portal`，`master` 为 `4132e37`（已合并 PR #1 的 S2–S4 全部提交，以及 PR #2 的邀请注册与 Logout 修复）|
+| RR fork | `Nacrette777/reactive-resume`，`main` 为 `25aa5a586cb869d7baf6f701e653c98270ebdd3e`（已合并 PR #1，来自 `feat/s3-02-import-request` 363c45a0d）|
 | Azure 镜像 | `gradbridgeacr.azurecr.io/gradbridge/{api,rr,site,recruiter}`，当前标签见第 9 节 |
 | Azure 地址 | 学生端 `https://gradbridge-site.mangowater-328d9d2e.eastasia.azurecontainerapps.io`；招聘端 `https://gradbridge-recruiter…`；API `https://gradbridge-api…`；RR `https://gradbridge-rr…`（同一域名后缀）|
-| PR | 由用户在 GitHub 上创建并合并（S4 决定）；标题、说明、链接与合并顺序见第 9 节 |
+| PR | 已全部由用户在 GitHub 上合并：RR #1、PeelJobs #1、PeelJobs #2（第 9 节）|
 
-PeelJobs 分支历史（每个任务一个分支，后一个基于前一个）：S2 的 `fix/student-logout-button` → … → `feat/gradbridge-deploy`；S3 的 `chore/s3-01-pin-build` → `feat/s3-02-idempotent-draft` → `fix/s3-03a-token-checks` → `feat/s3-03b-publish-privacy` → `feat/s3-04-location-phone` → `fix/s3-05-mobile-usability` → `perf/s3-06-candidate-search` → `fix/s3-08-unreadable-token` → `feat/s3-07-azure-prep` → `fix/sg-au-localisation`；S4 的 `feat/s4-01-gradbridge-brand` → `feat/s4-04-small-fixes` → `feat/s4-05-security` → `feat/s4-02-acs-email` → `feat/s4-03-demo-data` → `feat/s4-07-keyvault` → `feat/s4-08-monitoring` → `feat/s4-10-handoff`。最终分支包含以上全部提交，评审时只需看最终分支。
+PeelJobs 分支历史（每个任务一个分支，后一个基于前一个）：S2 的 `fix/student-logout-button` → … → `feat/gradbridge-deploy`；S3 的 `chore/s3-01-pin-build` → `feat/s3-02-idempotent-draft` → `fix/s3-03a-token-checks` → `feat/s3-03b-publish-privacy` → `feat/s3-04-location-phone` → `fix/s3-05-mobile-usability` → `perf/s3-06-candidate-search` → `fix/s3-08-unreadable-token` → `feat/s3-07-azure-prep` → `fix/sg-au-localisation`；S4 的 `feat/s4-01-gradbridge-brand` → `feat/s4-04-small-fixes` → `feat/s4-05-security` → `feat/s4-02-acs-email` → `feat/s4-03-demo-data` → `feat/s4-07-keyvault` → `feat/s4-08-monitoring` → `feat/s4-10-handoff`，之后是 `fix/s4-06-invitation-signup`。以上全部已合并进 `master`，接手后以 `master` 为准。
 
 ## 2 架构与数据所有权
 
@@ -131,23 +131,49 @@ RR 迁移：`20261026094545_gradbridge_import_request`（导入请求表，不�
 | 发信（S4-02）| `backend/jobsp/acs_email.py` | `peeldb/tests/test_acs_email.py`；云端 ACS 返回 202 / Succeeded |
 | 演示数据与职位链接（S4-03）| `load_gradbridge_demo_data`、`JobPost.public_slug()` | `test_demo_data.py`、`jobs/test_job_links.py` |
 
-## 8 已知限制与待决定事项
+## 8 风险登记与待决定事项（2026-11-09）
 
-- 2026-11-08 已在 Azure 上用登录账号走完全链路（资料 → 连接 RR → 草稿 → 发布 → HR 搜索下载、收藏备注 → 撤回 → 再发布 → 断开 → 退出），中文 PDF 字体正常。第二个 HR 的隔离、学生会话访问招聘端只在本地验收过（S4-06 需要在云端另注册账号）。
-- 发信：ACS 已接受云端发出的邮件（202 / Succeeded），但还没有确认真实邮箱能收到；使用的是低配额的 Azure 托管域名。
-- Key Vault 切换后，没有重跑需要登录的草稿、发布流程；可用性告警还没有实际触发过。
-- 备份：PostgreSQL 依靠 7 天时间点恢复（已演练）；文件共享只有手动快照，没有每日自动备份（需要 Recovery Services 保管库，属于付费资源）。
-- site 冷启动约 21 秒。
-- 尚无团队成员独立复跑 S3-09 的验收（脚本可复用）。
-- refresh token 60 秒复用窗口的安全取舍需要认证负责人决定（S3-09 R2）。RR 动态客户端注册沿用上游做法，剩余风险见部署手册 11.2 节。
-- 按邮箱限流的代价：别人可以让某个邮箱在最多 1 小时内无法用密码登录。
-- 没有性能目标，S3-06 只交付基线。管理员角色未验收。Azure 学生订阅总额度 100 美元，月预算 65 美元。
-- 薪资筛选不在 AUD 与 SGD 之间换算；开发配置的时区仍为 Asia/Kolkata（本地已有数据按该时区保存）。
-- 上游技能、行业夹具的 SEO 字段仍写着 “India”（新前端不显示）。
+“PM 决定”一栏由 PM 填写。“建议”是开发方的意见，不代表已经决定。
+
+**需要 PM 决定的风险**
+
+| 编号 | 风险 | 影响 | 选项 | 建议 | PM 决定 |
+|---|---|---|---|---|---|
+| R2 | refresh token 有 60 秒复用窗口（为恢复丢失的续期响应而设）| 被盗的旧 token 在 60 秒内仍可用；卡顿超过“重试 + 60 秒”会要求学生重新连接 RR | 接受；缩短窗口；取消窗口（丢失响应时只能重新连接）| 演示和课程阶段接受，真实上线前复查 | 待定 |
+| R6 | 没有性能目标 | 不能声称“达到性能要求” | 设定目标；声明只交付基线 | 声明只交付基线：5000 名候选人时搜索 p50 为 21–62 ms | 待定 |
+| R7 | 管理员角色没有验收 | 后台功能可能有未发现的问题 | 用合成管理员在本地验收；声明不在范围内 | 声明不在本期范围内 | 待定 |
+| R11 | 按邮箱限流：别人可以让某个邮箱最多 1 小时无法用密码登录 | 少量用户被骚扰 | 接受；加 CAPTCHA；放宽频率 | 接受（Google 登录不受影响）| 待定 |
+| R12 | Azure for Students 的 100 美元额度用完后，订阅会被停用 | 云端停止服务，之后数据可能被删除 | 定一个停用日期并提前导出备份；继续使用直到额度用完 | 定在最终展示或评审结束之后，停用前导出数据库和文件 | 待定（日期未定）|
+| R13 | RR 保留了上游的 OAuth 动态客户端注册（部署手册 11.2）| 有人可以注册一个看起来可信的客户端，诱导用户点 Allow（OAuth 钓鱼）| 保留；把 `allowDynamicClientRegistration` 设为 false | 演示阶段保留；真实上线前关闭 | 待定 |
+| R14 | 没有团队成员独立复跑验收 | 验收结果只来自开发方 | 指定一名成员按第 6 节演示脚本或 S3-09 脚本复跑 | 在最终展示前完成一次 | 待定 |
+| R21 | 提交作者都是维护账号 | 成员的实际贡献不能从 git 记录中看出 | 由 PM 按评审和验收记录另行填写 | 在提交材料中单独列出 | 待定 |
+| R22 | 所有凭据只保存在维护人本机（`local-private`）| 维护人不在时，没人能运维 | 指定第二位保管人，通过密码管理器转交 | 指定部署负责人作为第二位保管人 | 待定 |
+
+**已接受或已决定的风险（记录在案，PM 可以复核）**
+
+| 编号 | 风险 | 处理 |
+|---|---|---|
+| R1 | RR 重启后第一次生成 PDF 较慢（生产约 7.5 秒）| 接受；每次部署后先生成一次 PDF 预热（已写入手册）|
+| R4 | S3 之前、在故障窗口内改名的草稿无法追溯 | 接受，只影响学生自己的账号 |
+| R5 | 上游页脚和面包屑在手机上点击区域偏小 | 接受，不改全站布局 |
+| R8 | 只回退镜像时，备用电话中的 `+` 保存后可能丢失 | 接受，回退窗口尽量短 |
+| R9 | 已下载的 PDF 无法收回 | 2026-10-26 已接受，发布前会提示学生 |
+| R15 | 发信用的是 Azure 托管域名，配额低，发件人地址不像正式地址 | 演示阶段接受；真实使用时改用自定义域名 |
+| R16 | 学生端闲置后第一次打开约 21 秒 | 2026-11-09 决定维持现状；演示前先打开一次 |
+| R17 | 文件共享没有每日自动备份 | 2026-11-09 决定不开；数据库有 7 天时间点恢复，停用前手动做一次快照 |
+| R19 | 云端保留了测试账号（2hr、HR2、HR3 及其公司）和 40 个标注为演示的职位 | 2026-11-09 决定保留到停用 |
+| R20 | 招聘端服务器连接 api 偶尔失败（一次 PDF 下载返回 500，重试后正常）| 记录为观察项；再次出现时考虑加重试 |
+| R23 | 薪资筛选不在 AUD 与 SGD 之间换算；开发配置的时区仍为 Asia/Kolkata；上游夹具的 SEO 字段写着 India | 影响小，接受 |
+
+**已关闭**：R3（云端登录验收，2026-11-08/09 通过）、R10（发信，ACS 已送达真实收件箱）。
+
+**已验证的内容**：2026-11-08 云端登录全链路 17 步；2026-11-09 在云端验证了同公司与不同公司 HR 的隔离、学生账号登录招聘端被拒绝、ACS 邮件约 15 秒到达收件箱、可用性告警（停服约 13 分钟后告警邮件送达）。Key Vault 切换后的登录流程，已经在上述云端验收中覆盖。
 
 ## 9 PR 建议、上游复用与贡献
 
-**建议合并顺序**：先 RR，再 PeelJobs（部署顺序同理：RR → api 迁移 → 注册 OAuth 客户端 → 前端）。
+**状态（2026-11-09）**：以下 PR 均已合并——RR #1 → `main` 25aa5a586；PeelJobs #1 → `master` 199c2ae；PeelJobs #2（`fix/s4-06-invitation-signup`，接受邀请时没有设置密码的步骤、Logout 没有反应、公司用户侧栏缺少 Account）→ `master` 4132e37。下面保留当时的 PR 文本作为记录。
+
+**合并顺序**：先 RR，再 PeelJobs（部署顺序同理：RR → api 迁移 → 注册 OAuth 客户端 → 前端）。
 
 **RR PR**：`feat/s3-02-import-request` → `main`（创建链接：https://github.com/Nacrette777/reactive-resume/compare/main...feat/s3-02-import-request）
 
@@ -174,19 +200,18 @@ RR 迁移：`20261026094545_gradbridge_import_request`（导入请求表，不�
 - RR：4 个提交，15 个文件，+7181/−2 行（大部分是 drizzle 迁移快照；其余为 API、认证与数据库模式）。复用上游的编辑器、导入器、PDF 渲染与 OAuth 提供方。
 - 提交记录中的作者为本仓库维护账号；实际成员贡献应按评审与验收记录另行填写，不按计划分工推定。
 
-**镜像与云端版本（2026-11-09）**：
-- api 为标签 `10`（PeelJobs `167256c`）；site、recruiter 为标签 `7`（PeelJobs `a61b479`，S4-03 之后前端没有改动）；rr 为标签 `5`（RR `363c45a0d`）。
-- rr 和 api 的密钥通过 Key Vault `gradbridge-kv-53888c` 引用。
-- 云端有 8 家演示公司、40 个演示职位，可用 `load_gradbridge_demo_data --remove` 删除。
+**镜像与云端版本（2026-11-09，与 master 一致）**：
+- api、rr 为标签 `11`（PeelJobs `199c2ae`，RR `25aa5a586`；`199c2ae` 到 `4132e37` 之间后端没有改动）；site、recruiter 为标签 `13`（`43f2e72`，与 `4132e37` 的内容完全相同）。
+- rr 和 api 的密钥通过 Key Vault `gradbridge-kv-53888c` 引用；发信使用 ACS；Application Insights 有 3 个可用性测试，告警 `gradbridge-availability` 发给 Owner。
+- 云端有 8 家演示公司、40 个演示职位，可用 `load_gradbridge_demo_data --remove` 删除；测试账号保留到停用。
+- 下次部署：`deploy.ps1 -SubscriptionId <id> -ImageTag <新标签> -KeyVault gradbridge-kv-53888c`，先运行第 5 步构建镜像，然后运行第 6–9 步（第 7 步在 `rr-oauth.json` 已存在时会自动跳过）。
 
 ## 10 凭据、联系人与待办
 
 - **凭据位置（只列名称）**：合成账号凭据 `local-private\*.credentials.json`；本地 RR 集成配置 `local-private\s2-04-20261012\peeljobs-rr-dev.env.json`；演练环境 `local-private\s2-08-drill\drill.env`；Azure 密钥 `local-private\s3-07-azure\azure.env`、`rr-oauth.json`、`acs-email.json`（云端存放在 Key Vault `gradbridge-kv-53888c`，应用只保存引用）。这些文件只在维护人本机，交接时通过密码管理器或加密渠道转交，不放入仓库或聊天。
-- **维护联系人**：待团队填写（PM、部署负责人、认证负责人）。
-- **待办**：
-  - 评审、创建并合并上面的两个 PR，然后用 master 重新部署；
-  - 用真实邮箱确认能收到邮件；
-  - 在云端做第二个 HR 的隔离验收；
-  - 团队成员独立复跑 UAT；
-  - 对 refresh token 窗口、性能目标、管理员验收、site 冷启动、文件共享自动备份作出决定；
-  - 确定 Azure 停用日期。停用时删除资源组 `gradbridge-rg`，会一并删除数据库、文件、Key Vault（软删除保留 7 天）、ACS 和监控资源；需要的话先按部署手册第 10 节导出备份。
+- **维护联系人**：PM 为本项目用户；部署负责人和认证负责人待 PM 指定（见 R22）。
+- **待办**（开发方的工作已全部完成，以下由团队负责）：
+  - PM 对第 8 节中“待定”的风险作出决定；
+  - 团队成员独立复跑验收（R14）；
+  - 确定 Azure 停用日期（R12）。停用前先按部署手册第 10 节导出数据库和文件，然后删除资源组 `gradbridge-rg`，会一并删除数据库、文件、Key Vault（软删除保留 7 天）、ACS 和监控资源；
+  - 合并后的功能分支可以在 GitHub 上删除（`master`/`main` 已包含全部提交）。
