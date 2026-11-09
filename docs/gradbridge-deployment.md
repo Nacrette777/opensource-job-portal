@@ -383,16 +383,16 @@ az monitor metrics alert create -n gradbridge-availability -g gradbridge-rg --sc
 
 | 接口（学生端与招聘端相同） | 计数方式 | 频率（`settings_gradbridge.py`） |
 |---|---|---|
-| 登录 | 目标邮箱（大小写和首尾空格不区分；缓存里只存哈希） | 20 次/小时 |
-| 找回密码 | 目标邮箱 | 5 次/小时 |
-| 重发验证邮件 | 目标邮箱 | 5 次/小时 |
+| 登录 | 目标邮箱（大小写和首尾空格不区分；缓存里只存哈希） | 10 次/分钟 |
+| 找回密码 | 目标邮箱 | 10 次/小时 |
+| 重发验证邮件 | 目标邮箱 | 10 次/小时 |
 | 注册 | 全站合计（两个注册入口共用） | 100 次/小时 |
 | 联系表单 | 全站合计 | 30 次/小时 |
 
 - 学生端与招聘端的同一邮箱共用计数；不合格的请求也计数（限流在校验之前）。
 - 超过限制时返回 429，`detail` 为 “Too many attempts. Please try again in N minutes.”，各页面会直接显示这句话。
 - 计数存放在数据库缓存表 `gradbridge_throttle_cache`，由迁移 0089 创建（执行 `createcachetable`）。这样 3 个 gunicorn 进程共用同一份计数。开发设置没有配置频率，所以开发环境和测试不限流。
-- 代价：别人故意输错密码，可以让某个邮箱在最多 1 小时内无法用密码登录（Google 登录不受影响）。如需调整，只改 `settings_gradbridge.py` 中的 `DEFAULT_THROTTLE_RATES`。
+- 代价：别人故意输错密码，可以让某个邮箱暂时无法用密码登录（Google 登录不受影响）。2026-11-09 PM 决定放宽（风险 R11）：登录改为按分钟计数，这种锁定最多持续 1 分钟，猜密码仍限制在每分钟 10 次；找回密码和重发验证邮件放宽到每小时 10 次。如需调整，只改 `settings_gradbridge.py` 中的 `DEFAULT_THROTTLE_RATES`。
 
 ### 11.2 RR 的动态客户端注册（决定：保留上游做法）
 RR 上游开启了 OAuth 动态客户端注册（RFC 7591），并允许未登录时注册，用于 MCP 客户端（如 Claude）接入。具体规则见 `reactive-resume/packages/auth/src/config.ts` 和 `packages/utils/src/url-security.node.ts`：
