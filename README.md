@@ -1,3 +1,18 @@
+# GradBridge
+
+This repository is the GradBridge fork of PeelJobs. GradBridge connects graduates in Singapore and Australia with recruiters. Students fill in their profile once, create an editable resume in [Reactive Resume](https://github.com/Nacrette777/reactive-resume) through OAuth, and publish a fixed version that recruiters can search and download. Students can withdraw it at any time.
+
+Documentation (in Chinese):
+
+- Handoff, start here: [docs/gradbridge-handoff.md](docs/gradbridge-handoff.md)
+- Deployment, backups and monitoring: [docs/gradbridge-deployment.md](docs/gradbridge-deployment.md)
+- Changes from 27 Oct to 9 Nov 2026: [docs/gradbridge-updates-20261027-20261109.md](docs/gradbridge-updates-20261027-20261109.md)
+- Profile to JSON Resume conversion: [docs/gradbridge-resume-export.md](docs/gradbridge-resume-export.md)
+
+The rest of this README is the upstream PeelJobs documentation.
+
+---
+
 # PeelJobs - Dynamic Job Board Platform
 
 [![Documentation Status](https://readthedocs.org/projects/opensource-job-portal/badge/?version=latest)](https://opensource-job-portal.readthedocs.io/en/latest/)

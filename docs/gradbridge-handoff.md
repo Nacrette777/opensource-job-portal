@@ -6,11 +6,11 @@
 
 | 项目 | 值 |
 |---|---|
-| PeelJobs fork | `Nacrette777/opensource-job-portal`，`master` 为 `4132e37`（已合并 PR #1 的 S2–S4 全部提交，以及 PR #2 的邀请注册与 Logout 修复）|
+| PeelJobs fork | `Nacrette777/opensource-job-portal`，`master` 为 `7dbbbc2`（已合并 PR #1 的 S2–S4 全部提交、PR #2 的邀请注册与 Logout 修复，以及 PR #3 的收尾文档、PM 风险决定与 R11 限流放宽）|
 | RR fork | `Nacrette777/reactive-resume`，`main` 为 `25aa5a586cb869d7baf6f701e653c98270ebdd3e`（已合并 PR #1，来自 `feat/s3-02-import-request` 363c45a0d）|
 | Azure 镜像 | `gradbridgeacr.azurecr.io/gradbridge/{api,rr,site,recruiter}`，当前标签见第 9 节 |
 | Azure 地址 | 学生端 `https://gradbridge-site.mangowater-328d9d2e.eastasia.azurecontainerapps.io`；招聘端 `https://gradbridge-recruiter…`；API `https://gradbridge-api…`；RR `https://gradbridge-rr…`（同一域名后缀）|
-| PR | 已全部由用户在 GitHub 上合并：RR #1、PeelJobs #1、PeelJobs #2（第 9 节）|
+| PR | 已全部由用户在 GitHub 上合并：RR #1、PeelJobs #1、PeelJobs #2、PeelJobs #3（第 9 节）|
 
 PeelJobs 分支历史（每个任务一个分支，后一个基于前一个）：S2 的 `fix/student-logout-button` → … → `feat/gradbridge-deploy`；S3 的 `chore/s3-01-pin-build` → `feat/s3-02-idempotent-draft` → `fix/s3-03a-token-checks` → `feat/s3-03b-publish-privacy` → `feat/s3-04-location-phone` → `fix/s3-05-mobile-usability` → `perf/s3-06-candidate-search` → `fix/s3-08-unreadable-token` → `feat/s3-07-azure-prep` → `fix/sg-au-localisation`；S4 的 `feat/s4-01-gradbridge-brand` → `feat/s4-04-small-fixes` → `feat/s4-05-security` → `feat/s4-02-acs-email` → `feat/s4-03-demo-data` → `feat/s4-07-keyvault` → `feat/s4-08-monitoring` → `feat/s4-10-handoff`，之后是 `fix/s4-06-invitation-signup`。以上全部已合并进 `master`，接手后以 `master` 为准。
 
@@ -98,6 +98,8 @@ RR 迁移：`20261026094545_gradbridge_import_request`（导入请求表，不�
 
 ## 6 演示脚本（约 12 分钟）
 
+本节是单人版脚本。团队正式展示使用 PM 分发的五人小组演示手册（2026-11-10 版），其中有分工、时间轴、每人的演示稿和问答分工。
+
 准备：开发服务已运行，或使用 Azure 环境；普通窗口登录学生 A，InPrivate 窗口登录 HR A1（合成账号，凭据在交接包的私有目录）。
 
 | 时间 | 内容 | 要点 |
@@ -171,7 +173,7 @@ RR 迁移：`20261026094545_gradbridge_import_request`（导入请求表，不�
 
 ## 9 PR 建议、上游复用与贡献
 
-**状态（2026-11-09）**：以下 PR 均已合并——RR #1 → `main` 25aa5a586；PeelJobs #1 → `master` 199c2ae；PeelJobs #2（`fix/s4-06-invitation-signup`，接受邀请时没有设置密码的步骤、Logout 没有反应、公司用户侧栏缺少 Account）→ `master` 4132e37。下面保留当时的 PR 文本作为记录。
+**状态（2026-11-09）**：以下 PR 均已合并——RR #1 → `main` 25aa5a586；PeelJobs #1 → `master` 199c2ae；PeelJobs #2（`fix/s4-06-invitation-signup`，接受邀请时没有设置密码的步骤、Logout 没有反应、公司用户侧栏缺少 Account）→ `master` 4132e37；PeelJobs #3（`chore/pm-risk-decisions`，收尾文档、PM 风险决定、R11 限流放宽、更新记录）→ `master` 7dbbbc2。下面保留当时的 PR 文本作为记录。
 
 **合并顺序**：先 RR，再 PeelJobs（部署顺序同理：RR → api 迁移 → 注册 OAuth 客户端 → 前端）。
 
@@ -200,8 +202,8 @@ RR 迁移：`20261026094545_gradbridge_import_request`（导入请求表，不�
 - RR：4 个提交，15 个文件，+7181/−2 行（大部分是 drizzle 迁移快照；其余为 API、认证与数据库模式）。复用上游的编辑器、导入器、PDF 渲染与 OAuth 提供方。
 - 提交记录中的作者为本仓库维护账号；实际成员贡献应按评审与验收记录另行填写，不按计划分工推定。
 
-**镜像与云端版本（2026-11-09，与 master 一致）**：
-- api、rr 为标签 `11`（PeelJobs `199c2ae`，RR `25aa5a586`；`199c2ae` 到 `4132e37` 之间后端没有改动）；site、recruiter 为标签 `13`（`43f2e72`，与 `4132e37` 的内容完全相同）。
+**镜像与云端版本（2026-11-10 核对，与 master 7dbbbc2 一致）**：
+- api 为标签 `14`（PeelJobs `8500808`，R11 限流放宽；之后到 `7dbbbc2` 只改了文档，后端和部署脚本没有改动）；rr 为标签 `11`（RR `25aa5a586`）；site、recruiter 为标签 `13`（`43f2e72`，之后两个前端没有改动）。
 - rr 和 api 的密钥通过 Key Vault `gradbridge-kv-53888c` 引用；发信使用 ACS；Application Insights 有 3 个可用性测试，告警 `gradbridge-availability` 发给 Owner。
 - 云端有 8 家演示公司、40 个演示职位，可用 `load_gradbridge_demo_data --remove` 删除；测试账号保留到停用。
 - 下次部署：`deploy.ps1 -SubscriptionId <id> -ImageTag <新标签> -KeyVault gradbridge-kv-53888c`，先运行第 5 步构建镜像，然后运行第 6–9 步（第 7 步在 `rr-oauth.json` 已存在时会自动跳过）。
